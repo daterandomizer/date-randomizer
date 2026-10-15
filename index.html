@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Рандомайзер Свиданий</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Comfortaa', cursive, sans-serif;
+            background: linear-gradient(135deg, #ffe0e5 0%, #ffd4d8 25%, #f5d5d0 50%, #ead5d5 75%, #e0d0d0 100%);
+            min-height: 100vh;
+            padding: 15px;
+            position: relative;
+            overflow-x: hidden;
+            touch-action: pan-y;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,182,193,0.15) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -50%;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(216,191,216,0.1) 0%, transparent 70%);
+            animation: float 25s ease-in-out infinite reverse;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(5deg); }
+            66% { transform: translate(-20px, 20px) rotate(-5deg); }
+        }
+
+        .heart-decoration {
+            position: fixed;
+            font-size: 20px;
+            opacity: 0.08;
+            animation: floatHeart 15s infinite ease-in-out;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .heart-decoration:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .heart-decoration:nth-child(2) { top: 20%; right: 15%; animation-delay: 3s; }
+        .heart-decoration:nth-child(3) { bottom: 15%; left: 20%; animation-delay: 6s; }
+        .heart-decoration:nth-child(4) { bottom: 25%; right: 10%; animation-delay: 9s; }
+
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.08; }
+            50% { transform: translateY(-20px) scale(1.1); opacity: 0.12; }
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ИСПРАВЛЕНИЕ 1: убрал flex-wrap */
+        .header h1 {
+            background: linear-gradient(135deg, #c47d8a 0%, #a06570 50%, #8b5e5e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .header-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            animation: heartBeat 1.5s ease-in-out infinite;
+            vertical-align: middle;
+            margin: 0 8px;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            10%, 30% { transform: scale(1.1); }
+            20%, 40% { transform: scale(1); }
+        }
+
+        .header p {
+            color: #a07878;
+            font-size: 0.95em;
+            font-weight: 400;
+            opacity: 0.9;
+            padding: 0 10px;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+
+        .icon-lg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 
+                0 10px 40px rgba(139, 94, 94, 0.15),
+                0 2px 10px rgba(139, 94, 94, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 8px;
+            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
+            border: 2px solid transparent;
+            border-radius: 14px;
+            color: #8b5e5e;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Comfortaa', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .tab-text {
+            font-size: 0.8em;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #d4a5a5 0%, #c98d8d 100%);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 6px 20px rgba(139, 94, 94, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .filters {
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #8b5e5e;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            color: #8b5e5e;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+            font-weight: 500;
+            font-family: 'Comfortaa', cursive;
+            white-space: nowrap;
+        }
+
+        .filter-btn.selected {
+            background: linear-gradient(135deg, #ffc4d0 0%, #ffb3c6 100%);
+            border-color: #d4a5a5;
+            color: #6b4545;
+            box-shadow: 
+                0 4px 15px rgba(212, 165, 165, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .jar-container {
+            position: relative;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0 20px 0;
+        }
+
+        #jar-canvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        /* ИСПРАВЛЕНИЕ 3: записка стала больше */
+        .note-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 280px;
+            min-height: 160px;
+            background: linear-gradient(135deg, #fff9f0 0%, #fff5e6 100%);
+            border: 2px solid #d4a5a5;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            color: #8b5e5e;
+            font-size: 1.1em;
+            line-height: 1.5;
+            font-weight: 500;
+            box-shadow: 
+                0 8px 25px rgba(0,0,0,0.15),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+            font-family: 'Caveat', cursive;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .note-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 1px,
+                    rgba(212, 165, 165, 0.03) 2px,
+                    rgba(212, 165, 165, 0.03) 3px
+                );
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        .note-overlay::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 20px 20px 0;
+            border-color: transparent #f0d5d0 transparent transparent;
+            border-radius: 0 0 0 3px;
+        }
+
+        .note-overlay.hidden {
+            opacity: 0;
+            transform: translate(-50%, 150%) scale(0.3);
+            pointer-events: none;
+        }
+
+        .note-overlay.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: popOut 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: auto;
+        }
+
+        @keyframes popOut {
+            0% {
+                transform: translate(-50%, 150%) scale(0.3);
+                opacity: 0;
+            }
+            60% {
+                transform: translate(-50%, -55%) scale(1.08);
+            }
+            80% {
+                transform: translate(-50%, -48%) scale(0.98);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .note-text {
+            margin-bottom: 8px;
+        }
+
+        .remove-idea-btn {
+            padding: 8px 14px;
+            background: linear-gradient(135deg, #cc9999 0%, #b88989 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.75em;
+            font-family: 'Comfortaa', cursive;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 6px;
+            pointer-events: auto;
+            box-shadow: 0 3px 10px rgba(139, 94, 94, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .remove-idea-btn.hidden {
+            display: none;
+        }
+
+        .randomize-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #d4a5a5 0%, #c98d8d 50%, #b88989 100%);
+            border: none;
+            border-radius: 18px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 
+                0 6px 25px rgba(139, 94, 94, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            font-family: 'Comfortaa', cursive;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .randomize-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 4px 15px rgba(139, 94, 94, 0.3);
+        }
+
+        .custom-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .custom-input {
+            flex: 1;
+            padding: 12px 14px;
+            border: 2px solid #f0e0e0;
+            border-radius: 14px;
+            font-size: 0.95em;
+            color: #8b5e5e;
+            font-family: 'Comfortaa', cursive;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+        }
+
+        .custom-input:focus {
+            outline: none;
+            border-color: #d4a5a5;
+            box-shadow: 0 0 0 3px rgba(212, 165, 165, 0.1);
+        }
+
+        .add-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #d4a5a5 0%, #b88989 100%);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1em;
+            font-family: 'Comfortaa', cursive;
+            box-shadow: 0 4px 15px rgba(139, 94, 94, 0.25);
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #cc9999 0%, #b88989 100%);
+            padding: 8px 12px;
+            font-size: 0.85em;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-family: 'Comfortaa', cursive;
+            box-shadow: 0 3px 10px rgba(139, 94, 94, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .restore-btn {
+            background: linear-gradient(135deg, #90d490 0%, #70b070 100%);
+            padding: 8px 12px;
+            font-size: 0.85em;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-family: 'Comfortaa', cursive;
+            box-shadow: 0 3px 10px rgba(70, 140, 70, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .custom-list, .history-list {
+            list-style: none;
+        }
+
+        .custom-item, .history-item {
+            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
+            padding: 12px 14px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #8b5e5e;
+            border: 1px solid rgba(212, 165, 165, 0.2);
+            font-size: 0.9em;
+        }
+
+        .history-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-item-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 0.9em;
+        }
+
+        .history-item-date {
+            font-size: 0.8em;
+            color: #a07878;
+            opacity: 0.8;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #d4a5a5;
+        }
+
+        .history-item.completed {
+            opacity: 0.5;
+            filter: grayscale(0.3);
+        }
+
+        .history-item.completed .history-item-title {
+            text-decoration: line-through;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #a07878;
+            padding: 30px 15px;
+            font-style: italic;
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+
+        .mode-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
+            border: 2px solid transparent;
+            border-radius: 14px;
+            color: #8b5e5e;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-family: 'Comfortaa', cursive;
+            font-size: 0.9em;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #ffc4d0 0%, #ffb3c6 100%);
+            border-color: #d4a5a5;
+            box-shadow: 0 4px 15px rgba(212, 165, 165, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .header-icon {
+                width: 28px;
+                height: 28px;
+            }
+
+            .header p {
+                font-size: 0.85em;
+            }
+
+            .card {
+                padding: 15px;
+                border-radius: 20px;
+            }
+
+            .jar-container {
+                height: 300px;
+                margin: 20px 0 15px 0;
+            }
+
+            .note-overlay {
+                font-size: 1em;
+                padding: 16px;
+                min-height: 140px;
+            }
+
+            .filter-btn {
+                padding: 8px 14px;
+                font-size: 0.8em;
+            }
+
+            .tab {
+                min-width: 70px;
+                padding: 10px 6px;
+                font-size: 0.8em;
+            }
+
+            .randomize-btn {
+                font-size: 1em;
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <svg width="0" height="0" style="position: absolute;">
+        <defs>
+            <symbol id="icon-heart" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/>
+            </symbol>
+            <symbol id="icon-dice" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M7,5A2,2 0 0,0 5,7A2,2 0 0,0 7,9A2,2 0 0,0 9,7A2,2 0 0,0 7,5M17,5A2,2 0 0,0 15,7A2,2 0 0,0 17,9A2,2 0 0,0 19,7A2,2 0 0,0 17,5M17,15A2,2 0 0,0 15,17A2,2 0 0,0 17,19A2,2 0 0,0 19,17A2,2 0 0,0 17,15M7,15A2,2 0 0,0 5,17A2,2 0 0,0 7,19A2,2 0 0,0 9,17A2,2 0 0,0 7,15M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10Z"/>
+            </symbol>
+            <symbol id="icon-pencil" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
+            </symbol>
+            <symbol id="icon-book" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M19,2L14,6.5V17.5L19,13V2M6.5,5C4.55,5 2.45,5.4 1,6.5V21.16C1,21.41 1.25,21.66 1.5,21.66C1.6,21.66 1.65,21.59 1.75,21.59C3.1,20.94 5.05,20.5 6.5,20.5C8.45,20.5 10.55,20.9 12,22C13.35,21.15 15.8,20.5 17.5,20.5C19.15,20.5 20.85,20.81 22.25,21.56C22.35,21.61 22.4,21.59 22.5,21.59C22.75,21.59 23,21.34 23,21.09V6.5C22.4,6.05 21.75,5.75 21,5.5V19C19.9,18.65 18.7,18.5 17.5,18.5C15.8,18.5 13.35,19.15 12,20V6.5C10.55,5.4 8.45,5 6.5,5Z"/>
+            </symbol>
+            <symbol id="icon-money" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,17H13V16H14A2,2 0 0,0 16,14V13A2,2 0 0,0 14,11H10V9H15V7H13V6H11V7H10A2,2 0 0,0 8,9V10A2,2 0 0,0 10,12H14V14H9V16H11V17Z"/>
+            </symbol>
+            <symbol id="icon-location" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z"/>
+            </symbol>
+            <symbol id="icon-star" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"/>
+            </symbol>
+            <symbol id="icon-sparkles" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M19,9L20.25,6.25L23,5L20.25,3.75L19,1L17.75,3.75L15,5L17.75,6.25L19,9M11.5,9.5L9,4L6.5,9.5L1,12L6.5,14.5L9,20L11.5,14.5L17,12L11.5,9.5M19,15L17.75,17.75L15,19L17.75,20.25L19,23L20.25,20.25L23,19L20.25,17.75L19,15Z"/>
+            </symbol>
+            <symbol id="icon-trash" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"/>
+            </symbol>
+            <symbol id="icon-weather" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,2L14.39,5.42C13.65,5.15 12.84,5 12,5C11.16,5 10.35,5.15 9.61,5.42L12,2M3.34,7L7.5,6.65C6.9,7.16 6.36,7.78 5.94,8.5C5.5,9.24 5.25,10 5.11,10.79L3.34,7M3.36,17L5.12,13.23C5.26,14 5.53,14.78 5.95,15.5C6.37,16.24 6.91,16.86 7.5,17.37L3.36,17M20.65,7L18.88,10.79C18.74,10 18.47,9.23 18.05,8.5C17.63,7.78 17.1,7.15 16.5,6.64L20.65,7M20.64,17L16.5,17.36C17.09,16.85 17.62,16.22 18.04,15.5C18.46,14.77 18.73,14 18.87,13.21L20.64,17M12,22L9.59,18.56C10.33,18.83 11.14,19 12,19C12.82,19 13.63,18.83 14.37,18.56L12,22Z"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <div class="heart-decoration">
+        <svg class="icon-lg"><use href="#icon-heart"/></svg>
+    </div>
+    <div class="heart-decoration">
+        <svg class="icon-lg"><use href="#icon-heart"/></svg>
+    </div>
+    <div class="heart-decoration">
+        <svg class="icon-lg"><use href="#icon-heart"/></svg>
+    </div>
+    <div class="heart-decoration">
+        <svg class="icon-lg"><use href="#icon-heart"/></svg>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>
+                <svg class="header-icon"><use href="#icon-heart"/></svg>
+                Рандомайзер Свиданий
+                <svg class="header-icon"><use href="#icon-heart"/></svg>
+            </h1>
+            <p>Найдём идеальное свидание для вас!</p>
+        </div>
+
+        <div class="card">
+            <!-- ИСПРАВЛЕНИЕ 4: добавлена вкладка "Удалённые" -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('main')">
+                    <svg class="icon"><use href="#icon-dice"/></svg>
+                    <span class="tab-text">Рандом</span>
+                </button>
+                <button class="tab" onclick="switchTab('custom')">
+                    <svg class="icon"><use href="#icon-pencil"/></svg>
+                    <span class="tab-text">Свои</span>
+                </button>
+                <button class="tab" onclick="switchTab('history')">
+                    <svg class="icon"><use href="#icon-book"/></svg>
+                    <span class="tab-text">История</span>
+                </button>
+                <button class="tab" onclick="switchTab('removed')">
+                    <svg class="icon"><use href="#icon-trash"/></svg>
+                    <span class="tab-text">Удалённые</span>
+                </button>
+            </div>
+
+            <div id="main-tab" class="tab-content active">
+                <div class="mode-switch">
+                    <button class="mode-btn active" onclick="switchMode('preset')">Готовые идеи</button>
+                    <button class="mode-btn" onclick="switchMode('custom')">Мои идеи</button>
+                </div>
+
+                <div class="filters" id="preset-filters">
+                    <div class="filter-group">
+                        <label>
+                            <svg class="icon"><use href="#icon-money"/></svg>
+                            <span>Бюджет</span>
+                        </label>
+                        <div class="filter-options">
+                            <button class="filter-btn selected" data-filter="budget" data-value="all">Любой</button>
+                            <button class="filter-btn" data-filter="budget" data-value="free">Без трат</button>
+                            <button class="filter-btn" data-filter="budget" data-value="paid">С тратами</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>
+                            <svg class="icon"><use href="#icon-location"/></svg>
+                            <span>Место</span>
+                        </label>
+                        <div class="filter-options">
+                            <button class="filter-btn selected" data-filter="location" data-value="all">Любое</button>
+                            <button class="filter-btn" data-filter="location" data-value="home">Дома</button>
+                            <button class="filter-btn" data-filter="location" data-value="outdoor">На улице</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>
+                            <svg class="icon"><use href="#icon-weather"/></svg>
+                            <span>Время года</span>
+                        </label>
+                        <div class="filter-options">
+                            <button class="filter-btn selected" data-filter="season" data-value="all">Любое</button>
+                            <button class="filter-btn" data-filter="season" data-value="spring">Весна</button>
+                            <button class="filter-btn" data-filter="season" data-value="summer">Лето</button>
+                            <button class="filter-btn" data-filter="season" data-value="autumn">Осень</button>
+                            <button class="filter-btn" data-filter="season" data-value="winter">Зима</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>
+                            <svg class="icon"><use href="#icon-star"/></svg>
+                            <span>Настроение</span>
+                        </label>
+                        <div class="filter-options">
+                            <button class="filter-btn selected" data-filter="mood" data-value="all">Любое</button>
+                            <button class="filter-btn" data-filter="mood" data-value="romantic">Романтика</button>
+                            <button class="filter-btn" data-filter="mood" data-value="active">Активное</button>
+                            <button class="filter-btn" data-filter="mood" data-value="cozy">Уютное</button>
+                            <button class="filter-btn" data-filter="mood" data-value="adventure">Приключение</button>
+                            <button class="filter-btn" data-filter="mood" data-value="creative">Творчество</button>
+                            <button class="filter-btn" data-filter="mood" data-value="food">Гастрономия</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="jar-container">
+                    <canvas id="jar-canvas"></canvas>
+                    <div class="note-overlay hidden" id="note">
+                        <div class="note-text" id="note-text">Нажмите кнопку ниже</div>
+                        <button class="remove-idea-btn hidden" id="remove-btn" onclick="removeCurrentIdea()">
+                            <svg class="icon"><use href="#icon-trash"/></svg>
+                            Убрать
+                        </button>
+                    </div>
+                </div>
+
+                <button class="randomize-btn" onclick="randomize()">
+                    <svg class="icon-lg"><use href="#icon-sparkles"/></svg>
+                    <span>Вытянуть записку</span>
+                </button>
+            </div>
+
+            <div id="custom-tab" class="tab-content">
+                <div class="custom-input-group">
+                    <input type="text" class="custom-input" id="custom-idea-input" placeholder="Ваша идея...">
+                    <button class="add-btn" onclick="addCustomIdea()">+</button>
+                </div>
+                <ul class="custom-list" id="custom-list">
+                </ul>
+                <div class="empty-message" id="custom-empty">
+                    Здесь будут ваши собственные идеи
+                </div>
+            </div>
+
+            <div id="history-tab" class="tab-content">
+                <ul class="history-list" id="history-list">
+                </ul>
+                <div class="empty-message" id="history-empty">
+                    История свиданий пока пуста
+                </div>
+            </div>
+
+            <!-- ИСПРАВЛЕНИЕ 4: вкладка "Удалённые" -->
+            <div id="removed-tab" class="tab-content">
+                <ul class="custom-list" id="removed-list">
+                </ul>
+                <div class="empty-message" id="removed-empty">
+                    Удалённые идеи появятся здесь
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="date_ideas.js"></script>
+    <script>
+        let filters = {
+            budget: 'all',
+            location: 'all',
+            mood: 'all',
+            season: 'all'
+        };
+        let currentMode = 'preset';
+        let currentIdeaId = null;
+        let customIdeas = JSON.parse(localStorage.getItem('customIdeas')) || [];
+        let history = JSON.parse(localStorage.getItem('dateHistory')) || [];
+        let removedIdeas = JSON.parse(localStorage.getItem('removedIdeas')) || [];
+
+        let scene, camera, renderer, jar, lid;
+        let mouseX = 0, mouseY = 0, touchX = 0, touchY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+
+        function initThreeJS() {
+            const container = document.getElementById('jar-canvas');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            scene = new THREE.Scene();
+            scene.background = null;
+
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera.position.set(0, 0, 8);
+
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: container, 
+                alpha: true, 
+                antialias: true 
+            });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight1.position.set(5, 10, 5);
+            scene.add(directionalLight1);
+
+            const directionalLight2 = new THREE.DirectionalLight(0xffd4d8, 0.4);
+            directionalLight2.position.set(-5, -5, 5);
+            scene.add(directionalLight2);
+
+            const lidGeometry = new THREE.CylinderGeometry(1.2, 1.3, 0.3, 32);
+            const lidMaterial = new THREE.MeshPhongMaterial({
+                color: 0xc98d8d,
+                shininess: 40,
+                specular: 0x666666
+            });
+            lid = new THREE.Mesh(lidGeometry, lidMaterial);
+            lid.position.y = 2.2;
+            scene.add(lid);
+
+            const knobGeometry = new THREE.CylinderGeometry(0.2, 0.25, 0.3, 16);
+            const knob = new THREE.Mesh(knobGeometry, lidMaterial);
+            knob.position.y = 2.5;
+            scene.add(knob);
+
+            const jarGeometry = new THREE.CylinderGeometry(1.5, 1.5, 4, 32, 1, true);
+            const jarMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xfff5f0,
+                metalness: 0.1,
+                roughness: 0.05,
+                transparent: true,
+                opacity: 0.4,
+                transmission: 0.85,
+                thickness: 0.8,
+                envMapIntensity: 1,
+                clearcoat: 1,
+                clearcoatRoughness: 0.05
+            });
+            jar = new THREE.Mesh(jarGeometry, jarMaterial);
+            jar.position.y = 0;
+            scene.add(jar);
+
+            const edgeGeometry = new THREE.EdgesGeometry(jarGeometry);
+            const edgeMaterial = new THREE.LineBasicMaterial({ 
+                color: 0xd4a5a5, 
+                linewidth: 2,
+                transparent: true,
+                opacity: 0.3
+            });
+            const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+            jar.add(edges);
+
+            const bottomGeometry = new THREE.CylinderGeometry(1.5, 1.5, 0.15, 32);
+            const bottomMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xf5e8e8,
+                transparent: true,
+                opacity: 0.5,
+                metalness: 0.1,
+                roughness: 0.2
+            });
+            const bottom = new THREE.Mesh(bottomGeometry, bottomMaterial);
+            bottom.position.y = -2;
+            scene.add(bottom);
+
+            container.addEventListener('touchstart', onTouchStart, { passive: true });
+            container.addEventListener('touchmove', onTouchMove, { passive: true });
+            container.addEventListener('touchend', onTouchEnd, { passive: true });
+            container.addEventListener('mousemove', onMouseMove, false);
+            window.addEventListener('resize', onWindowResize, false);
+
+            animate();
+        }
+
+        function onTouchStart(event) {
+            if (event.touches.length > 0) {
+                const rect = event.target.getBoundingClientRect();
+                touchX = event.touches[0].clientX;
+                touchY = event.touches[0].clientY;
+            }
+        }
+
+        function onTouchMove(event) {
+            if (event.touches.length > 0) {
+                const rect = event.target.getBoundingClientRect();
+                const newTouchX = event.touches[0].clientX;
+                const newTouchY = event.touches[0].clientY;
+                
+                const deltaX = (newTouchX - touchX) / rect.width;
+                const deltaY = (newTouchY - touchY) / rect.height;
+                
+                targetRotationY += deltaX * 2;
+                targetRotationX += deltaY * 1;
+                
+                touchX = newTouchX;
+                touchY = newTouchY;
+            }
+        }
+
+        function onTouchEnd(event) {
+            // Keep current rotation
+        }
+
+        function onMouseMove(event) {
+            const rect = event.target.getBoundingClientRect();
+            mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouseY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            targetRotationY = mouseX * 0.3;
+            targetRotationX = mouseY * 0.2;
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('jar-canvas');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            jar.rotation.y += (targetRotationY - jar.rotation.y) * 0.05;
+            jar.rotation.x += (targetRotationX - jar.rotation.x) * 0.05;
+            lid.rotation.y = jar.rotation.y;
+            lid.rotation.x = jar.rotation.x;
+
+            jar.rotation.y += 0.001;
+            lid.rotation.y += 0.001;
+
+            renderer.render(scene, camera);
+        }
+
+        function setupFilters() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const filterType = e.target.dataset.filter;
+                    const value = e.target.dataset.value;
+                    
+                    document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(b => {
+                        b.classList.remove('selected');
+                    });
+                    
+                    e.target.classList.add('selected');
+                    filters[filterType] = value;
+                });
+            });
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            
+            event.target.closest('.tab').classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('preset-filters').style.display = mode === 'preset' ? 'block' : 'none';
+        }
+
+        function randomize() {
+            const note = document.getElementById('note');
+            const noteText = document.getElementById('note-text');
+            const removeBtn = document.getElementById('remove-btn');
+            let selectedDate, selectedId;
+
+            if (currentMode === 'preset') {
+                let filteredIdeas = dateIdeas.filter(idea => {
+                    if (removedIdeas.includes(idea.id)) return false;
+                    
+                    return (filters.budget === 'all' || idea.budget === filters.budget) &&
+                           (filters.location === 'all' || idea.location === filters.location) &&
+                           (filters.mood === 'all' || idea.mood === filters.mood) &&
+                           (filters.season === 'all' || idea.season === 'any' || idea.season === filters.season);
+                });
+
+                if (filteredIdeas.length === 0) {
+                    noteText.textContent = 'Нет идей с такими фильтрами';
+                    removeBtn.classList.add('hidden');
+                    note.classList.remove('hidden');
+                    note.classList.add('show');
+                    return;
+                }
+
+                const selected = filteredIdeas[Math.floor(Math.random() * filteredIdeas.length)];
+                selectedDate = selected.title;
+                selectedId = selected.id;
+            } else {
+                if (customIdeas.length === 0) {
+                    noteText.textContent = 'Добавьте свои идеи на вкладке "Свои идеи"';
+                    removeBtn.classList.add('hidden');
+                    note.classList.remove('hidden');
+                    note.classList.add('show');
+                    return;
+                }
+                selectedDate = customIdeas[Math.floor(Math.random() * customIdeas.length)];
+                selectedId = null;
+            }
+
+            currentIdeaId = selectedId;
+
+            note.classList.remove('show');
+            note.classList.add('hidden');
+            
+            setTimeout(() => {
+                noteText.textContent = selectedDate;
+                if (selectedId !== null) {
+                    removeBtn.classList.remove('hidden');
+                } else {
+                    removeBtn.classList.add('hidden');
+                }
+                note.classList.remove('hidden');
+                void note.offsetWidth;
+                note.classList.add('show');
+                addToHistory(selectedDate);
+            }, 200);
+        }
+
+        function removeCurrentIdea() {
+            if (currentIdeaId !== null && !removedIdeas.includes(currentIdeaId)) {
+                removedIdeas.push(currentIdeaId);
+                localStorage.setItem('removedIdeas', JSON.stringify(removedIdeas));
+                
+                const note = document.getElementById('note');
+                const noteText = document.getElementById('note-text');
+                const removeBtn = document.getElementById('remove-btn');
+                
+                noteText.textContent = 'Идея удалена. Найдите её во вкладке "Удалённые"';
+                removeBtn.classList.add('hidden');
+                
+                currentIdeaId = null;
+                renderRemovedList();
+            }
+        }
+
+        function addCustomIdea() {
+            const input = document.getElementById('custom-idea-input');
+            const idea = input.value.trim();
+            
+            if (idea) {
+                customIdeas.push(idea);
+                localStorage.setItem('customIdeas', JSON.stringify(customIdeas));
+                input.value = '';
+                renderCustomList();
+            }
+        }
+
+        function renderCustomList() {
+            const list = document.getElementById('custom-list');
+            const empty = document.getElementById('custom-empty');
+            
+            if (customIdeas.length === 0) {
+                list.style.display = 'none';
+                empty.style.display = 'block';
+            } else {
+                list.style.display = 'block';
+                empty.style.display = 'none';
+                list.innerHTML = customIdeas.map((idea, index) => `
+                    <li class="custom-item">
+                        <span>${idea}</span>
+                        <button class="delete-btn" onclick="deleteCustomIdea(${index})">
+                            <svg class="icon"><use href="#icon-trash"/></svg>
+                        </button>
+                    </li>
+                `).join('');
+            }
+        }
+
+        function deleteCustomIdea(index) {
+            customIdeas.splice(index, 1);
+            localStorage.setItem('customIdeas', JSON.stringify(customIdeas));
+            renderCustomList();
+        }
+
+        function addToHistory(dateTitle) {
+            const historyItem = {
+                id: Date.now(),
+                title: dateTitle,
+                date: new Date().toLocaleDateString('ru-RU'),
+                completed: false
+            };
+            
+            history.unshift(historyItem);
+            if (history.length > 50) history = history.slice(0, 50);
+            localStorage.setItem('dateHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            const empty = document.getElementById('history-empty');
+            
+            if (history.length === 0) {
+                list.style.display = 'none';
+                empty.style.display = 'block';
+            } else {
+                list.style.display = 'block';
+                empty.style.display = 'none';
+                list.innerHTML = history.map(item => `
+                    <li class="history-item ${item.completed ? 'completed' : ''}">
+                        <div class="history-item-header">
+                            <div>
+                                <div class="history-item-title">${item.title}</div>
+                                <div class="history-item-date">${item.date}</div>
+                            </div>
+                            <label class="checkbox-label">
+                                <input type="checkbox" ${item.completed ? 'checked' : ''} 
+                                       onchange="toggleCompleted(${item.id})">
+                                <span>✓</span>
+                            </label>
+                        </div>
+                    </li>
+                `).join('');
+            }
+        }
+
+        function toggleCompleted(id) {
+            const item = history.find(h => h.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                localStorage.setItem('dateHistory', JSON.stringify(history));
+                renderHistory();
+            }
+        }
+
+        // ИСПРАВЛЕНИЕ 4: функция восстановления идей
+        function renderRemovedList() {
+            const list = document.getElementById('removed-list');
+            const empty = document.getElementById('removed-empty');
+            
+            if (removedIdeas.length === 0) {
+                list.style.display = 'none';
+                empty.style.display = 'block';
+            } else {
+                list.style.display = 'block';
+                empty.style.display = 'none';
+                
+                const removedWithTitles = removedIdeas.map(id => {
+                    const idea = dateIdeas.find(i => i.id === id);
+                    return idea ? { id, title: idea.title } : null;
+                }).filter(Boolean);
+                
+                list.innerHTML = removedWithTitles.map(item => `
+                    <li class="custom-item">
+                        <span>${item.title}</span>
+                        <button class="restore-btn" onclick="restoreIdea(${item.id})">
+                            <svg class="icon"><use href="#icon-sparkles"/></svg>
+                        </button>
+                    </li>
+                `).join('');
+            }
+        }
+
+        function restoreIdea(ideaId) {
+            removedIdeas = removedIdeas.filter(id => id !== ideaId);
+            localStorage.setItem('removedIdeas', JSON.stringify(removedIdeas));
+            renderRemovedList();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initThreeJS();
+            setupFilters();
+            renderCustomList();
+            renderHistory();
+            renderRemovedList();
+            
+            document.getElementById('custom-idea-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addCustomIdea();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
