@@ -210,20 +210,14 @@
 
         /* Заголовок без сердец - просто текст по центру */
         .header h1 {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.66);
-            -webkit-backdrop-filter: blur(6px);
-            backdrop-filter: blur(6px);
-            border: 1px solid rgba(255, 255, 255, 0.85);
-            border-radius: 999px;
-            padding: 6px 20px;
-            box-shadow: 0 6px 22px rgba(164, 96, 118, 0.12);
-            color: #a4586b;
-            font-size: 1.55em;
+            background: linear-gradient(135deg, #c47d8a 0%, #a06570 50%, #8b5e5e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.8em;
             font-weight: 700;
             margin-bottom: 10px;
-            letter-spacing: 0.2px;
-            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+            letter-spacing: 0.5px;
         }
 
         .header p {
@@ -328,11 +322,11 @@
         .tab {
             flex: 1 1 0;
             min-width: 0;
-            padding: 10px 5px;
-            background: rgba(255, 255, 255, 0.62);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            border-radius: 16px;
-            color: #a06a76;
+            padding: 12px 6px;
+            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
+            border: 2px solid transparent;
+            border-radius: 14px;
+            color: #8b5e5e;
             font-size: 0.85em;
             font-weight: 600;
             cursor: pointer;
@@ -352,16 +346,13 @@
         }
 
         .tab.active {
-            background: linear-gradient(135deg, #e2778f 0%, #c9536c 100%);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.55);
-            box-shadow:
-                0 8px 20px rgba(201, 83, 108, 0.32),
-                inset 0 1px 0 rgba(255, 255, 255, 0.35);
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #d4a5a5 0%, #c98d8d 100%);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 6px 20px rgba(139, 94, 94, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
-        .tab .icon { color: #b8687a; }
-        .tab.active .icon { color: #fff; }
 
         .tab-content {
             display: none;
@@ -382,12 +373,7 @@
         }
 
         .filter-group {
-            margin-bottom: 12px;
-            padding: 12px 12px 10px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 3px 10px rgba(170, 110, 130, 0.06);
+            margin-bottom: 20px;
         }
 
         .filter-group label {
@@ -396,8 +382,8 @@
             gap: 8px;
             color: #8b5e5e;
             font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.88em;
+            margin-bottom: 10px;
+            font-size: 0.9em;
         }
 
         .filter-options {
@@ -407,11 +393,11 @@
         }
 
         .filter-btn {
-            padding: 8px 14px;
-            background: rgba(255, 255, 255, 0.72);
-            border: 1px solid rgba(255, 255, 255, 0.95);
-            border-radius: 999px;
-            color: #9a6572;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            color: #8b5e5e;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 0.85em;
@@ -421,24 +407,12 @@
         }
 
         .filter-btn.selected {
-            background: linear-gradient(135deg, #e0798f 0%, #cc5a74 100%);
-            border-color: rgba(255, 255, 255, 0.6);
-            color: #fff;
-            box-shadow:
-                0 5px 14px rgba(201, 83, 108, 0.28),
-                inset 0 1px 0 rgba(255, 255, 255, 0.35);
-            padding-right: 30px;
-            position: relative;
-        }
-        .filter-btn.selected::after {
-            content: '✓';
-            position: absolute;
-            right: 11px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.85em;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(135deg, #ffc4d0 0%, #ffb3c6 100%);
+            border-color: #d4a5a5;
+            color: #6b4545;
+            box-shadow: 
+                0 4px 15px rgba(212, 165, 165, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .jar-container {
@@ -454,7 +428,7 @@
                Камера на z = 8 с fov 45° показывает 2·8·tan(22.5°) ≈ 6.63 юнита;
                горлышко на y = 2.0 → 2.0 / 6.63 ≈ 30.2% высоты сцены. Значение
                в процентах не зависит от браузерного text zoom. */
-            --note-lift: 27.6%;
+            --note-lift: 30.2%;
         }
 
         #jar-canvas {
@@ -621,18 +595,17 @@
         .randomize-btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #e2778f 0%, #cc5a74 55%, #b94760 100%);
-            border: 1px solid rgba(255, 255, 255, 0.45);
-            border-radius: 999px;
+            background: linear-gradient(135deg, #d4a5a5 0%, #c98d8d 50%, #b88989 100%);
+            border: none;
+            border-radius: 18px;
             color: white;
-            font-size: 1.08em;
+            font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow:
-                0 10px 26px rgba(201, 83, 108, 0.32),
-                0 2px 6px rgba(201, 83, 108, 0.18),
-                inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            box-shadow: 
+                0 6px 25px rgba(139, 94, 94, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
             font-family: 'Comfortaa', cursive;
             display: flex;
             align-items: center;
@@ -640,17 +613,9 @@
             gap: 10px;
         }
 
-        .randomize-btn .btn-arrow {
-            position: absolute;
-            right: 20px;
-            font-size: 1.15em;
-            opacity: 0.9;
-        }
-        .randomize-btn { position: relative; }
-
         .randomize-btn:active {
             transform: scale(0.98);
-            box-shadow: 0 5px 14px rgba(201, 83, 108, 0.3);
+            box-shadow: 0 4px 15px rgba(139, 94, 94, 0.3);
         }
 
         .custom-input-group {
@@ -805,11 +770,11 @@
 
         .mode-btn {
             flex: 1;
-            padding: 11px 10px;
-            background: rgba(255, 255, 255, 0.66);
-            border: 1px solid rgba(255, 255, 255, 0.95);
-            border-radius: 999px;
-            color: #a06a76;
+            padding: 10px;
+            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
+            border: 2px solid transparent;
+            border-radius: 14px;
+            color: #8b5e5e;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
@@ -818,10 +783,9 @@
         }
 
         .mode-btn.active {
-            background: linear-gradient(135deg, #e07a92 0%, #c9536c 100%);
-            border-color: rgba(255, 255, 255, 0.6);
-            color: #fff;
-            box-shadow: 0 6px 16px rgba(201, 83, 108, 0.3);
+            background: linear-gradient(135deg, #ffc4d0 0%, #ffb3c6 100%);
+            border-color: #d4a5a5;
+            box-shadow: 0 4px 15px rgba(212, 165, 165, 0.3);
         }
 
         @media (max-width: 480px) {
@@ -1146,7 +1110,7 @@
 
         /* сцена подарка выше, чем у банки: описания идей длиннее.
            --note-lift считается по той же формуле (горлышко подарка y = 2.0) */
-        #ny-stage { height: 440px; --note-lift: 27.6%; }
+        #ny-stage { height: 440px; --note-lift: 30.2%; }
 
         /* записка с новогодней идеей: название + описание */
         .note-overlay.ny-note {
@@ -1300,52 +1264,13 @@
             white-space: nowrap;
         }
 
-        /* Ссылка на идею — обычный элемент под сценой, ничего не перекрывает */
-        .note-share {
-            display: flex;
-            justify-content: center;
-            margin: 0 0 14px;
-        }
-        .share-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(212, 165, 165, 0.55);
-            border-radius: 999px;
-            color: #8b5e5e;
-            font-family: 'Comfortaa', cursive;
-            font-size: 0.78em;
-            font-weight: 600;
-            cursor: pointer;
-            pointer-events: auto;
-            box-shadow: 0 3px 12px rgba(139, 94, 94, 0.15);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .share-btn.hidden { display: none; }
-        .share-btn .icon { width: 14px; height: 14px; }
-        .share-btn:active { transform: scale(0.97); }
-        .theme-newyear .share-btn { border-color: var(--ny-gold-soft); color: var(--ny-berry-deep); }
 
         .filter-count-line {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: -6px 0 12px;
-        }
-        .filter-count-line::after {
-            content: '✨';
-            flex: 1;
-            border-bottom: 1px dashed rgba(201, 120, 140, 0.4);
-            height: 0.75em;
-            line-height: 0.8em;
-            font-size: 0.85em;
-            color: rgba(201, 120, 140, 0.7);
+            margin: -8px 0 8px;
         }
         #filter-count {
             display: block;
-            color: #b06a7c;
+            color: #a07878;
             font-size: 0.8em;
             font-style: italic;
             padding: 0 4px;
@@ -1384,7 +1309,6 @@
         .delete-btn:focus-visible,
         .restore-btn:focus-visible,
         .remove-idea-btn:focus-visible,
-        .share-btn:focus-visible,
         .checkbox-label input:focus-visible {
             outline: 3px solid rgba(139, 94, 94, 0.55);
             outline-offset: 2px;
@@ -1401,9 +1325,7 @@
         .tab-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
         @media (max-width: 380px) {
-            .header h1 { font-size: 1.3em; padding: 5px 14px; }
-            .tab { padding: 9px 2px; gap: 2px; }
-            .theme-newyear .tab { padding: 9px 2px; }
+            .tab { padding: 10px 2px; gap: 3px; }
             .tab-text { font-size: 0.64em; }
             .theme-newyear .tab-text { font-size: 0.72em; }
             .note-overlay { font-size: 0.95em; padding: 14px; }
@@ -1432,7 +1354,6 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .share-btn,
             .randomize-btn,
             .tab,
             .filter-btn,
@@ -1571,6 +1492,7 @@
                 <div class="filters" id="preset-filters">
                     <noscript><div class="custom-error">Для выбора идей включите JavaScript</div></noscript>
                     <div class="filter-group">
+                        <svg class="snowman snowman-plate ny-only" aria-hidden="true"><use href="#icon-snowman"/></svg>
                         <label>
                             <svg class="icon"><use href="#icon-money"/></svg>
                             <span>Бюджет</span>
@@ -1643,19 +1565,12 @@
                 </div>
 
                 <div class="visually-hidden" id="sr-status" role="status" aria-live="polite"></div>
-                <div class="note-share">
-                    <button class="share-btn hidden" id="share-btn" type="button" onclick="safe(shareCurrentIdea)()">
-                        <svg class="icon" aria-hidden="true"><use href="#icon-link"/></svg>
-                        <span id="share-btn-text">Скопировать ссылку</span>
-                    </button>
-                </div>
 
                 <div class="randomize-wrap">
                     <svg class="snowman snowman-btn ny-only" aria-hidden="true"><use href="#icon-snowman"/></svg>
                     <button class="randomize-btn" type="button" onclick="safe(randomize)()">
                         <svg class="icon-lg"><use href="#icon-sparkles"/></svg>
                         <span>Вытянуть записку</span>
-                        <span class="btn-arrow" aria-hidden="true">→</span>
                     </button>
                 </div>
             </div>
@@ -1898,9 +1813,7 @@
         // Для анимации вытягивания: крышка, свиток, свет, искры, записки внутри
         let lidGroup, pullScroll, scrollMaterials = [], innerLight, neckGlow;
         let sparkles = null, jarNotes = [];
-        const LID_BASE_Y = 2.34;
-        // у подарка (короб ниже) крышка лежит на его ободке y = 1.7
-        const GIFT_LID_BASE_Y = 2.0;
+        const LID_BASE_Y = 2.16;
 
         // Одна WebGL-сцена на обе вкладки: банка и подарок — две модели в jarGroup,
         // видна только активная. Канвас и записка переезжают между вкладками.
@@ -1914,8 +1827,6 @@
             gift: { twist: 0.3, pop: 0.18, ax: 1.10, ay: 0.30, az: -1.50, rz: 0.30, rx: -0.50 }
         };
         let lidMotion = LID_MOTION.jar;
-        // высота покоя крышки для активной модели (банка и подарок разной высоты)
-        let lidBaseY = LID_BASE_Y;
         let mouseX = 0, mouseY = 0, touchX = 0, touchY = 0;
         let targetRotationX = 0, targetRotationY = 0;
         let scene3dReady = false;   // true, если 3D-сцена действительно запущена
@@ -1945,383 +1856,6 @@
         }
 
 
-        // =====================================================================
-        //  3D: вспомогательные функции (стиль «розовое золото», как на референсе)
-        // =====================================================================
-
-        // Мягкий радиальный градиент — свет, искры, тени
-        function makeSoftTexture(stops, size) {
-            const s = size || 128;
-            const c = document.createElement('canvas');
-            c.width = c.height = s;
-            const g = c.getContext('2d');
-            const grad = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-            stops.forEach(([offset, color]) => grad.addColorStop(offset, color));
-            g.fillStyle = grad;
-            g.fillRect(0, 0, s, s);
-            return new THREE.CanvasTexture(c);
-        }
-
-        // Четырёхлучевая искра
-        function makeStarTexture(size) {
-            const s = size || 128;
-            const c = document.createElement('canvas');
-            c.width = c.height = s;
-            const g = c.getContext('2d');
-            const grad = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-            grad.addColorStop(0, 'rgba(255,255,255,1)');
-            grad.addColorStop(0.25, 'rgba(255,238,210,0.85)');
-            grad.addColorStop(1, 'rgba(255,220,190,0)');
-            g.fillStyle = grad;
-            g.fillRect(0, 0, s, s);
-            g.globalCompositeOperation = 'lighter';
-            g.fillStyle = 'rgba(255,255,255,0.9)';
-            // лучи
-            g.beginPath();
-            g.moveTo(s / 2, 2); g.lineTo(s / 2 + 3, s / 2); g.lineTo(s / 2, s - 2); g.lineTo(s / 2 - 3, s / 2);
-            g.closePath(); g.fill();
-            g.beginPath();
-            g.moveTo(2, s / 2); g.lineTo(s / 2, s / 2 - 3); g.lineTo(s - 2, s / 2); g.lineTo(s / 2, s / 2 + 3);
-            g.closePath(); g.fill();
-            return new THREE.CanvasTexture(c);
-        }
-
-        // Ткань с блеском для банта
-        function makeSatinTexture(base, light) {
-            // Атлас: розовая лента с двумя мягкими бликами (без белых полос —
-            // с бликом материала блики «выжигали» ленту до белого).
-            const w = 64, h = 256;
-            const c = document.createElement('canvas');
-            c.width = w; c.height = h;
-            const g = c.getContext('2d');
-            const grad = g.createLinearGradient(0, 0, 0, h);
-            grad.addColorStop(0, base);
-            grad.addColorStop(0.18, light);
-            grad.addColorStop(0.4, base);
-            grad.addColorStop(0.62, light);
-            grad.addColorStop(0.85, base);
-            grad.addColorStop(1, base);
-            g.fillStyle = grad;
-            g.fillRect(0, 0, w, h);
-            // тонкие волокна
-            for (let i = 0; i < 26; i++) {
-                g.strokeStyle = 'rgba(255,255,255,' + (0.04 + Math.random() * 0.06) + ')';
-                g.beginPath();
-                const x = Math.random() * w;
-                g.moveTo(x, 0);
-                g.lineTo(x + (Math.random() - 0.5) * 6, h);
-                g.stroke();
-            }
-            return new THREE.CanvasTexture(c);
-        }
-
-        // Объёмная лента вдоль окружности: сегмент тора вокруг оси Y
-        // (используется для ленты на горлышке банки и обвязки подарка)
-        function makeBand(radius, height, thickness, arc, material) {
-            return new THREE.Mesh(
-                new THREE.CylinderGeometry(radius + thickness * 0.35, radius + thickness * 0.35, height, 64, 1, true),
-                material
-            );
-        }
-
-        // Плоский силуэт сердца (для кулона)
-        function makeHeartShape() {
-            const s = new THREE.Shape();
-            s.moveTo(0, -0.5);
-            s.bezierCurveTo(-0.62, -0.05, -0.5, 0.55, -0.22, 0.55);
-            s.bezierCurveTo(-0.08, 0.55, 0, 0.44, 0, 0.32);
-            s.bezierCurveTo(0, 0.44, 0.08, 0.55, 0.22, 0.55);
-            s.bezierCurveTo(0.5, 0.55, 0.62, -0.05, 0, -0.5);
-            return s;
-        }
-
-        // Сердце-медальон: светлая пластина в золотой окантовке + розовое сердце
-        function makeHeartPendant(scale) {
-            const group = new THREE.Group();
-            const k = scale || 1;
-
-            const rimShape = makeHeartShape();
-            const rim = new THREE.Mesh(
-                new THREE.ExtrudeGeometry(rimShape, { depth: 0.06, bevelEnabled: true, bevelSize: 0.02, bevelThickness: 0.02, bevelSegments: 2, curveSegments: 24 }),
-                new THREE.MeshPhongMaterial({ color: 0xc98a58, specular: 0xffd9a6, shininess: 70 })
-            );
-            rim.scale.set(k, k, k);
-            group.add(rim);
-
-            const face = new THREE.Mesh(
-                new THREE.ShapeGeometry(makeHeartShape(), 24),
-                new THREE.MeshPhongMaterial({ color: 0xfff3e6, shininess: 14, specular: 0x2a2018 })
-            );
-            face.scale.set(k * 0.78, k * 0.78, 1);
-            face.position.z = 0.07;
-            group.add(face);
-            // тонкая розовая окантовка — сердце читается даже в блике
-            const edge = new THREE.Mesh(
-                new THREE.ShapeGeometry(makeHeartShape(), 24),
-                new THREE.MeshPhongMaterial({ color: 0xf7dccc, shininess: 10, specular: 0x221a14 })
-            );
-            edge.scale.set(k * 0.86, k * 0.86, 1);
-            edge.position.z = 0.06;
-            group.add(edge);
-
-            const inner = new THREE.Mesh(
-                new THREE.ShapeGeometry(makeHeartShape(), 24),
-                new THREE.MeshPhongMaterial({ color: 0xe0859a, shininess: 10, specular: 0x221a14 })
-            );
-            inner.scale.set(k * 0.55, k * 0.55, 1);
-            inner.position.set(0, 0.14 * k, 0.09);
-            group.add(inner);
-
-            // колечко, за которое подвешивается кулон
-            const ring = new THREE.Mesh(
-                new THREE.TorusGeometry(0.05 * k, 0.017 * k, 8, 20),
-                new THREE.MeshPhongMaterial({ color: 0xe8b871, specular: 0xfff4dc, shininess: 90 })
-            );
-            ring.position.set(0, 0.62 * k, 0.03);
-            group.add(ring);
-            return group;
-        }
-
-        // Бантик из ленты: две петли, узел и два конца, мягко светящихся
-        function makeBow(scale, material) {
-            const bow = new THREE.Group();
-            const k = scale || 1;
-            // петли — объёмные «капли» из сфер, развёрнутых в стороны
-            [-1, 1].forEach(dir => {
-                const loop = new THREE.Mesh(new THREE.SphereGeometry(0.32 * k, 20, 14), material);
-                loop.scale.set(1.25, 0.62, 0.36);
-                loop.position.set(dir * 0.31 * k, 0.04 * k, 0.02 * k);
-                loop.rotation.z = dir * 0.32;
-                loop.rotation.y = dir * 0.2;
-                bow.add(loop);
-                const inner = new THREE.Mesh(new THREE.SphereGeometry(0.2 * k, 16, 12), material);
-                inner.scale.set(1.05, 0.6, 0.32);
-                inner.position.set(dir * 0.29 * k, -0.02 * k, 0.09 * k);
-                inner.rotation.z = dir * 0.32;
-                bow.add(inner);
-
-                const tail = new THREE.Mesh(new THREE.BoxGeometry(0.16 * k, 0.05 * k, 0.62 * k), material);
-                tail.position.set(dir * 0.16 * k, -0.16 * k, 0.3 * k);
-                tail.rotation.set(-0.25, dir * 0.3, dir * 0.12);
-                bow.add(tail);
-            });
-            const knot = new THREE.Mesh(new THREE.SphereGeometry(0.13 * k, 16, 12), material);
-            knot.scale.set(1, 0.9, 0.75);
-            knot.position.y = 0.02 * k;
-            bow.add(knot);
-            return bow;
-        }
-        // Свёрнутая записка-«пергамент»: рулончик со светлым торцом и золотым колечком
-        function makeRolledNote(texture, ringMat, scale) {
-            const g = new THREE.Group();
-            const k = scale || 1;
-            const paper = new THREE.MeshStandardMaterial({ map: texture, color: 0xffd2ac, roughness: 0.95, metalness: 0 });
-            const roll = new THREE.Mesh(new THREE.CylinderGeometry(0.11 * k, 0.11 * k, 0.42 * k, 18, 1, true), paper);
-            roll.rotation.z = Math.PI / 2;
-            g.add(roll);
-            // виток бумаги по спирали — видно, что записка свёрнута
-            const spiral = new THREE.Mesh(
-                new THREE.TorusGeometry(0.112 * k, 0.006 * k, 5, 24),
-                new THREE.MeshStandardMaterial({ color: 0xcfa07a, roughness: 0.9 })
-            );
-            spiral.rotation.y = Math.PI / 2;
-            g.add(spiral);
-            [-1, 1].forEach(side => {
-                const cap = new THREE.Mesh(new THREE.CircleGeometry(0.11 * k, 18),
-                    new THREE.MeshStandardMaterial({ color: 0xe9b98d, roughness: 0.95 }));
-                cap.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
-                cap.position.x = side * 0.211 * k;
-                g.add(cap);
-            });
-            // золотое колечко вокруг рулончика
-            const ring = new THREE.Mesh(new THREE.TorusGeometry(0.117 * k, 0.012 * k, 6, 20), ringMat);
-            ring.rotation.y = Math.PI / 2;
-            ring.position.x = 0.06 * k;
-            g.add(ring);
-            return g;
-        }
-
-        // Страница с сердцем-росчерком (лежит на поверхности записок)
-        function makeHeartPageTexture() {
-            const s = 128;
-            const c = document.createElement('canvas');
-            c.width = c.height = s;
-            const g = c.getContext('2d');
-            g.fillStyle = '#fff6e8';
-            g.fillRect(0, 0, s, s);
-            g.strokeStyle = '#c98a6a';
-            g.lineWidth = 3;
-            g.lineCap = 'round';
-            g.beginPath();
-            g.moveTo(s * 0.35, s * 0.6);
-            g.bezierCurveTo(s * 0.2, s * 0.45, s * 0.32, s * 0.3, s * 0.42, s * 0.42);
-            g.bezierCurveTo(s * 0.52, s * 0.28, s * 0.66, s * 0.42, s * 0.5, s * 0.6);
-            g.bezierCurveTo(s * 0.6, s * 0.72, s * 0.72, s * 0.72, s * 0.78, s * 0.62);
-            g.stroke();
-            return new THREE.CanvasTexture(c);
-        }
-
-        // Снежинка из линий на канвасе (для бумаги подарка)
-        function drawSnowflake(g, cx, cy, r, color, width) {
-            g.strokeStyle = color;
-            g.lineWidth = width;
-            g.lineCap = 'round';
-            for (let k = 0; k < 6; k++) {
-                const a = k * Math.PI / 3;
-                const x2 = cx + Math.cos(a) * r, y2 = cy + Math.sin(a) * r;
-                g.beginPath();
-                g.moveTo(cx, cy);
-                g.lineTo(x2, y2);
-                // маленькие веточки на лучах
-                [0.55, 0.78].forEach(f => {
-                    const bx = cx + Math.cos(a) * r * f, by = cy + Math.sin(a) * r * f;
-                    const br = r * 0.22;
-                    g.moveTo(bx, by);
-                    g.lineTo(bx + Math.cos(a + 0.9) * br, by + Math.sin(a + 0.9) * br);
-                    g.moveTo(bx, by);
-                    g.lineTo(bx + Math.cos(a - 0.9) * br, by + Math.sin(a - 0.9) * br);
-                });
-                g.stroke();
-            }
-        }
-
-        // Узор для бумаги новогодней коробки: розовая бумага, сердце и золотые точки
-        function makeGiftPaperTexture() {
-            const size = 512;
-            const c = document.createElement('canvas');
-            c.width = c.height = size;
-            const g = c.getContext('2d');
-            const bg = g.createLinearGradient(0, 0, size, size);
-            bg.addColorStop(0, '#f3bfc9');
-            bg.addColorStop(0.5, '#eeb0bd');
-            bg.addColorStop(1, '#eaa2b1');
-            g.fillStyle = bg;
-            g.fillRect(0, 0, size, size);
-
-            // мягкие сердца
-            const step = 128;
-            for (let y = 0; y < size; y += step) {
-                for (let x = 0; x < size; x += step) {
-                    const cx = x + step / 2 + ((y / step) % 2 ? step / 2 : 0);
-                    const cy = y + step / 2;
-                    g.save();
-                    g.translate(cx, cy);
-                    g.scale(1, 1);
-                    g.fillStyle = 'rgba(206,106,134,0.5)';
-                    g.beginPath();
-                    g.moveTo(0, 26);
-                    g.bezierCurveTo(-34, 4, -26, -22, -10, -22);
-                    g.bezierCurveTo(-3, -22, 0, -16, 0, -10);
-                    g.bezierCurveTo(0, -16, 3, -22, 10, -22);
-                    g.bezierCurveTo(26, -22, 34, 4, 0, 26);
-                    g.fill();
-                    g.fillStyle = 'rgba(226,180,87,0.75)';
-                    g.beginPath();
-                    g.arc(0, 52, 3.2, 0, Math.PI * 2);
-                    g.fill();
-                    g.restore();
-                }
-            }
-
-            const tex = new THREE.CanvasTexture(c);
-            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-            return tex;
-        }
-
-        // Бумага для записок внутри
-        function makeNotePaperTexture() {
-            const size = 128;
-            const c = document.createElement('canvas');
-            c.width = c.height = size;
-            const g = c.getContext('2d');
-            const grad = g.createLinearGradient(0, 0, size, size);
-            grad.addColorStop(0, '#ffd7b4');
-            grad.addColorStop(1, '#ecab7c');
-            g.fillStyle = grad;
-            g.fillRect(0, 0, size, size);
-            for (let i = 0; i < 40; i++) {
-                g.fillStyle = 'rgba(200,160,140,' + (Math.random() * 0.06) + ')';
-                g.fillRect(Math.random() * size, Math.random() * size, 1.5, 1.5);
-            }
-            return new THREE.CanvasTexture(c);
-        }
-
-        // Тёплая подсветка изнутри банки/коробки
-        function addInnerGlow(radius, height, topY) {
-            // Свечение — мягкий светящийся шар у дна. Аддитивное смешивание
-            // на белом фоне «выжигает» записки, поэтому используем обычную
-            // прозрачность и небольшую интенсивность.
-            const glow = new THREE.Mesh(
-                new THREE.SphereGeometry(radius, 24, 16),
-                new THREE.MeshBasicMaterial({
-                    color: 0xffb46b,
-                    transparent: true,
-                    opacity: 0.16,
-                    depthWrite: false
-                })
-            );
-            glow.scale.set(1, height, 1);
-            glow.position.y = (topY || 0) - height * radius * 0.5;
-            jarModel.add(glow);
-            return glow;
-        }
-
-        // Секция свечения у горлышка (плавно мигает)
-        function makeNeckLightTexture(intensity) {
-            const s = 128;
-            const c = document.createElement('canvas');
-            c.width = c.height = s;
-            const g = c.getContext('2d');
-            const grad = g.createLinearGradient(0, 0, 0, s);
-            grad.addColorStop(0, 'rgba(255,220,170,' + (0.0) + ')');
-            grad.addColorStop(0.45, 'rgba(255,214,160,' + intensity + ')');
-            grad.addColorStop(1, 'rgba(255,190,140,0)');
-            g.fillStyle = grad;
-            g.fillRect(0, 0, s, s);
-            return new THREE.CanvasTexture(c);
-        }
-
-
-        // Парящие искры-звёздочки вокруг банки. Точки считаются от времени,
-        // поэтому анимация не «плывёт» и дёшева для телефона.
-        function createAmbientSparkles() {
-            if (prefersReducedMotion()) return;
-            const starTex = makeStarTexture();
-            const sparkleMaterial = new THREE.SpriteMaterial({
-                map: starTex, color: 0xfff1d6, transparent: true, opacity: 0.9,
-                depthWrite: false, blending: THREE.AdditiveBlending
-            });
-            const group = new THREE.Group();
-            const items = [];
-            const seeds = [
-                [-1.55, 0.55, 1.18], [1.5, 0.35, 0.95], [-1.5, -0.75, 0.6], [1.45, -0.9, 0.5],
-                [0.0, 1.55, 0.55], [-1.2, 1.25, 0.25], [1.25, 1.15, 0.2], [0.35, -1.5, 1.1],
-                [-0.45, 1.5, -0.5], [1.2, -0.15, 1.35], [-1.2, 0.05, 1.35]
-            ];
-            seeds.forEach((s, i) => {
-                const sprite = new THREE.Sprite(sparkleMaterial.clone());
-                const scale = i % 4 === 0 ? 0.3 : (i % 3 === 0 ? 0.22 : 0.15);
-                sprite.scale.set(scale, scale, 1);
-                sprite.position.set(s[0], s[1], s[2]);
-                group.add(sprite);
-                items.push({ sprite, base: s.slice(), phase: Math.random() * Math.PI * 2, speed: 0.6 + Math.random() * 0.9 });
-            });
-            scene.add(group);
-
-            const start = performance.now();
-            (function tick(now) {
-                requestAnimationFrame(tick);
-                const t = (now - start) / 1000;
-                items.forEach(it => {
-                    const p = t * it.speed + it.phase;
-                    it.sprite.position.y = it.base[1] + Math.sin(p) * 0.09;
-                    it.sprite.position.x = it.base[0] + Math.cos(p * 0.7) * 0.04;
-                    const twinkle = 0.55 + 0.45 * Math.sin(p * 1.7);
-                    it.sprite.material.opacity = twinkle * 0.85;
-                    it.sprite.material.rotation = Math.sin(p * 0.5) * 0.3;
-                });
-            })(start);
-        }
         function initThreeJS() {
             const container = document.getElementById('jar-canvas');
             if (!hasThree()) {
@@ -2336,11 +1870,7 @@
                 scene.background = null;
 
                 camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-                // Камера чуть выше центра банки: видно и крышку с бантом, и
-                // записки внутри. Наклон группы менять нельзя — на нём стоит
-                // вся анимация вытягивания (крышка и свиток).
-                camera.position.set(0, 0.4, 9.4);
-                camera.lookAt(0, -1.0, 0);
+                camera.position.set(0, 0, 8);
 
                 renderer = new THREE.WebGLRenderer({
                     canvas: container,
@@ -2359,19 +1889,12 @@
             renderer.setSize(width, height);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-            // Свет умеренный: на светлом фоне суммы 0.75 + 0.85 «выжигали»
-            // бумагу до белого. Теперь есть контраст — видно свёрнутые записки.
-            const ambientLight = new THREE.AmbientLight(0xfff4ee, 0.7);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
             scene.add(ambientLight);
 
-            const directionalLight1 = new THREE.DirectionalLight(0xfff1e6, 0.62);
-            directionalLight1.position.set(3, 8, 9);
+            const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.85);
+            directionalLight1.position.set(5, 10, 5);
             scene.add(directionalLight1);
-
-            // тёплый контровой свет — блеск на металле и объём стекла
-            const rimLight = new THREE.DirectionalLight(0xffc2cf, 0.35);
-            rimLight.position.set(-3, 4, 9);
-            scene.add(rimLight);
 
 
             const directionalLight2 = new THREE.DirectionalLight(0xffd4d8, 0.45);
@@ -2379,99 +1902,66 @@
             scene.add(directionalLight2);
 
             // Тёплый свет изнутри — чтобы записки читались через стекло
-            innerLight = new THREE.PointLight(0xffb877, 0.7, 6);
-            innerLight.position.set(0, -0.9, 0.4);
+            innerLight = new THREE.PointLight(0xfff0e0, 0.6, 12);
+            innerLight.position.set(0, 0.5, 0);
             scene.add(innerLight);
 
 
             // ===== ВСЯ БАНКА В ОДНОЙ ГРУППЕ =====
-            // Крышка, бант, корпус, дно и записки — дети одной группы,
+            // Крышка, ручка, корпус, дно и записки — дети одной группы,
             // поэтому вращаются как единое целое и не распадаются.
             jarGroup = new THREE.Group();
             scene.add(jarGroup);
             jarModel = new THREE.Group();
             jarGroup.add(jarModel);
 
-            // =================================================================
-            //  БАНКА «РОЗОВОЕ ЗОЛОТО» (по референсу): стекло, металлические
-            //  крышка и кольцо горлышка, атласный бант с кулоном-сердцем,
-            //  свёрнутые записки с золотой лентой внутри и тёплый свет.
-            // =================================================================
+            // --- корпус ---
+            const jarGeometry = new THREE.CylinderGeometry(1.5, 1.5, 4, 48, 1, true);
             const jarMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xfff3ee,
-                metalness: 0.0,
-                roughness: 0.06,
+                color: 0xfff5f0,
+                metalness: 0.05,
+                roughness: 0.08,
                 transparent: true,
-                opacity: 0.1,
+                opacity: 0.2,
+                transmission: 0.6,
+                envMapIntensity: 1,
                 clearcoat: 1,
-                clearcoatRoughness: 0.02,
+                clearcoatRoughness: 0.05,
                 side: THREE.DoubleSide,
                 depthWrite: false      // стекло не перекрывает записки внутри
             });
-            const highlightMaterial = new THREE.MeshBasicMaterial({
-                color: 0xffffff, transparent: true, opacity: 0.24, depthWrite: false
-            });
-
-            // --- корпус: бочкообразный профиль из нескольких колец ---
-            // LatheGeometry даёт гладкую банку: дно → стенки → плечи → горлышко.
-            const profile = [
-                [0.0, -1.98], [1.12, -1.98], [1.30, -1.9], [1.42, -1.72],
-                [1.47, -1.35], [1.48, -0.4], [1.47, 0.7], [1.42, 1.42],
-                [1.30, 1.72], [1.10, 1.92], [0.96, 2.02], [0.94, 2.34], [0.0, 2.34]
-            ].map(function (p) { return new THREE.Vector2(p[0], p[1]); });
-            const jarGeo = new THREE.LatheGeometry(profile, 64);
-            const jar = new THREE.Mesh(jarGeo, jarMaterial);
+            const jar = new THREE.Mesh(jarGeometry, jarMaterial);
+            jar.position.y = 0;
             jarModel.add(jar);
-            // горлышко — короткий цилиндр над плечами
-            const neck = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.94, 0.96, 0.3, 64, 1, true), jarMaterial);
-            neck.position.y = 2.2;
-            jarModel.add(neck);
 
-            // вертикальные блики стекла — три узкие полосы
-            [-0.95, -0.15, 0.7].forEach((angle, i) => {
-                const strip = new THREE.Mesh(
-                    new THREE.CylinderGeometry(1.492, 1.462, 2.5 - i * 0.45, 32, 1, true,
-                        angle, 0.07 + (i === 0 ? 0.03 : 0)),
-                    highlightMaterial
-                );
-                strip.position.y = -0.25 - i * 0.1;
-                jarModel.add(strip);
+            // тонкий контур — тоже внутри группы
+            const edgeGeometry = new THREE.EdgesGeometry(jarGeometry);
+            const edgeMaterial = new THREE.LineBasicMaterial({ 
+                color: 0xd4a5a5, 
+                linewidth: 2,
+                transparent: true,
+                opacity: 0.28
             });
+            jarModel.add(new THREE.LineSegments(edgeGeometry, edgeMaterial));
 
-            // --- дно: стеклянная плита с фаской ---
+            // --- дно ---
+            const bottomGeometry = new THREE.CylinderGeometry(1.5, 1.5, 0.15, 48);
             const bottomMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xfff4ef, transparent: true, opacity: 0.5,
-                metalness: 0.0, roughness: 0.12, side: THREE.DoubleSide
+                color: 0xf5e8e8,
+                transparent: true,
+                opacity: 0.55,
+                metalness: 0.05,
+                roughness: 0.25
             });
-            const base = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.28, 0.1, 64), bottomMaterial);
-            base.position.y = -1.94;
-            jarModel.add(base);
-            const baseGlow = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.12, 1.1, 0.02, 48),
-                new THREE.MeshBasicMaterial({ color: 0xffb877, transparent: true, opacity: 0.22, depthWrite: false })
-            );
-            baseGlow.position.y = -1.66;
-            jarModel.add(baseGlow);
+            const bottom = new THREE.Mesh(bottomGeometry, bottomMaterial);
+            bottom.position.y = -2;
+            jarModel.add(bottom);
 
-            // полутень под банкой — как на референсе
-            const floorShadow = new THREE.Mesh(
-                new THREE.PlaneGeometry(4.4, 1.5),
-                new THREE.MeshBasicMaterial({
-                    map: makeGlowTexture('rgba(170,90,110,0.45)', 'rgba(170,90,110,0.12)'),
-                    transparent: true, depthWrite: false
-                })
-            );
-            floorShadow.rotation.x = -Math.PI / 2;
-            floorShadow.position.y = -2.02;
-            jarModel.add(floorShadow);
-
-            // --- крышка: металл «розовое золото» ---
-            const roseGold = new THREE.MeshPhongMaterial({
-                color: 0xc98a5c, specular: 0xffe6c8, shininess: 90
-            });
-            const roseGoldLight = new THREE.MeshPhongMaterial({
-                color: 0xdca373, specular: 0xffeacb, shininess: 100
+            // --- крышка ---
+            const lidMaterial = new THREE.MeshPhongMaterial({
+                color: 0xc98d8d,
+                shininess: 45,
+                specular: 0x777777
             });
             // Крышка — отдельная группа, чтобы её можно было открутить и снять
             lidGroup = new THREE.Group();
@@ -2479,152 +1969,116 @@
             lidGroup.rotation.order = 'ZXY';   // сначала вращение вокруг своей оси, потом наклон
             jarModel.add(lidGroup);
 
-            // металлический ободок с рифлением
-            const lid = new THREE.Mesh(new THREE.CylinderGeometry(1.14, 1.16, 0.26, 96, 1, true), roseGold);
-            lid.position.y = -0.02;
+            const lid = new THREE.Mesh(
+                new THREE.CylinderGeometry(1.24, 1.32, 0.32, 48),
+                lidMaterial
+            );
             lidGroup.add(lid);
-            const lidTopEdge = new THREE.Mesh(new THREE.TorusGeometry(1.14, 0.022, 8, 96), roseGoldLight);
-            lidTopEdge.rotation.x = Math.PI / 2;
-            lidTopEdge.position.y = 0.11;
-            lidGroup.add(lidTopEdge);
-            // плоская матовая крышка
-            const lidTop = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.1, 1.11, 0.05, 96),
-                new THREE.MeshPhongMaterial({ color: 0xe9c49c, specular: 0xfff4e2, shininess: 45 })
-            );
-            lidTop.position.y = 0.1;
-            lidGroup.add(lidTop);
 
-            // сердце-сердечко выгравировано на крышке (светлая накладка)
-            const lidHeart = new THREE.Mesh(
-                new THREE.ShapeGeometry(makeHeartShape(), 24),
-                new THREE.MeshPhongMaterial({ color: 0xf3d3b0, shininess: 60 })
-            );
-            lidHeart.rotation.x = -Math.PI / 2;
-            lidHeart.scale.set(0.34, 0.34, 0.34);
-            lidHeart.position.set(0, 0.215, 0.05);
-            lidGroup.add(lidHeart);
+            // рифление по краю — без него поворот гладкой крышки незаметен
+            const ribGeometry = new THREE.BoxGeometry(0.05, 0.24, 0.05);
+            const ribMaterial = new THREE.MeshPhongMaterial({ color: 0xb87c7c, shininess: 30 });
+            const RIBS = 32;
+            for (let i = 0; i < RIBS; i++) {
+                const a = (i / RIBS) * Math.PI * 2;
+                const rib = new THREE.Mesh(ribGeometry, ribMaterial);
+                rib.position.set(Math.cos(a) * 1.29, 0, Math.sin(a) * 1.29);
+                rib.rotation.y = -a;
+                lidGroup.add(rib);
+            }
 
-            // ручка-сердце из розового золота
-            const knob = makeHeartPendant(0.62);
-            knob.rotation.z = Math.PI;
-            knob.position.y = 0.46;
+            // --- ручка на крышке ---
+            const knob = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.22, 0.27, 0.28, 24),
+                lidMaterial
+            );
+            knob.position.y = 0.30;
             lidGroup.add(knob);
 
-            // тёмный уплотнитель снизу — виден, когда крышку приподнимают
+            // светлый уплотнитель снизу — виден, когда крышку приподнимают
             const seal = new THREE.Mesh(
-                new THREE.CircleGeometry(1.1, 48),
-                new THREE.MeshStandardMaterial({ color: 0xa9705a, roughness: 0.85, side: THREE.DoubleSide })
+                new THREE.CircleGeometry(1.2, 48),
+                new THREE.MeshStandardMaterial({ color: 0xf6e1da, roughness: 0.8, side: THREE.DoubleSide })
             );
             seal.rotation.x = Math.PI / 2;
-            seal.position.y = -0.175;
+            seal.position.y = -0.165;
             lidGroup.add(seal);
 
-            // --- кольцо горлышка ---
+            // кольцо горлышка — показывается, когда крышка снята
             const rim = new THREE.Mesh(
-                new THREE.TorusGeometry(0.955, 0.03, 10, 64), roseGold
+                new THREE.TorusGeometry(1.47, 0.045, 10, 64),
+                new THREE.MeshPhongMaterial({ color: 0xe8c4c4, transparent: true, opacity: 0.75, shininess: 60 })
             );
             rim.rotation.x = Math.PI / 2;
-            rim.position.y = 2.33;
+            rim.position.y = 1.98;
             jarModel.add(rim);
 
-            // --- атласная лента на горлышке ---
-            const satinPink = new THREE.MeshPhongMaterial({
-                map: makeSatinTexture('#d0657f', '#ee9cb3'),
-                specular: 0x55303a, shininess: 28
-            });
-            const ribbon = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.965, 0.965, 0.22, 64, 1, true), satinPink
-            );
-            ribbon.position.y = 2.16;
-            jarModel.add(ribbon);
+            // --- записки внутри ---
+            // Одна геометрия на все записки + несколько материалов = дёшево для телефона
+            const noteGeometry = new THREE.BoxGeometry(0.5, 0.045, 0.36);
+            const noteColors = [0xfffaf0, 0xfff3e2, 0xffeaea, 0xf9e2e2, 0xfff6dd, 0xfdf0f0];
+            const noteMaterials = noteColors.map(c => new THREE.MeshStandardMaterial({
+                color: c,
+                roughness: 0.9,
+                metalness: 0.0
+            }));
 
-            // бант и кулон висят спереди (там, куда «смотрит» камера)
-            const bowGroup = new THREE.Group();
-            // бант стоит вертикально на ленте горлышка — «лицом» к камере
-            // бант стоит вертикально на ленте горлышка — «лицом» к камере
-            bowGroup.position.set(0.05, 2.2, 0.86);
-            bowGroup.rotation.y = -0.22;
-            bowGroup.rotation.z = 0.05;
-            bowGroup.rotation.x = -0.1;
-            jarModel.add(bowGroup);
-            const bow = makeBow(1.25, satinPink);
-            bowGroup.add(bow);
-            const pendant = makeHeartPendant(0.95);
-            pendant.position.set(0.0, -0.78, 0.22);
-            bowGroup.add(pendant);
-            // цепочка от бантика к кулону
-            const chain = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.014, 0.014, 0.26, 6), roseGold
-            );
-            chain.position.set(0.02, -0.32, 0.16);
-            bowGroup.add(chain);
-
-            // --- записки внутри: свёрнутые «пергаменты» с золотой лентой ---
-            const notePaper = makeNotePaperTexture();
-            const ringGold = new THREE.MeshPhongMaterial({ color: 0xc98f33, specular: 0xffe2a8, shininess: 70 });
-            // тёплые пергаментные и нежно-розовые оттенки, как на референсе
-            const noteColors = [0xffd8b8, 0xf9c9a8, 0xf5b9c4, 0xf2acb9, 0xffe2c6, 0xf6c9b4];
-            const NOTES_COUNT = 48;
+            const NOTES_COUNT = 55;
             for (let i = 0; i < NOTES_COUNT; i++) {
-                const roll = makeRolledNote(notePaper, ringGold, 0.8 + Math.random() * 0.45);
-                const angle = Math.random() * Math.PI * 2;
-                const radius = Math.sqrt(Math.random()) * 0.9;
-                const heightBias = Math.pow(Math.random(), 1.45);
-                const y = -1.55 + heightBias * 2.15;
-                roll.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
-                roll.rotation.set(
-                    (Math.random() - 0.5) * 0.7,
-                    Math.random() * Math.PI * 2,
-                    (Math.random() - 0.5) * 0.7
+                const note = new THREE.Mesh(
+                    noteGeometry,
+                    noteMaterials[i % noteMaterials.length]
                 );
-                roll.children[0].material.color.setHex(noteColors[i % noteColors.length]);
-                roll.userData.base = { y: roll.position.y, rx: roll.rotation.x, rz: roll.rotation.z };
-                jarNotes.push(roll);
-                jarModel.add(roll);
+
+                // Раскладываем по объёму банки: радиус до 1.1 (стенка на 1.5),
+                // по высоте — с уклоном вниз, как будто банка уже наполовину полна
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.sqrt(Math.random()) * 1.1;
+                const heightBias = Math.pow(Math.random(), 1.5);   // 0 = низ, 1 = верх
+                const y = -1.78 + heightBias * 3.4;
+
+                note.position.set(
+                    Math.cos(angle) * radius,
+                    y,
+                    Math.sin(angle) * radius
+                );
+
+                // Случайный поворот — записки лежат вразнобой, а не ровным штабелем
+                note.rotation.set(
+                    (Math.random() - 0.5) * Math.PI * 0.9,
+                    Math.random() * Math.PI * 2,
+                    (Math.random() - 0.5) * Math.PI * 0.9
+                );
+
+                note.userData.base = {
+                    y: note.position.y,
+                    rx: note.rotation.x,
+                    rz: note.rotation.z
+                };
+                jarNotes.push(note);
+                jarModel.add(note);
             }
-            // одна расправленная записка с росчерком-сердцем сверху
-            const heartPage = new THREE.Mesh(
-                new THREE.PlaneGeometry(0.62, 0.5),
-                new THREE.MeshStandardMaterial({ map: makeHeartPageTexture(), roughness: 0.85, side: THREE.DoubleSide })
-            );
-            heartPage.position.set(0.3, 0.32, 0.52);
-            heartPage.rotation.set(-1.15, 0.45, 0.15);
-            jarModel.add(heartPage);
 
             createDrawEffects();
 
-            // --- тёплый свет изнутри ---
-
-            // Волшебные искры вокруг банки — как на референсе. Крупные
-            // звёзды только по краям сцены, чтобы не мешать читать записку.
-            createAmbientSparkles();
-
-            // мягкий блик-«отражение» на передней стенке
-            const reflection = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.482, 1.46, 2.6, 48, 1, true, 0.55, 0.28),
-                new THREE.MeshBasicMaterial({ color: 0xfff3ea, transparent: true, opacity: 0.18, depthWrite: false })
-            );
-            reflection.position.y = -0.5;
-            jarModel.add(reflection);
-
-            jarLid = lidGroup;
-            jarModel.userData.notes = jarNotes;
+            createDrawEffects();
 
             // --- блик на стекле: тонкая вертикальная полоса ---
             const gloss = new THREE.Mesh(
-                new THREE.PlaneGeometry(0.26, 3.0),
+                new THREE.PlaneGeometry(0.28, 3.4),
                 new THREE.MeshBasicMaterial({
                     color: 0xffffff,
                     transparent: true,
-                    opacity: 0.3,
+                    opacity: 0.16,
                     depthWrite: false
                 })
             );
-            gloss.position.set(-0.8, -0.05, 1.28);
-            gloss.rotation.y = Math.PI * 0.1;
+            gloss.position.set(-0.78, 0.1, 1.18);
+            gloss.rotation.y = Math.PI * 0.12;
             jarModel.add(gloss);
 
+            jarLid = lidGroup;
+            jarModel.userData.notes = jarNotes;
             if (window.NY_THEME) {
                 addWinterToJar();
                 buildGiftModel();
@@ -2861,7 +2315,7 @@
             const screwBack = easeInOut(phase(t, [DRAW.close[0] + 260, DRAW.close[1]]));
             const lm = lidMotion;
             lidGroup.rotation.y = -tw * lm.twist * (1 - screwBack);
-            lidGroup.position.y = lidBaseY + (tw * lm.pop + la * lm.ay) * open;
+            lidGroup.position.y = LID_BASE_Y + (tw * lm.pop + la * lm.ay) * open;
             lidGroup.position.x = la * lm.ax * open;
             lidGroup.position.z = la * lm.az * open;
             lidGroup.rotation.z = -la * lm.rz * open;
@@ -2917,7 +2371,7 @@
 
         function finishDrawSequence() {
             if (lidGroup) {
-                lidGroup.position.set(0, lidBaseY, 0);
+                lidGroup.position.set(0, LID_BASE_Y, 0);
                 lidGroup.rotation.set(0, 0, 0);
             }
             if (pullScroll) pullScroll.visible = false;
@@ -3024,7 +2478,7 @@
                 const h = stage.clientHeight;
                 if (!h) return;
                 stage.style.setProperty('--note-lift',
-                    (2.42 * h / (2 * 9.4 * Math.tan(Math.PI / 8)) * 0.94).toFixed(1) + 'px');
+                    (2.32 * h / (2 * 8 * Math.tan(Math.PI / 8))).toFixed(1) + 'px');
             });
         }
 
@@ -3097,9 +2551,8 @@
             lidGroup = mode === 'gift' ? giftLid : jarLid;
             jarNotes = mode === 'gift' ? giftModel.userData.notes : jarModel.userData.notes;
             lidMotion = LID_MOTION[mode];
-            lidBaseY = mode === 'gift' ? GIFT_LID_BASE_Y : LID_BASE_Y;
             if (sparkles) sparkles.material.color.setHex(mode === 'gift' ? 0xffd98a : 0xffc4d4);
-            if (neckGlow) neckGlow.position.y = mode === 'gift' ? 1.25 : 2.25;   // коробка ниже горлышка банки
+            if (neckGlow) neckGlow.position.y = mode === 'gift' ? 1.95 : 2.25;   // коробка ниже горлышка банки
 
             resetNote();
             onWindowResize();
@@ -3174,108 +2627,33 @@
         function buildGiftModel() {
             giftModel = new THREE.Group();
             giftModel.visible = false;
-            // Ниже банки: свиток и свет в общей анимации начинаются с y ≈ 0.4.
-            giftModel.position.y = -0.7;
             giftModel.userData.notes = [];
             // чуть меньше банки, чтобы снятая крышка с бантом не уходила за верх кадра
-            giftModel.scale.setScalar(0.86);
+            giftModel.scale.setScalar(0.88);
             jarGroup.add(giftModel);
 
-            // =================================================================
-            //  ПОДАРОК «РОЗОВЫЙ ШЛЯПНЫЙ КОРОБ» (по референсу): цилиндрический
-            //  короб с золотой окантовкой, атласная лента с бантом-сердцем,
-            //  тёплый свет изнутри и свёрнутые записки с бантиками.
-            // =================================================================
             const paper = new THREE.MeshPhongMaterial({
-                map: makeGiftPaperTexture(), color: 0xffffff, shininess: 8, specular: 0x332026
+                map: makeWrapTexture(), color: 0xffffff, shininess: 22, specular: 0x442a2a
             });
-            const paperSide = new THREE.MeshPhongMaterial({
-                map: makeGiftPaperTexture(), color: 0xf9dde2, shininess: 8, specular: 0x332026
-            });
-            const inside = new THREE.MeshBasicMaterial({ color: 0x6e2b38, side: THREE.BackSide });
-            const gold = new THREE.MeshPhongMaterial({ color: 0xe2b457, specular: 0xfff1c9, shininess: 110 });
-            // матовая атласная лента: без бликов, иначе на светлом фоне жжёт в белый
-            const satin = new THREE.MeshPhongMaterial({
-                map: makeSatinTexture('#c2465f', '#d26680'), specular: 0x000000, shininess: 2
-            });
+            const inside = new THREE.MeshBasicMaterial({ map: makeGiftInsideTexture() });
+            const gold = new THREE.MeshPhongMaterial({ color: 0xe2b457, specular: 0xfff1c9, shininess: 90 });
+            const snow = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xdfefff, shininess: 12 });
 
-            // короб: верх на y = 2, как горлышко банки, — так общая анимация
+            // коробка: верх на y = 2, как горлышко банки, — так общая анимация
             // свитка и света из горлышка подходит без изменений
-            const R = 1.42, H = 2.8, TOP = 1.7, cy = TOP - H / 2;
-            const box = new THREE.Mesh(new THREE.CylinderGeometry(R, R, H, 72, 1, false), paperSide);
+            const W = 3.0, H = 3.7, TOP = 2.0, cy = TOP - H / 2;
+            const box = new THREE.Mesh(new THREE.BoxGeometry(W, H, W),
+                [paper, paper, inside, paper, paper, paper]);   // верхняя грань — «внутренность»
             box.position.y = cy;
             giftModel.add(box);
 
-            // тёмная внутренняя часть — видна, когда крышку сняли
-            const inner = new THREE.Mesh(new THREE.CylinderGeometry(R - 0.05, R - 0.05, H - 0.1, 48, 1, true), inside);
-            inner.position.y = cy;
-            giftModel.add(inner);
-            const innerFloor = new THREE.Mesh(
-                new THREE.CircleGeometry(R - 0.05, 48),
-                new THREE.MeshBasicMaterial({ color: 0x8a3b4b })
-            );
-            innerFloor.rotation.x = -Math.PI / 2;
-            innerFloor.position.y = cy - H / 2 + 0.06;
-            giftModel.add(innerFloor);
+            const rib1 = new THREE.Mesh(new THREE.BoxGeometry(0.42, H - 0.02, W + 0.04), gold);
+            rib1.position.y = cy - 0.01;
+            const rib2 = new THREE.Mesh(new THREE.BoxGeometry(W + 0.04, H - 0.02, 0.42), gold);
+            rib2.position.y = cy - 0.01;
+            giftModel.add(rib1, rib2);
 
-            // золотые ободки сверху и снизу короба
-            [TOP - 0.08, cy - H / 2 + 0.08].forEach(y => {
-                const ring = new THREE.Mesh(new THREE.TorusGeometry(R + 0.015, 0.045, 10, 72), gold);
-                ring.rotation.x = Math.PI / 2;
-                ring.position.y = y;
-                giftModel.add(ring);
-            });
-
-            // атласные ленты поперёк короба — как на референсе
-            [-0.62, 0.66].forEach(function (dy) {
-                const stripe = new THREE.Mesh(
-                    new THREE.CylinderGeometry(R + 0.022, R + 0.022, 0.26, 72, 1, true), satin);
-                stripe.position.y = cy + dy;
-                giftModel.add(stripe);
-            });
-
-            // золотой медальон-сердце с лавровыми ветвями на коробе
-            const emblem = new THREE.Group();
-            emblem.position.set(0, cy + 0.05, R + 0.07);
-            giftModel.add(emblem);
-            const medal = makeHeartPendant(0.55);
-            medal.position.set(0, 0, 0.02);
-            emblem.add(medal);
-            [-1, 1].forEach(dir => {
-                const leafGroup = new THREE.Group();
-                leafGroup.position.set(dir * 0.2, -0.02, 0);
-                leafGroup.rotation.z = -dir * 0.25;
-                for (let i = 0; i < 5; i++) {
-                    const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 6), gold);
-                    leaf.scale.set(1.9, 0.55, 0.4);
-                    leaf.position.set(dir * (i * 0.07), i * 0.055 - 0.1, 0);
-                    leaf.rotation.z = dir * (0.6 - i * 0.22);
-                    leafGroup.add(leaf);
-                }
-                emblem.add(leafGroup);
-            });
-
-            // ленты-хвосты, спадающие с короба (как на референсе)
-            // свободный конец ленты, спускающийся по коробу — как на референсе
-            const tailCurve = new THREE.CatmullRomCurve3([
-                new THREE.Vector3(0.62, cy + 0.78, R + 0.04),
-                new THREE.Vector3(0.78, cy + 0.45, R + 0.1),
-                new THREE.Vector3(0.66, cy + 0.18, R + 0.14)
-            ]);
-            const tail = new THREE.Mesh(new THREE.TubeGeometry(tailCurve, 24, 0.055, 6, false), satin);
-            tail.scale.z = 0.35;
-            giftModel.add(tail);
-
-            // свет изнутри
-            const glowInner = new THREE.Mesh(
-                new THREE.CircleGeometry(R - 0.12, 48),
-                new THREE.MeshBasicMaterial({ color: 0xffc57a, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false })
-            );
-            glowInner.rotation.x = -Math.PI / 2;
-            glowInner.position.y = TOP - 0.12;
-            giftModel.add(glowInner);
-
-            // бумага-тишью торчит из коробки — видна только при открытой крышке
+            // бумага-тишью торчит из коробки — видна, только когда крышку сняли
             const tissueShape = new THREE.Shape();
             tissueShape.moveTo(-0.34, 0);
             tissueShape.lineTo(0.34, 0);
@@ -3284,35 +2662,20 @@
             tissueShape.lineTo(-0.12, 0.32);
             tissueShape.closePath();
             const tissueMat = new THREE.MeshBasicMaterial({ color: 0xfff1f4, side: THREE.DoubleSide });
-            [[-1.0, -0.8, 0.5], [0.95, -0.9, -0.6], [-1.05, 0.9, 2.4], [0.86, 0.95, -2.2], [0.1, -1.1, 0.1]]
+            [[-1.1, -0.9, 0.5], [1.05, -1.0, -0.6], [-1.15, 1.0, 2.4], [0.95, 1.1, -2.2], [0.1, -1.25, 0.1]]
                 .forEach(([x, z, ry]) => {
                     const t = new THREE.Mesh(new THREE.ShapeGeometry(tissueShape), tissueMat);
-                    t.position.set(x, TOP - 0.05, z);
+                    t.position.set(x, TOP - 0.01, z);
                     t.rotation.y = ry;
-                    t.rotation.x = -0.35;
+                    t.rotation.x = -0.25;
                     giftModel.add(t);
                 });
 
-            // свёрнутые записки с бантиками внутри короба
-            const notePaper = makeNotePaperTexture();
-            const ringGold = new THREE.MeshPhongMaterial({ color: 0xe2b457, specular: 0xfff1c9, shininess: 90 });
-            [[-0.62, 0.5, 0.3], [0.68, 0.42, -0.4], [-0.2, 0.75, -0.55], [0.35, 0.62, 0.55], [0.0, 0.8, 0.1]].forEach(([x, z, ry], i) => {
-                const roll = makeRolledNote(notePaper, ringGold, 0.75 + Math.random() * 0.3);
-                roll.position.set(x, TOP - 0.28 + Math.random() * 0.12, z);
-                roll.rotation.set(Math.random() * 0.5, ry, Math.random() * 0.4);
-                const miniBow = makeBow(0.55, satin);
-                miniBow.rotation.y = ry;
-                roll.add(miniBow);
-                roll.userData.base = { y: roll.position.y, rx: roll.rotation.x, rz: roll.rotation.z };
-                giftModel.userData.notes.push(roll);
-                giftModel.add(roll);
-            });
-
             // тень под коробкой
             const shadow = new THREE.Mesh(
-                new THREE.PlaneGeometry(4.4, 1.7),
+                new THREE.PlaneGeometry(4.6, 2.0),
                 new THREE.MeshBasicMaterial({
-                    map: makeGlowTexture('rgba(110,60,70,0.5)', 'rgba(110,60,70,0.12)'),
+                    map: makeGlowTexture('rgba(110,60,70,0.45)', 'rgba(110,60,70,0.12)'),
                     transparent: true, depthWrite: false
                 })
             );
@@ -3322,52 +2685,50 @@
 
             // крышка
             giftLid = new THREE.Group();
-            giftLid.position.y = GIFT_LID_BASE_Y;
+            giftLid.position.y = LID_BASE_Y;
             giftLid.rotation.order = 'ZXY';
             giftModel.add(giftLid);
 
-            const lidBody = new THREE.Mesh(new THREE.CylinderGeometry(R + 0.08, R + 0.08, 0.3, 72), paper);
-            giftLid.add(lidBody);
-            const lidRing = new THREE.Mesh(new THREE.TorusGeometry(R + 0.095, 0.04, 10, 72), gold);
-            lidRing.rotation.x = Math.PI / 2;
-            lidRing.position.y = -0.14;
-            giftLid.add(lidRing);
-            const lidTop = new THREE.Mesh(new THREE.CylinderGeometry(R + 0.02, R + 0.02, 0.03, 72), new THREE.MeshPhongMaterial({ color: 0xf6d0d8, shininess: 8, specular: 0x332026 }));
-            lidTop.position.y = 0.16;
-            giftLid.add(lidTop);
+            giftLid.add(new THREE.Mesh(new THREE.BoxGeometry(3.16, 0.5, 3.16), paper));
+            giftLid.add(new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.52, 3.2), gold));
+            giftLid.add(new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.52, 0.44), gold));
 
-            // бант: две атласные петли, узелок и хвостики (распускается при открытии)
+            // бант: две петли, узелок и хвостики
             giftBowParts = [];
             [-1, 1].forEach(dir => {
-                const loop = new THREE.Mesh(new THREE.SphereGeometry(0.5, 20, 14), satin);
-                loop.position.set(dir * 0.4, 0.46, 0.02);
-                loop.scale.set(1.15, 0.7, 0.42);
-                loop.rotation.set(0, dir * 0.25, dir * 0.3);
+                const loop = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.11, 12, 32), gold);
+                loop.position.set(dir * 0.4, 0.6, 0);
+                loop.scale.set(1, 0.72, 1);
+                loop.rotation.set(0, dir * 0.35, -dir * 0.55);
                 giftLid.add(loop);
                 giftBowParts.push({ mesh: loop, dir, rz: loop.rotation.z, x: loop.position.x });
 
-                const tailPiece = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.03, 1.0), satin);
-                tailPiece.position.set(dir * 0.3, 0.19, 0.5);
-                tailPiece.rotation.y = dir * 0.45;
-                giftLid.add(tailPiece);
+                const tail = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.03, 0.95), gold);
+                tail.position.set(dir * 0.28, 0.27, 0.5);
+                tail.rotation.y = dir * 0.5;
+                giftLid.add(tail);
             });
-            const knot = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 12), satin);
-            knot.scale.set(1, 0.8, 0.8);
-            knot.position.y = 0.36;
+            const knot = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 12), gold);
+            knot.scale.set(1, 0.85, 0.8);
+            knot.position.y = 0.42;
             giftLid.add(knot);
-            const bowPendant = makeHeartPendant(0.3);
-            bowPendant.position.set(0, 0.24, 0.34);
-            giftLid.add(bowPendant);
+
+            // немного снега на крышке
+            [[-1.1, -0.95, 0.38], [1.05, 1.05, 0.32], [-0.95, 1.1, 0.26]].forEach(([x, z, r]) => {
+                const lump = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 10), snow);
+                lump.scale.set(1, 0.3, 0.85);
+                lump.position.set(x, 0.26, z);
+                giftLid.add(lump);
+            });
         }
 
-        // Бант «распускается», пока снимают крышку, и собирается обратно.
         function updateGiftBow(tw, open) {
             const k = tw * open;
             giftBowParts.forEach(p => {
                 p.mesh.rotation.z = p.rz - p.dir * 0.45 * k;
                 p.mesh.position.x = p.x + p.dir * 0.12 * k;
                 const sc = 1 + 0.15 * k;
-                p.mesh.scale.set(sc, 0.66 * sc, sc);
+                p.mesh.scale.set(sc, 0.72 * sc, sc);
             });
         }
 
@@ -3436,16 +2797,17 @@
             );
             jarModel.add(frost);
 
-            // зимняя шапка инея: тонкий белый ободок по краю плоской крышки
-            const snow = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xdfefff, shininess: 12, transparent: true, opacity: 0.9 });
-            const cap = new THREE.Mesh(new THREE.TorusGeometry(1.09, 0.028, 8, 64), snow);
-            cap.rotation.x = Math.PI / 2;
-            cap.position.y = 0.132;
+            // снежная шапка на крышке банки
+            const snow = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xdfefff, shininess: 12 });
+            const cap = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.27, 0.07, 48), snow);
+            cap.position.y = 0.19;
             jarLid.add(cap);
-            const cap2 = new THREE.Mesh(new THREE.TorusGeometry(1.13, 0.02, 8, 64), snow);
-            cap2.rotation.x = Math.PI / 2;
-            cap2.position.y = 0.06;
-            jarLid.add(cap2);
+            [[-0.7, -0.5, 0.36], [0.6, 0.65, 0.3], [0.75, -0.55, 0.24]].forEach(([x, z, r]) => {
+                const lump = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 10), snow);
+                lump.scale.set(1, 0.32, 0.85);
+                lump.position.set(x, 0.22, z);
+                jarLid.add(lump);
+            });
         }
 
         // ----------------------------------------------------------- снег, гирлянда, счётчик
@@ -3775,10 +3137,6 @@
             };
         }
 
-        // Подсказка «Нажмите кнопку ниже» живёт отдельно от записки: раньше она
-        // была текстом невидимой записки, из-за чего банка на старте получалась
-        // полупрозрачной и замороженной в полёте.
-
         // Сообщение вместо идеи (нет идей под фильтр, нет базы): в историю
         // такое сообщение не попадает.
         function renderMessage(text) {
@@ -3854,7 +3212,6 @@
 
             const reveal = () => {
                 renderReveal(idea);
-                updateShareLink(idea);
                 checkButtonStates();
             };
 
@@ -3902,57 +3259,26 @@
             currentIdeaKind = null;
             renderRemovedList();
             updateFilterCounts();
-            updateShareLink(null);
+            syncHistoryState();
             checkButtonStates();
         }
 
-        // ---------------------------------------------------------- «Поделиться»
-        // Ссылка #idea=<вид>.<число>[.<ключ>] открывает ту же идею. Обычный
-        // выбор остаётся случайным: ссылка создаётся уже после вытягивания.
-        let currentShare = null;
-
+        // Ссылаться на идею кнопкой больше нельзя, но старые ссылки #idea=...
+        // продолжают открывать ту же идею (parseHash ниже). Маркер ссылки
+        // убираем из адресной строки, чтобы можно было вытягивать дальше.
         function syncHistoryState() {
             try {
-                if (currentShare) {
+                if (location.hash.indexOf('#idea=') === 0) {
                     // window.history: переменная history занята списком истории свиданий
-                    window.history.replaceState(null, '', '#idea=' + currentShare.kind + '.' + currentShare.seed + '.' + currentShare.key);
-                } else if (location.hash.indexOf('#idea=') === 0) {
                     window.history.replaceState(null, '', location.pathname + location.search);
                 }
             } catch (e) { /* file:// и старые WebView не разрешают replaceState */ }
-        }
-
-        function updateShareLink(idea) {
-            const btn = document.getElementById('share-btn');
-            if (!btn) return;
-            if (!idea || !idea.key) {
-                currentShare = null;
-                btn.classList.add('hidden');
-                syncHistoryState();
-                return;
-            }
-            currentShare = { kind: idea.kind, seed: (Math.floor(Math.random() * 0xFFFFFFFF) >>> 0) || 1, key: idea.key };
-            btn.classList.remove('hidden');
-            syncHistoryState();
         }
 
         function parseHash() {
             const m = /^#idea=(preset|custom|newyear)\.(\d+)(?:\.([dcn]:\d+))?$/.exec(location.hash || '');
             if (!m) return null;
             return { kind: m[1], seed: Number(m[2]) >>> 0, key: m[3] || null };
-        }
-
-        function shareCurrentIdea() {
-            if (!currentShare) return;
-            const btn = document.getElementById('share-btn');
-            const text = document.getElementById('share-btn-text');
-            const original = text ? text.textContent : '';
-            if (btn) btn.disabled = true;
-            if (text) text.textContent = 'Скопировано';
-            setTimeout(() => {
-                if (btn) btn.disabled = false;
-                if (text) text.textContent = original;
-            }, 1600);
         }
 
         function addCustomIdea() {
@@ -4216,6 +3542,20 @@
             } catch (e) { /* ignore */ }
         }
 
+        // Открывает идею по ссылке #idea=... Если в адресе на момент запуска уже
+        // был такой #идентификатор, браузер считает переход «внутри страницы» и
+        // не перезагружает её — тогда ссылка приходит событием hashchange.
+        function openSharedLink() {
+            const shared = parseHash();
+            if (!shared) return;
+            const idea = pickIdea(shared.kind, { key: shared.key, seed: shared.seed });
+            if (idea.error) return;
+            if (shared.kind === 'newyear' && currentTab !== 'newyear') switchTab('newyear');
+            currentIdeaId = idea.id;
+            currentIdeaKind = idea.kind;
+            revealIdea(idea);
+        }
+
         function boot() {
             initTelegram();
 
@@ -4262,17 +3602,9 @@
             updateViewportInsets();
             updateNoteLift();
 
-            // Ссылка на конкретную идею (кнопка «Скопировать ссылку»)
-            const shared = parseHash();
-            if (shared) {
-                const idea = pickIdea(shared.kind, { key: shared.key, seed: shared.seed });
-                if (!idea.error) {
-                    if (shared.kind === 'newyear' && currentTab !== 'newyear') switchTab('newyear');
-                    currentIdeaId = idea.id;
-                    currentIdeaKind = idea.kind;
-                    revealIdea(idea);
-                }
-            }
+            // Старая ссылка на идею вида index.html#idea=...
+            openSharedLink();
+            window.addEventListener('hashchange', openSharedLink);
         }
 
         window.addEventListener('DOMContentLoaded', () => {
