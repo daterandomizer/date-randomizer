@@ -15,6 +15,7 @@ html.theme-newyear #jar-stage{
   background:var(--poster) center/cover no-repeat;
   opacity:1;transition:opacity 230ms var(--arrive);
 }
+#ny-stage::before {background-image:var(--poster),url(../assets/CHRISTMAS_JAR_POSTER.webp?v=gold2);}
 :is(#jar-stage,#ny-stage)[data-ready=true]::before {opacity:0}
 #jar-stage #optical-canvas,#ny-stage #jar-canvas {
   position:absolute;inset:23% 0 15%;width:100%;height:62%;

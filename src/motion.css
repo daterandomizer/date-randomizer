@@ -40,3 +40,7 @@ html.main-view #main-tab .mode-btn:active, .sheet-apply:active {scale:.98;}
   }
   html.main-view #main-tab .mode-btn:active,.sheet-apply:active{scale:1}
 }
+
+/* Keep the glass filter control separate from the root snapshot and its canvas. */
+#open-filters {view-transition-name:section-filters;}
+::view-transition-group(section-filters) {animation-duration:220ms;}

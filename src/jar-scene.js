@@ -80,12 +80,13 @@
     }`;
 
   async function geometry(THREE, stem) {
+    const version = stem==='jar'||stem==='original' ? '?v=2.0.1' : '';
     const [meta, data] = await Promise.all([
-      fetch(assets+stem+'.json').then(response => {
+      fetch(assets+stem+'.json'+version).then(response => {
         if (!response.ok) throw Error('Jar manifest '+response.status);
         return response.json();
       }),
-      fetch(assets+stem+'.bin').then(response => {
+      fetch(assets+stem+'.bin'+version).then(response => {
         if (!response.ok) throw Error('Jar mesh '+response.status);
         return response.arrayBuffer();
       }),
@@ -246,7 +247,18 @@
         resources.push(m);
         return m;
       }
-      const paper=material({vertexColors:true,roughness:.94,metalness:0,envMapIntensity:.34,side:T.FrontSide});
+      const paper=material({vertexColors:true,roughness:options.gift?.94:1,metalness:0,
+        envMapIntensity:options.gift?.34:.14,side:T.FrontSide});
+      if(!options.gift)paper.onBeforeCompile=shader=>{
+        shader.vertexShader='varying vec3 vPaperPosition;\n'+shader.vertexShader.replace('#include <begin_vertex>',
+          '#include <begin_vertex>\nvPaperPosition = position;');
+        shader.fragmentShader='varying vec3 vPaperPosition;\n'+shader.fragmentShader.replace('#include <color_fragment>',
+          `#include <color_fragment>
+          vec3 grainPosition = vPaperPosition * 95.;
+          float grain = sin(dot(grainPosition, vec3(12.9898, 7.233, 4.76))) *
+                        sin(dot(grainPosition, vec3(4.41, -6.71, 12.1)));
+          diffuseColor.rgb *= 1. + .025 * grain;`);
+      };
       const cap=makeShader({
         vertexShader:vertex,
         fragmentShader:`varying vec3 vNormal; varying vec3 vLocal;

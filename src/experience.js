@@ -56,6 +56,7 @@
         painted=true;
         stage.dataset.ready='true';
         performance.mark('dr-3d-ready');
+        stage.dispatchEvent(new Event('dr-scene-settled'));
       }
       dirty=false;
     }
@@ -179,6 +180,7 @@
         queue();
       } catch (error) {
         stage.dataset.error=error.message;
+        stage.dispatchEvent(new Event('dr-scene-settled'));
         if(!run)state('fallback');
         if (!search.has('no3d')) console.warn('Оптическая 3D-сцена недоступна:',error.message);
       } finally {

@@ -7,6 +7,20 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="data:,">
     <title>Рандомайзер Свиданий</title>
+    <style>
+        html, body { background-color:#fff7f9 }
+        #launch-screen {
+            position:fixed;inset:0;z-index:1000;display:grid;place-content:center;justify-items:center;
+            gap:17px;background:radial-gradient(ellipse at 48% 42%,#fff9fb,#f3cbdb 78%);
+            color:#70314f;font:650 13px system-ui,sans-serif;letter-spacing:.22em;text-align:center;
+            transition:opacity 300ms cubic-bezier(.18,.72,.24,1);
+        }
+        #launch-screen svg {width:72px;height:72px;animation:launch-breathe 1.6s ease-in-out infinite alternate}
+        @keyframes launch-breathe {to{transform:scale(1.06);opacity:.82}}
+        #launch-screen[inert] {opacity:0;pointer-events:none}
+        #launch-screen[hidden] {display:none}
+        @media(prefers-reduced-motion:reduce){#launch-screen{transition:none}#launch-screen svg{animation:none}}
+    </style>
     <script>
         // Новогодняя тема включается сама: с 18 ноября по 14 января (каждый год).
         // Проверить вне сезона: добавить к адресу ?theme=newyear, выключить: ?theme=off
@@ -19,6 +33,15 @@
             if (m) on = m[1] === 'newyear';
             window.NY_THEME = on;
             if (on) document.documentElement.classList.add('theme-newyear');
+            window.launchArt = on
+                ? ['assets/CHRISTMAS_JAR_POSTER.webp?v=gold2', 'assets/CHRISTMAS_PLATE.webp']
+                : ['assets/ROMANTIC_JAR_POSTER.webp', 'assets/ROMANTIC_PLATE.webp'];
+            window.launchImages = window.launchArt.map(src => {
+                const image = new Image();
+                image.fetchPriority = 'high';
+                image.src = src;
+                return image;
+            });
         })();
         window.addEventListener('offline', () => {
             const notice = document.getElementById('offline-notice');
@@ -31,17 +54,49 @@
     </script>
     <link rel="stylesheet" href="src/surfaces.css">
     <link rel="stylesheet" href="src/optical.css">
-    <script src="src/jar-scene.js?v=gold2" defer></script>
-    <script src="src/experience.js" defer></script>
-    <link rel="stylesheet" href="src/motion.css">
+    <script src="src/jar-scene.js?v=2.0.1" defer></script>
+    <script src="src/experience.js?v=2.0.1" defer></script>
+    <link rel="stylesheet" href="src/motion.css?v=2.0.1">
     <link rel="stylesheet" href="src/color.css">
     <link rel="stylesheet" href="src/winter.css">
     <link rel="stylesheet" href="src/liquid.css">
-    <link rel="stylesheet" href="src/atmosphere.css?v=base2">
+    <link rel="stylesheet" href="src/atmosphere.css?v=2.0.1">
     <script src="src/atmosphere.js" defer></script>
     <script src="src/motion-system.js" defer></script>
 </head>
 <body>
+    <div id="launch-screen" role="status" aria-label="Загрузка Date Randomizer">
+        <svg viewBox="0 0 80 80" aria-hidden="true">
+            <defs>
+                <linearGradient id="launch-heart" x2=".8" y2="1" gradientUnits="objectBoundingBox">
+                    <stop stop-color="#fff9fc"/><stop offset=".55" stop-color="#efafcb"/><stop offset="1" stop-color="#be5989"/>
+                </linearGradient>
+            </defs>
+            <path d="M40 66C33 60 12 47 12 30C12 12 31 10 40 24C49 10 68 12 68 30C68 47 47 60 40 66Z" fill="url(#launch-heart)" stroke="#fff7fb" stroke-width="2"/>
+            <path d="M18 29C20 19 30 18 35 25" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>
+        </svg>
+        <span>DATE RANDOMIZER</span>
+    </div>
+    <noscript><style>#launch-screen{display:none}</style></noscript>
+    <script>
+        function revealApplication() {
+            const screen = document.getElementById('launch-screen');
+            if (screen.hasAttribute('inert')) return;
+            clearTimeout(launchWatchdog);
+            screen.setAttribute('inert','');
+            screen.setAttribute('aria-hidden','true');
+            performance.mark('dr-first-action');
+            if (matchMedia('(prefers-reduced-motion: reduce)').matches) screen.hidden = true;
+            else {
+                screen.addEventListener('transitionend', () => { screen.hidden = true; }, {once:true});
+                setTimeout(() => { screen.hidden = true; }, 450);
+            }
+        }
+        const launchWatchdog = setTimeout(revealApplication, 12000);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            try { window.Telegram?.WebApp?.ready?.(); } catch (_) {}
+        }));
+    </script>
     <!-- Анимированные сердечки на фоне -->
 
     <svg width="0" height="0" style="position: absolute;">
@@ -1239,7 +1294,6 @@
             const tg = window.Telegram && window.Telegram.WebApp;
             if (!tg) return;
             try {
-                if (typeof tg.ready === 'function') tg.ready();
                 if (typeof tg.expand === 'function') tg.expand();
                 if (typeof tg.onEvent === 'function') {
                     tg.onEvent('safeAreaChanged', updateViewportInsets);
@@ -1365,6 +1419,36 @@
             optical.activate(currentTab === 'main');
             giftOptical.activate(currentTab === 'newyear');
             performance.mark('dr-ui-ready');
+            const critical = [
+                ...window.launchImages.map(image => image.decode?.()),
+                document.fonts?.load('580 1rem Onest'),
+                document.fonts?.load('540 1rem Golos'),
+            ];
+            let assetDeadline;
+            Promise.race([
+                Promise.allSettled(critical),
+                new Promise(resolve => { assetDeadline = setTimeout(resolve, 2800); }),
+            ]).then(() => {
+                clearTimeout(assetDeadline);
+                revealApplication();
+                const connection = navigator.connection;
+                if (!window.NY_THEME || !isNewYearAvailable() || connection?.saveData ||
+                    /(^|-)2g$/.test(connection?.effectiveType || '') || (navigator.deviceMemory || 4) <= 2) return;
+                const warmPoster = () => {
+                    const poster = new Image();
+                    poster.fetchPriority = 'low';
+                    poster.src = 'assets/CHRISTMAS_GIFT_POSTER.webp?v=base2';
+                    poster.decode?.().catch(() => {});
+                };
+                const schedulePoster = () => {
+                    if (currentTab !== 'main') return;
+                    if (window.requestIdleCallback) requestIdleCallback(warmPoster, {timeout:1800});
+                    else setTimeout(warmPoster, 350);
+                };
+                const stage = document.getElementById('jar-stage');
+                if (stage.hasAttribute('data-ready') || stage.hasAttribute('data-error')) schedulePoster();
+                else stage.addEventListener('dr-scene-settled', schedulePoster, {once:true});
+            });
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -1373,6 +1457,7 @@
             } catch (e) {
                 // Даже при неожиданной ошибке экран не должен оставаться пустым
                 console.error('Ошибка запуска:', e);
+                revealApplication();
             }
         });
 
