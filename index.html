@@ -15,6 +15,11 @@
             color:#70314f;font:650 13px system-ui,sans-serif;letter-spacing:.22em;text-align:center;
             transition:opacity 300ms cubic-bezier(.18,.72,.24,1);
         }
+        html.theme-newyear, html.theme-newyear body {background-color:#17372b}
+        html.theme-newyear #launch-screen {
+            background:radial-gradient(ellipse at 48% 42%,#325746,#142d23 78%);color:#f6dc9e;
+            --heart-light:#fff5cf;--heart-middle:#edc675;--heart-dark:#b58137;--heart-edge:#fff0c7;
+        }
         #launch-screen svg {width:72px;height:72px;animation:launch-breathe 1.6s ease-in-out infinite alternate}
         @keyframes launch-breathe {to{transform:scale(1.06);opacity:.82}}
         #launch-screen[inert] {opacity:0;pointer-events:none}
@@ -34,8 +39,8 @@
             window.NY_THEME = on;
             if (on) document.documentElement.classList.add('theme-newyear');
             window.launchArt = on
-                ? ['assets/CHRISTMAS_JAR_POSTER.webp?v=gold2', 'assets/CHRISTMAS_PLATE.webp']
-                : ['assets/ROMANTIC_JAR_POSTER.webp', 'assets/ROMANTIC_PLATE.webp'];
+                ? ['assets/CHRISTMAS_JAR_POSTER.webp?v=201i3', 'assets/CHRISTMAS_PLATE.webp']
+                : ['assets/ROMANTIC_JAR_POSTER.webp?v=201i3', 'assets/ROMANTIC_PLATE.webp'];
             window.launchImages = window.launchArt.map(src => {
                 const image = new Image();
                 image.fetchPriority = 'high';
@@ -54,25 +59,25 @@
     </script>
     <link rel="stylesheet" href="src/surfaces.css">
     <link rel="stylesheet" href="src/optical.css">
-    <script src="src/jar-scene.js?v=2.0.1" defer></script>
+    <script src="src/jar-scene.js?v=201i3" defer></script>
     <script src="src/experience.js?v=2.0.1" defer></script>
-    <link rel="stylesheet" href="src/motion.css?v=2.0.1">
+    <link rel="stylesheet" href="src/motion.css?v=201i2">
     <link rel="stylesheet" href="src/color.css">
     <link rel="stylesheet" href="src/winter.css">
     <link rel="stylesheet" href="src/liquid.css">
-    <link rel="stylesheet" href="src/atmosphere.css?v=2.0.1">
+    <link rel="stylesheet" href="src/atmosphere.css?v=201i3">
     <script src="src/atmosphere.js" defer></script>
-    <script src="src/motion-system.js" defer></script>
+    <script src="src/motion-system.js?v=201i2" defer></script>
 </head>
 <body>
     <div id="launch-screen" role="status" aria-label="Загрузка Date Randomizer">
         <svg viewBox="0 0 80 80" aria-hidden="true">
             <defs>
                 <linearGradient id="launch-heart" x2=".8" y2="1" gradientUnits="objectBoundingBox">
-                    <stop stop-color="#fff9fc"/><stop offset=".55" stop-color="#efafcb"/><stop offset="1" stop-color="#be5989"/>
+                    <stop stop-color="var(--heart-light,#fff9fc)"/><stop offset=".55" stop-color="var(--heart-middle,#efafcb)"/><stop offset="1" stop-color="var(--heart-dark,#be5989)"/>
                 </linearGradient>
             </defs>
-            <path d="M40 66C33 60 12 47 12 30C12 12 31 10 40 24C49 10 68 12 68 30C68 47 47 60 40 66Z" fill="url(#launch-heart)" stroke="#fff7fb" stroke-width="2"/>
+            <path d="M40 66C33 60 12 47 12 30C12 12 31 10 40 24C49 10 68 12 68 30C68 47 47 60 40 66Z" fill="url(#launch-heart)" stroke="var(--heart-edge,#fff7fb)" stroke-width="2"/>
             <path d="M18 29C20 19 30 18 35 25" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>
         </svg>
         <span>DATE RANDOMIZER</span>
@@ -1437,7 +1442,7 @@
                 const warmPoster = () => {
                     const poster = new Image();
                     poster.fetchPriority = 'low';
-                    poster.src = 'assets/CHRISTMAS_GIFT_POSTER.webp?v=base2';
+                    poster.src = 'assets/CHRISTMAS_GIFT_POSTER.webp?v=201i2';
                     poster.decode?.().catch(() => {});
                 };
                 const schedulePoster = () => {

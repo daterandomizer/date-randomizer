@@ -39,40 +39,19 @@
     surface.style.transform='translate('+current.offsetLeft+'px,'+current.offsetTop+'px)';
   }
 
-  let sectionTransition=null;
   let sectionAnimation=null;
-  let sectionRequest=0;
 
   function switchSection(animateSwitch,update){
-    const request=++sectionRequest;
     sectionAnimation?.cancel();
-    const interrupted=sectionTransition!==null;
-    sectionTransition?.skipTransition();
-    sectionTransition=null;
-
-    if(!animateSwitch||interrupted||reduce.matches){
-      update();
-      return;
-    }
-    if(!document.startViewTransition){
-      sectionAnimation=animate(update(),[{opacity:.72},{opacity:1}],timings.section);
-      return;
-    }
-
-    const transition=document.startViewTransition(()=>{
-      // Skipped transitions still invoke their update callback.
-      if(request===sectionRequest)update();
-    });
-    sectionTransition=transition;
-    transition.ready.catch(()=>{});
-    transition.finished.catch(console.error).then(()=>{
-      if(sectionTransition===transition)sectionTransition=null;
-    });
+    const content=update();
+    if(!animateSwitch||!content)return;
+    // The active panel changes atomically. Animate only its heading, never its glass or scene.
+    const heading=content.querySelector('.section-title,.winter-title') ||
+      (content.id==='main-tab' ? document.querySelector('.header h1') : null);
+    sectionAnimation=animate(heading,[{opacity:.78,translate:'0 3px'},{opacity:1,translate:'0 0'}],145);
   }
   reduce.addEventListener?.('change',()=>{
-    if(!reduce.matches)return;
-    sectionAnimation?.cancel();
-    sectionTransition?.skipTransition();
+    if(reduce.matches)sectionAnimation?.cancel();
   });
 
   function createSheet(dialog,trigger,{beforeOpen,onClose}){

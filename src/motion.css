@@ -2,8 +2,8 @@
   --arrive:cubic-bezier(.18,.72,.24,1);
   --accent:cubic-bezier(.34,.85,.28,1);
 }
-#jar-stage #optical-canvas, #ny-stage #jar-canvas {opacity:0;visibility:visible;transition:opacity 240ms var(--arrive);}
-#jar-stage[data-ready="true"] #optical-canvas, #ny-stage[data-ready="true"] #jar-canvas {opacity:1;}
+#jar-stage #optical-canvas, #ny-stage #jar-canvas {opacity:0;visibility:visible;}
+#jar-stage[data-ready="true"] #optical-canvas, #ny-stage[data-ready="true"] #jar-canvas {opacity:1;transition:opacity 190ms var(--arrive);}
 #jar-stage:not([data-ready="true"]) #optical-canvas, #ny-stage:not([data-ready="true"]) #jar-canvas {pointer-events:none;}
 .dialog-lock {overflow-y:hidden}
 dialog#preset-filters {will-change:transform;overscroll-behavior:contain;}
@@ -24,23 +24,9 @@ body > .motion-ghost {position:fixed;z-index:100;pointer-events:none;margin:0;li
 html.main-view #main-tab .mode-btn {transition:background-color 180ms var(--arrive),color 180ms var(--arrive);}
 html.main-view #main-tab .mode-btn:active, .sheet-apply:active {scale:.98;}
 #note[data-flight]{will-change:transform,opacity}
-/* Crossfade the view while the navigation keeps its own position. */
-.optical-dock {view-transition-name:section-dock;}
-::view-transition {pointer-events:none;}
-::view-transition-group(root),::view-transition-group(section-dock) {
-  animation-duration:220ms;
-  animation-timing-function:var(--arrive);
-}
-::view-transition-old(section-dock) {display:none;}
-::view-transition-new(section-dock) {animation:none;}
-
 @media(prefers-reduced-motion:reduce){
   #jar-stage #optical-canvas,#ny-stage #jar-canvas,dialog#preset-filters::backdrop,html .tabs .dock-track,html .optical-dock .tab {
     transition:none!important;
   }
   html.main-view #main-tab .mode-btn:active,.sheet-apply:active{scale:1}
 }
-
-/* Keep the glass filter control separate from the root snapshot and its canvas. */
-#open-filters {view-transition-name:section-filters;}
-::view-transition-group(section-filters) {animation-duration:220ms;}

@@ -1,22 +1,22 @@
 #jar-stage {
-  --poster:url(../assets/ROMANTIC_JAR_POSTER.webp);
+  --poster:url(../assets/ROMANTIC_JAR_POSTER.webp?v=201i3);
   background:var(--pearl) var(--scene) center/cover no-repeat;
 }
 #ny-stage {
-  --poster:url(../assets/CHRISTMAS_GIFT_POSTER.webp?v=base2);
+  --poster:url(../assets/CHRISTMAS_GIFT_POSTER.webp?v=201i2);
   background:var(--pearl) var(--scene) center/cover no-repeat;
 }
 html.theme-newyear #jar-stage{
-  --poster:url(../assets/CHRISTMAS_JAR_POSTER.webp?v=gold2);
+  --poster:url(../assets/CHRISTMAS_JAR_POSTER.webp?v=201i3);
   background:var(--pearl) var(--scene) center/cover no-repeat;
 }
 :is(#jar-stage,#ny-stage)::before {
   content:"";position:absolute;inset:0;pointer-events:none;
   background:var(--poster) center/cover no-repeat;
-  opacity:1;transition:opacity 230ms var(--arrive);
+  opacity:1;
 }
-#ny-stage::before {background-image:var(--poster),url(../assets/CHRISTMAS_JAR_POSTER.webp?v=gold2);}
-:is(#jar-stage,#ny-stage)[data-ready=true]::before {opacity:0}
+#ny-stage::before {background-image:var(--poster),url(../assets/CHRISTMAS_JAR_POSTER.webp?v=201i3);}
+/* Keep the poster opaque under the canvas during its first fade. */
 #jar-stage #optical-canvas,#ny-stage #jar-canvas {
   position:absolute;inset:23% 0 15%;width:100%;height:62%;
 }
@@ -46,8 +46,13 @@ html:not(.theme-newyear) .garland-light {display:none}
 html[data-visual-quality=low] .garland-light,html[data-lite] .garland-light {animation:none;}
 html[data-atmosphere-paused] .garland-light {animation-play-state:paused}
 html.theme-newyear body {background:#17382c;}
-html.theme-newyear:not(.main-view):not(.winter-view) body::before {
-  background:linear-gradient(180deg,#10291f19,#13382d7a 46%,#132c261a),var(--scene) center/cover;
+html.theme-newyear body::before {
+  display:block;content:"";position:fixed;inset:0;pointer-events:none;
+  background:var(--scene) center/cover no-repeat;
+}
+html.theme-newyear .atmosphere {
+  position:fixed;inset:0 auto auto 50%;width:min(100vw,480px);
+  height:100dvh;transform:translateX(-50%);
 }
 html.theme-newyear.main-view body {background:#1a3b2e;}
 html.theme-newyear.main-view .container,

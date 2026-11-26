@@ -34,30 +34,30 @@
     },
     "paper": {
       "offset": 263928,
-      "vertices": 2678,
-      "indices": 15684,
+      "vertices": 2830,
+      "indices": 16596,
       "colors": true
     },
     "cap": {
-      "offset": 335466,
+      "offset": 339570,
       "vertices": 1920,
       "indices": 11508,
       "colors": false
     },
     "rim": {
-      "offset": 381522,
+      "offset": 385626,
       "vertices": 864,
       "indices": 5172,
       "colors": false
     },
     "liner": {
-      "offset": 402234,
+      "offset": 406338,
       "vertices": 640,
       "indices": 3828,
       "colors": false
     },
     "scroll": {
-      "offset": 417570,
+      "offset": 421674,
       "vertices": 450,
       "indices": 2688,
       "colors": true

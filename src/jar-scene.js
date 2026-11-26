@@ -2,6 +2,9 @@
 (() => {
   const assets = 'assets/';
   const param = new URLSearchParams(location.search);
+  // A and B are review fixtures. Public rendering always uses the selected optical setup.
+  const review = ['127.0.0.1','localhost'].includes(location.hostname) ? param.get('optics') : null;
+  const opticalProfile = review==='a' ? 0 : review==='b' ? 1 : 2;
   const vertex = `
     varying vec3 vNormal;
     varying vec3 vLocal;
@@ -48,9 +51,21 @@
       vec2 aspect=vec2(1.,uSize.x/uSize.y);
       vec3 ray=refract(-view,n,1./1.46);
       vec2 bias=(ray.xy*.071 - n.xy*(.006+.040*thickness+.025*neck))*aspect;
-      vec3 light=transmitted(uv+bias);
+      #if OPTICAL_PROFILE == 2
+        float paperZone=1.-smoothstep(1.08,1.74,vLocal.y);
+      #else
+        float paperZone=1.-smoothstep(.69,1.28,vLocal.y);
+      #endif
+      #if OPTICAL_PROFILE == 0
+        vec2 paperRefraction=vec2(.52);
+      #elif OPTICAL_PROFILE == 1
+        vec2 paperRefraction=vec2(.32,.19);
+      #else
+        vec2 paperRefraction=vec2(.155,.075);
+      #endif
+      vec3 light=transmitted(uv+bias*mix(vec2(1.),paperRefraction,paperZone));
       vec3 straight=transmitted(uv);
-      vec3 refraction=mix(straight,light,.84);
+      vec3 refraction=mix(straight,light,mix(.84,1.,paperZone));
       float foot=band(.158+.010*flute,.032,vLocal.y);
       float inner=band(.255+.010*flute,.018,vLocal.y);
       float pale=band(.075+.008*flute,.035,vLocal.y);
@@ -70,17 +85,24 @@
       vec3 mirror=mix(vec3(.18,.13,.175),vec3(.78,.66,.72),.54*wide+.4*rim);
       vec3 color=mix(refraction*vec3(.997,.984,.990),mirror,fresnel*.90);
       color*=1.-foot*.75-inner*.27-mouthShade*.35-spine*.22;
-      color+=lights*(.38+.54*pow(1.-angle,2.))+vec3(.91,.86,.90)*(.21*pale+.19*mouth+.08*inner);
+      color+=lights*(mix(.38,.27,paperZone)+.58*pow(1.-angle,2.))+vec3(.91,.86,.90)*(.21*pale+.19*mouth+.08*inner);
       #ifdef CHRISTMAS
         float polish=.17*wide+.22*rim+.09*soft;
         color+=vec3(.95,.87,.77)*(polish+.14*mouth+.11*pale);
+      #endif
+      #if OPTICAL_PROFILE == 2
+        // Recover transmission only in the face of the vessel. Preserve the optical rim.
+        float core=smoothstep(.57,.98,angle)*smoothstep(.28,.54,vLocal.y)*(1.-neck);
+        color=mix(color,refraction,.36*core);
+        float bevel=band(.201+.006*flute,.021,vLocal.y);
+        color+=lights*.28*pow(1.-angle,2.)+vec3(.96,.90,.86)*(.080*bevel+.058*mouth);
       #endif
       gl_FragColor=vec4(color,1.);
       #include <encodings_fragment>
     }`;
 
   async function geometry(THREE, stem) {
-    const version = stem==='jar'||stem==='original' ? '?v=2.0.1' : '';
+    const version = stem==='jar'||stem==='original' ? '?v=201i2' : '';
     const [meta, data] = await Promise.all([
       fetch(assets+stem+'.json'+version).then(response => {
         if (!response.ok) throw Error('Jar manifest '+response.status);
@@ -257,9 +279,10 @@
           vec3 grainPosition = vPaperPosition * 95.;
           float grain = sin(dot(grainPosition, vec3(12.9898, 7.233, 4.76))) *
                         sin(dot(grainPosition, vec3(4.41, -6.71, 12.1)));
-          diffuseColor.rgb *= 1. + .025 * grain;`);
+          diffuseColor.rgb *= 1. + .014 * grain;`);
       };
       const cap=makeShader({
+        defines:{GOLD_DETAIL:winter&&opticalProfile===2?1:0},
         vertexShader:vertex,
         fragmentShader:`varying vec3 vNormal; varying vec3 vLocal;
           void main() {
@@ -269,6 +292,11 @@
             vec3 tone=mix(${winter?'vec3(.51,.32,.115),vec3(.90,.72,.39)':'vec3(.61,.44,.52),vec3(.94,.80,.84)'},ridge);
             float highlight=pow(max(0.,dot(n,normalize(vec3(-.24,.81,.48)))),11.);
             tone+=vec3(.04,.05,.048)*pool + vec3(.07,.061,.06)*highlight + .022*max(0.,-n.x);
+            #if GOLD_DETAIL == 1
+              float reflection=exp(-pow(abs(vLocal.x+.44)*4.2,2.));
+              float bevel=pow(1.-abs(n.z),3.)*(1.-ridge);
+              tone+=vec3(.075,.048,.015)*reflection*ridge+vec3(.13,.085,.028)*bevel;
+            #endif
             gl_FragColor=vec4(tone,1.);
             #include <encodings_fragment>
           }`,
@@ -278,7 +306,7 @@
         :material({color:winter?0xc3944d:0xbfa5b2,roughness:.29,metalness:.52,envMapIntensity:.72});
       const liner=material({color:options.gift?0xf0d5a6:0xdebfb4,roughness:.57});
       const wrapping=options.gift?makeShader({
-        uniforms:{tone:{value:new T.Vector3(.40,.022,.057)}},
+        uniforms:{tone:{value:new T.Vector3(.47,.034,.075)}},
         vertexShader:vertex,
         fragmentShader:`uniform vec3 tone;varying vec3 vNormal,vLocal;
           float grain(vec3 x){return fract(sin(dot(floor(x*520.),vec3(127.1,311.7,269.5)))*43758.5453);}
@@ -286,7 +314,7 @@
             vec3 n=normalize(vNormal);
             float diffuse=max(0.,dot(n,normalize(vec3(-.48,.65,.70))));
             float soft=max(0.,dot(n,normalize(vec3(.70,.35,.39))));
-            float light=.53+.63*diffuse+.19*soft;
+            float light=.58+.63*diffuse+.20*soft;
             float fold=pow(max(0.,n.y),4.);
             float glance=pow(max(0.,dot(n,normalize(vec3(-.16,.92,.36)))),15.);
             float center=exp(-dot(vLocal.xz,vLocal.xz)*.64);
@@ -377,7 +405,7 @@
         resources.push(target);
         glass=makeShader({
           uniforms:{uOpaque:{value:target.texture},uSize:{value:uSize},uPlate:{value:plate},uRatio:plateMaterial.uniforms.uRatio,uCrop:plateMaterial.uniforms.uCrop},
-          defines:winter?{CHRISTMAS:1}:{},vertexShader:vertex,fragmentShader:glassShader,
+          defines:{OPTICAL_PROFILE:opticalProfile,...(winter?{CHRISTMAS:1}:{})},vertexShader:vertex,fragmentShader:glassShader,
         });
       }
       if(glass!==wrapping)resources.push(glass);
