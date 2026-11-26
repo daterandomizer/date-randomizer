@@ -168,5 +168,6 @@
   }
 
   window.DRMotion={enter,count,leave,dock,createSheet,switchSection,
+    section:el=>animate(el,[{opacity:.72},{opacity:1}],timings.section),
     accent:el=>animate(el,[{scale:'.94'},{scale:'1'}],timings.toggle,ease.accent)};
 })();

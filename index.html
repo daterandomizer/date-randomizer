@@ -664,6 +664,7 @@
             if (!btn) return;
             if (tabName === 'newyear' && (!window.NY_THEME || !isNewYearAvailable())) return;
             const animate = event?.type === 'click' && currentTab !== tabName;
+            if (!DRMotion.switchSection) return applyTab(tabName, btn);
             DRMotion.switchSection(animate, () => applyTab(tabName, btn));
         }
 
