@@ -1,7 +1,7 @@
 (() => {
   const reduce=matchMedia('(prefers-reduced-motion: reduce)');
   const ease={arrive:'cubic-bezier(.18,.72,.24,1)',exit:'cubic-bezier(.44,0,.82,.34)',accent:'cubic-bezier(.34,.85,.28,1)'};
-  const timings={sheetIn:400,sheetOut:285,section:260,enter:240,leave:180,toggle:185};
+  const timings={sheetIn:400,sheetOut:285,section:220,enter:240,leave:180,toggle:185};
   const active=new WeakMap();
   function animate(el,frames,timing,easing=ease.arrive){
     if(!el||reduce.matches||!el.animate)return null;
@@ -38,6 +38,42 @@
     surface.style.height=current.offsetHeight+'px';
     surface.style.transform='translate('+current.offsetLeft+'px,'+current.offsetTop+'px)';
   }
+
+  let sectionTransition=null;
+  let sectionAnimation=null;
+  let sectionRequest=0;
+
+  function switchSection(animateSwitch,update){
+    const request=++sectionRequest;
+    sectionAnimation?.cancel();
+    const interrupted=sectionTransition!==null;
+    sectionTransition?.skipTransition();
+    sectionTransition=null;
+
+    if(!animateSwitch||interrupted||reduce.matches){
+      update();
+      return;
+    }
+    if(!document.startViewTransition){
+      sectionAnimation=animate(update(),[{opacity:.72},{opacity:1}],timings.section);
+      return;
+    }
+
+    const transition=document.startViewTransition(()=>{
+      // Skipped transitions still invoke their update callback.
+      if(request===sectionRequest)update();
+    });
+    sectionTransition=transition;
+    transition.ready.catch(()=>{});
+    transition.finished.catch(console.error).then(()=>{
+      if(sectionTransition===transition)sectionTransition=null;
+    });
+  }
+  reduce.addEventListener?.('change',()=>{
+    if(!reduce.matches)return;
+    sectionAnimation?.cancel();
+    sectionTransition?.skipTransition();
+  });
 
   function createSheet(dialog,trigger,{beforeOpen,onClose}){
     let animation=null,cycle=0,pointer=null;
@@ -131,7 +167,6 @@
     return {close};
   }
 
-  window.DRMotion={enter,count,leave,dock,createSheet,
-    section:el=>animate(el,[{opacity:.32,translate:'0 7px'},{opacity:1,translate:'0 0'}],timings.section),
+  window.DRMotion={enter,count,leave,dock,createSheet,switchSection,
     accent:el=>animate(el,[{scale:'.94'},{scale:'1'}],timings.toggle,ease.accent)};
 })();

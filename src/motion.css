@@ -24,6 +24,16 @@ body > .motion-ghost {position:fixed;z-index:100;pointer-events:none;margin:0;li
 html.main-view #main-tab .mode-btn {transition:background-color 180ms var(--arrive),color 180ms var(--arrive);}
 html.main-view #main-tab .mode-btn:active, .sheet-apply:active {scale:.98;}
 #note[data-flight]{will-change:transform,opacity}
+/* Crossfade the view while the navigation keeps its own position. */
+.optical-dock {view-transition-name:section-dock;}
+::view-transition {pointer-events:none;}
+::view-transition-group(root),::view-transition-group(section-dock) {
+  animation-duration:220ms;
+  animation-timing-function:var(--arrive);
+}
+::view-transition-old(section-dock) {display:none;}
+::view-transition-new(section-dock) {animation:none;}
+
 @media(prefers-reduced-motion:reduce){
   #jar-stage #optical-canvas,#ny-stage #jar-canvas,dialog#preset-filters::backdrop,html .tabs .dock-track,html .optical-dock .tab {
     transition:none!important;

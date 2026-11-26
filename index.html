@@ -663,6 +663,11 @@
             const btn = tabButton(event, `.tab[data-tab="${tabName}"]`);
             if (!btn) return;
             if (tabName === 'newyear' && (!window.NY_THEME || !isNewYearAvailable())) return;
+            const animate = event?.type === 'click' && currentTab !== tabName;
+            DRMotion.switchSection(animate, () => applyTab(tabName, btn));
+        }
+
+        function applyTab(tabName, btn) {
             if (currentTab !== tabName) {
                 optical?.interrupt();
                 giftOptical?.interrupt();
@@ -679,7 +684,6 @@
             btn.setAttribute('aria-selected', 'true');
             const content = document.getElementById(`${tabName}-tab`);
             if (content) content.classList.add('active');
-            if (currentTab !== tabName && tabName !== 'main') DRMotion.section(content);
 
             // Ряд вкладок прокручивается к выбранной, иначе на узком экране
             // активная вкладка оказывается обрезанной краем карточки.
@@ -692,8 +696,9 @@
             if (tabName === 'newyear' || tabName === 'main') placeNote(tabName);
             optical?.activate(tabName === 'main');
             giftOptical?.activate(tabName === 'newyear');
-            window.scrollTo(0,0);
+            window.scrollTo({top:0,left:0,behavior:'instant'});
             checkButtonStates();
+            return content;
         }
 
         function scrollTabsTo(btn) {
