@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="main-view">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" href="data:,">
     <title>Рандомайзер Свиданий</title>
     <script>
         // Новогодняя тема включается сама: с 18 ноября по 14 января (каждый год).
@@ -19,1358 +20,29 @@
             window.NY_THEME = on;
             if (on) document.documentElement.classList.add('theme-newyear');
         })();
-        // Без сети 3D-библиотека не загрузится. Показываем короткую плашку, а
-        // один раз пробуем перезагрузить страницу с обходом кэша: Telegram
-        // WebView часто держит битый ответ CDN. Метка живёт одну страницу,
-        // поэтому зацикливания нет. Основной скрипт всё равно включит fallback.
-        (function () {
-            var reloaded = false;
-            try {
-                reloaded = sessionStorage.getItem('threeRecover') === '1';
-                sessionStorage.removeItem('threeRecover');
-            } catch (e) { /* хранилище недоступно */ }
-            function notice() {
-                var el = document.getElementById('offline-notice');
-                if (el) el.hidden = false;
-            }
-            function recover() {
-                // Сеть явно пропала — перезагрузка бесполезна, сразу плашка.
-                if (navigator.onLine === false) { notice(); return; }
-                // Метка учитывается только для этой же загрузки страницы:
-                // старый флаг из прошлой сессии перезагрузку не запускает.
-                var brokenNow = false;
-                try { brokenNow = sessionStorage.getItem('threeBroken') === '1'; } catch (e) {}
-                if (reloaded && brokenNow) { notice(); return; }
-                if (reloaded) return;
-                try {
-                    sessionStorage.setItem('threeRecover', '1');
-                    sessionStorage.setItem('threeBroken', '1');
-                } catch (e) { notice(); return; }
-                try { location.reload(); } catch (e) { notice(); }
-            }
-            window.addEventListener('error', function (ev) {
-                var t = ev && ev.target;
-                if (t && t.tagName === 'SCRIPT' && /three\.min\.js/.test(t.src || '')) recover();
-            }, true);
-            window.addEventListener('offline', notice);
-            window.addEventListener('online', function () {
-                var el = document.getElementById('offline-notice');
-                if (el) el.hidden = true;
-            });
-        })();
+        window.addEventListener('offline', () => {
+            const notice = document.getElementById('offline-notice');
+            if (notice) notice.hidden = false;
+        });
+        window.addEventListener('online', () => {
+            const notice = document.getElementById('offline-notice');
+            if (notice) notice.hidden = true;
+        });
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Comfortaa', cursive, sans-serif;
-            background: linear-gradient(135deg, #ffe0e5 0%, #ffd4d8 25%, #f5d5d0 50%, #ead5d5 75%, #e0d0d0 100%);
-            min-height: 100vh;
-            /* безопасные области iPhone/Telegram: вырез и домашний индикатор */
-            padding: calc(15px + env(safe-area-inset-top, 0px))
-                     calc(15px + env(safe-area-inset-right, 0px))
-                     calc(15px + env(safe-area-inset-bottom, 0px))
-                     calc(15px + env(safe-area-inset-left, 0px));
-            position: relative;
-            overflow-x: hidden;
-            touch-action: pan-y;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255,182,193,0.15) 0%, transparent 70%);
-            animation: float 20s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: -50%;
-            left: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(216,191,216,0.1) 0%, transparent 70%);
-            animation: float 25s ease-in-out infinite reverse;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(30px, -30px) rotate(5deg); }
-            66% { transform: translate(-20px, 20px) rotate(-5deg); }
-        }
-
-        /* Анимированные сердечки на фоне */
-        .heart-decoration {
-            position: fixed;
-            color: #d4a5a5;              /* сплошной цвет: прозрачностью управляет только opacity */
-            font-size: 40px;
-            opacity: 0.12;
-            animation: floatHeart 15s infinite ease-in-out both;  /* both = не «прыгать» во время задержки */
-            pointer-events: none;
-            z-index: 1;
-            user-select: none;
-        }
-
-        .heart-decoration:nth-child(1) { 
-            top: 10%; 
-            left: 5%; 
-            animation-delay: 0s; 
-            font-size: 35px;
-        }
-        .heart-decoration:nth-child(2) { 
-            top: 20%; 
-            right: 8%; 
-            animation-delay: 3s; 
-            font-size: 45px;
-        }
-        .heart-decoration:nth-child(3) { 
-            bottom: 25%; 
-            left: 10%; 
-            animation-delay: 6s; 
-            font-size: 30px;
-        }
-        .heart-decoration:nth-child(4) { 
-            bottom: 15%; 
-            right: 12%; 
-            animation-delay: 9s; 
-            font-size: 50px;
-        }
-        .heart-decoration:nth-child(5) { 
-            top: 50%; 
-            left: 15%; 
-            animation-delay: 4s; 
-            font-size: 38px;
-        }
-        .heart-decoration:nth-child(6) { 
-            top: 60%; 
-            right: 15%; 
-            animation-delay: 7s; 
-            font-size: 42px;
-        }
-        .heart-decoration:nth-child(7) { 
-            top: 35%; 
-            right: 5%; 
-            animation-delay: 2s; 
-            font-size: 33px;
-        }
-        .heart-decoration:nth-child(8) { 
-            bottom: 40%; 
-            left: 3%; 
-            animation-delay: 5s; 
-            font-size: 36px;
-        }
-
-        @keyframes floatHeart {
-            0%, 100% { transform: translateY(0) scale(1) rotate(0deg);        opacity: 0.12; }
-            25%      { transform: translateY(-20px) scale(1.1) rotate(5deg);  opacity: 0.18; }
-            50%      { transform: translateY(-10px) scale(0.95) rotate(-3deg); opacity: 0.14; }
-            75%      { transform: translateY(-30px) scale(1.05) rotate(7deg); opacity: 0.21; }
-        }
-
-        .container {
-            max-width: 650px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 10;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Заголовок без сердец - просто текст по центру */
-        .header h1 {
-            background: linear-gradient(135deg, #c47d8a 0%, #a06570 50%, #8b5e5e 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 1.8em;
-            font-weight: 700;
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        .header p {
-            color: #a07878;
-            font-size: 0.95em;
-            font-weight: 400;
-            opacity: 0.9;
-            padding: 0 10px;
-        }
-
-        .icon {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            vertical-align: middle;
-            flex-shrink: 0;
-        }
-
-        .icon-lg {
-            width: 22px;
-            height: 22px;
-        }
-
-        .card {
-            position: relative;
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 25px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 
-                0 10px 40px rgba(139, 94, 94, 0.15),
-                0 2px 10px rgba(139, 94, 94, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            animation: fadeInUp 0.8s ease-out;
-        }
-
-        /* ===== Сердечки внутри основной плашки ===== */
-        .card-hearts {
-            position: absolute;
-            inset: 0;
-            border-radius: 25px;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .card-hearts span {
-            position: absolute;
-            color: #c98d8d;              /* сплошной цвет: прозрачностью управляет только opacity */
-            opacity: 0.12;
-            animation: floatHeartCard 14s infinite ease-in-out both;  /* both = не «прыгать» во время задержки */
-            user-select: none;
-            line-height: 1;
-        }
-
-        .card-hearts span:nth-child(1) { top: 6%;  left: 6%;  font-size: 34px; animation-delay: 0s; }
-        .card-hearts span:nth-child(2) { top: 13%; right: 9%; font-size: 26px; animation-delay: 2.5s; }
-        .card-hearts span:nth-child(3) { top: 42%; left: 3%;  font-size: 30px; animation-delay: 5s; }
-        .card-hearts span:nth-child(4) { bottom: 18%; right: 5%; font-size: 38px; animation-delay: 1.5s; }
-        .card-hearts span:nth-child(5) { bottom: 7%;  left: 12%; font-size: 22px; animation-delay: 7s; }
-        .card-hearts span:nth-child(6) { top: 68%; right: 14%; font-size: 28px; animation-delay: 3.5s; }
-
-        @keyframes floatHeartCard {
-            0%, 100% { transform: translateY(0) scale(1) rotate(0deg);         opacity: 0.11; }
-            30%      { transform: translateY(-14px) scale(1.12) rotate(6deg);  opacity: 0.18; }
-            60%      { transform: translateY(-6px) scale(0.94) rotate(-4deg);  opacity: 0.13; }
-            85%      { transform: translateY(-20px) scale(1.06) rotate(8deg);  opacity: 0.21; }
-        }
-
-        /* Контент всегда поверх сердечек внутри плашки */
-        .card > *:not(.card-hearts) {
-            position: relative;
-            z-index: 1;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .tabs {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-
-        .tabs::-webkit-scrollbar {
-            display: none;
-        }
-
-        .tab {
-            flex: 1 1 0;
-            min-width: 0;
-            padding: 12px 6px;
-            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
-            border: 2px solid transparent;
-            border-radius: 14px;
-            color: #8b5e5e;
-            font-size: 0.85em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-            font-family: 'Comfortaa', cursive;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .tab-text {
-            font-size: 0.8em;
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #d4a5a5 0%, #c98d8d 100%);
-            color: white;
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 
-                0 6px 20px rgba(139, 94, 94, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .filters {
-            margin-bottom: 20px;
-        }
-
-        .filter-group {
-            margin-bottom: 20px;
-        }
-
-        .filter-group label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #8b5e5e;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 0.9em;
-        }
-
-        .filter-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .filter-btn {
-            padding: 10px 16px;
-            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
-            border: 2px solid transparent;
-            border-radius: 20px;
-            color: #8b5e5e;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.85em;
-            font-weight: 500;
-            font-family: 'Comfortaa', cursive;
-            white-space: nowrap;
-        }
-
-        .filter-btn.selected {
-            background: linear-gradient(135deg, #ffc4d0 0%, #ffb3c6 100%);
-            border-color: #d4a5a5;
-            color: #6b4545;
-            box-shadow: 
-                0 4px 15px rgba(212, 165, 165, 0.35),
-                inset 0 1px 0 rgba(255, 255, 255, 0.5);
-        }
-
-        .jar-container {
-            position: relative;
-            /* записка позиционируется по высоте сцены (см. --note-lift) */
-            container-type: inline-size;
-            height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 30px 0 20px 0;
-            /* Высота горлышка банки относительно её центра на экране.
-               Камера на z = 8 с fov 45° показывает 2·8·tan(22.5°) ≈ 6.63 юнита;
-               горлышко на y = 2.0 → 2.0 / 6.63 ≈ 30.2% высоты сцены. Значение
-               в процентах не зависит от браузерного text zoom. */
-            --note-lift: 30.2%;
-        }
-
-        #jar-canvas {
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-        }
-
-        .note-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 94%;
-            max-width: 310px;
-            min-height: 160px;
-            background: linear-gradient(135deg, #fff9f0 0%, #fff5e6 100%);
-            border: 2px solid #d4a5a5;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-            text-align: center;
-            color: #8b5e5e;
-            font-size: 1.1em;
-            line-height: 1.5;
-            font-weight: 500;
-            box-shadow: 
-                0 8px 25px rgba(0,0,0,0.15),
-                inset 0 1px 0 rgba(255,255,255,0.8);
-            font-family: 'Caveat', cursive;
-            z-index: 5;
-            pointer-events: none;
-            max-height: 100%;
-            overflow-y: auto;
-        }
-
-
-        /* Длинные идеи — чуть мельче, чтобы целиком помещались в банку */
-        .note-overlay.medium-text { font-size: 1em; }
-        .note-overlay.long-text   { font-size: 0.9em; line-height: 1.42; }
-        .note-overlay.short-text  { font-size: 1.25em; }
-
-        .note-overlay::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 1px,
-                    rgba(212, 165, 165, 0.03) 2px,
-                    rgba(212, 165, 165, 0.03) 3px
-                );
-            border-radius: 12px;
-            pointer-events: none;
-        }
-
-        .note-overlay::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 0 20px 20px 0;
-            border-color: transparent #f0d5d0 transparent transparent;
-            border-radius: 0 0 0 3px;
-        }
-
-        /* Спрятанная записка лежит в горлышке банки: узкая полоска бумаги,
-           чуть повёрнутая набок. */
-        .note-overlay.hidden {
-            opacity: 0;
-            transform: translate(-50%, -50%) translateY(calc(-1 * var(--note-lift))) scale(0.18) rotate(-12deg);
-            pointer-events: none;
-            /* при повторном вытягивании старая записка втягивается обратно в банку */
-            transition: transform 0.18s ease-in, opacity 0.14s ease-in;
-        }
-
-        .note-overlay.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1) rotate(0deg);
-            animation: notePull 0.75s cubic-bezier(0.33, 0, 0.2, 1);
-            pointer-events: auto;
-            will-change: transform, opacity;
-            transform-origin: 50% 30%;
-        }
-
-        /* Лист разворачивается из свитка, который 3D-сцена только что
-           вытащила из банки и поднесла к экрану (≈750 мс):
-           0–18%  — узкая полоска на месте свитка, у горлышка;
-           18–50% — раскручивается по горизонтали, слегка поворачиваясь;
-           50–80% — раскрывается по высоте и опускается в центр;
-           80–100% — мягко ложится с крошечным перелётом. */
-        @keyframes notePull {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -50%) translateY(calc(-0.62 * var(--note-lift))) scale(0.22, 0.06) rotate(-10deg);
-                animation-timing-function: cubic-bezier(0.25, 0.6, 0.3, 1);
-            }
-            18% {
-                opacity: 1;
-                transform: translate(-50%, -50%) translateY(calc(-0.6 * var(--note-lift))) scale(0.42, 0.07) rotate(-6deg);
-                animation-timing-function: cubic-bezier(0.3, 0.5, 0.35, 1);
-            }
-            50% {
-                opacity: 1;
-                transform: translate(-50%, -50%) translateY(calc(-0.42 * var(--note-lift))) scale(1.02, 0.16) rotate(4deg);
-                animation-timing-function: cubic-bezier(0.35, 0.1, 0.3, 1);
-            }
-            80% {
-                opacity: 1;
-                transform: translate(-50%, -50%) translateY(8px) scale(1.03, 1.05) rotate(-1.5deg);
-                animation-timing-function: ease-out;
-            }
-            100% {
-                opacity: 1;
-                transform: translate(-50%, -50%) translateY(0) scale(1) rotate(0deg);
-            }
-        }
-
-        /* Кнопка на время вытягивания — чтобы не жали повторно */
-        .randomize-btn.drawing {
-            opacity: 0.75;
-            pointer-events: none;
-            transform: scale(0.98);
-        }
-
-        .note-text {
-            margin-bottom: 8px;
-        }
-
-        .remove-idea-btn {
-            padding: 8px 14px;
-            background: linear-gradient(135deg, #cc9999 0%, #b88989 100%);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
-            font-size: 0.75em;
-            font-family: 'Comfortaa', cursive;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin-top: 6px;
-            pointer-events: auto;
-            box-shadow: 0 3px 10px rgba(139, 94, 94, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .remove-idea-btn.hidden {
-            display: none;
-        }
-
-        .randomize-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #d4a5a5 0%, #c98d8d 50%, #b88989 100%);
-            border: none;
-            border-radius: 18px;
-            color: white;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 
-                0 6px 25px rgba(139, 94, 94, 0.35),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            font-family: 'Comfortaa', cursive;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .randomize-btn:active {
-            transform: scale(0.98);
-            box-shadow: 0 4px 15px rgba(139, 94, 94, 0.3);
-        }
-
-        .custom-input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .custom-input {
-            flex: 1;
-            padding: 12px 14px;
-            border: 2px solid #f0e0e0;
-            border-radius: 14px;
-            font-size: 0.95em;
-            color: #8b5e5e;
-            font-family: 'Comfortaa', cursive;
-            transition: all 0.3s;
-            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
-        }
-
-        .custom-input:focus {
-            outline: none;
-            border-color: #d4a5a5;
-            box-shadow: 0 0 0 3px rgba(212, 165, 165, 0.1);
-        }
-
-        .add-btn {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #d4a5a5 0%, #b88989 100%);
-            border: none;
-            border-radius: 14px;
-            color: white;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1.1em;
-            font-family: 'Comfortaa', cursive;
-            box-shadow: 0 4px 15px rgba(139, 94, 94, 0.25);
-        }
-
-        .delete-btn {
-            background: linear-gradient(135deg, #cc9999 0%, #b88989 100%);
-            padding: 8px 12px;
-            font-size: 0.85em;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
-            font-family: 'Comfortaa', cursive;
-            box-shadow: 0 3px 10px rgba(139, 94, 94, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .restore-btn {
-            background: linear-gradient(135deg, #90d490 0%, #70b070 100%);
-            padding: 8px 12px;
-            font-size: 0.85em;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
-            font-family: 'Comfortaa', cursive;
-            box-shadow: 0 3px 10px rgba(70, 140, 70, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .custom-list, .history-list {
-            list-style: none;
-        }
-
-        .custom-item, .history-item {
-            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
-            padding: 12px 14px;
-            border-radius: 14px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #8b5e5e;
-            border: 1px solid rgba(212, 165, 165, 0.2);
-            font-size: 0.9em;
-        }
-
-        .history-item {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .history-item-header {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .history-item-title {
-            font-weight: 600;
-            margin-bottom: 4px;
-            font-size: 0.9em;
-        }
-
-        .history-item-date {
-            font-size: 0.8em;
-            color: #a07878;
-            opacity: 0.8;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            user-select: none;
-            font-size: 0.8em;
-            white-space: nowrap;
-        }
-
-        .checkbox-label input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #d4a5a5;
-        }
-
-        .history-item.completed {
-            opacity: 0.5;
-            filter: grayscale(0.3);
-        }
-
-        .history-item.completed .history-item-title {
-            text-decoration: line-through;
-        }
-
-        .empty-message {
-            text-align: center;
-            color: #a07878;
-            padding: 30px 15px;
-            font-style: italic;
-            opacity: 0.7;
-            font-size: 0.9em;
-        }
-
-        .mode-switch {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .mode-btn {
-            flex: 1;
-            padding: 10px;
-            background: linear-gradient(135deg, #f8e8e8 0%, #f0e0e0 100%);
-            border: 2px solid transparent;
-            border-radius: 14px;
-            color: #8b5e5e;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-family: 'Comfortaa', cursive;
-            font-size: 0.9em;
-        }
-
-        .mode-btn.active {
-            background: linear-gradient(135deg, #ffc4d0 0%, #ffb3c6 100%);
-            border-color: #d4a5a5;
-            box-shadow: 0 4px 15px rgba(212, 165, 165, 0.3);
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-
-            .header h1 {
-                font-size: 1.5em;
-            }
-
-            .header p {
-                font-size: 0.85em;
-            }
-
-            .card {
-                padding: 15px;
-                border-radius: 20px;
-            }
-
-            .jar-container {
-                height: 360px;
-                margin: 20px 0 15px 0;
-            }
-
-            .note-overlay {
-                font-size: 1em;
-                padding: 16px;
-                min-height: 140px;
-            }
-
-            .filter-btn {
-                padding: 8px 14px;
-                font-size: 0.8em;
-            }
-
-            .tab {
-                min-width: 70px;
-                padding: 10px 6px;
-                font-size: 0.8em;
-            }
-
-            .randomize-btn {
-                font-size: 1em;
-                padding: 14px;
-            }
-        }
-
-        /* Уважаем системную настройку «уменьшить движение»: останавливаем
-           не только сердечки, но и фоновые градиенты, гирлянду, снеговиков
-           и появление карточек. */
-        @media (prefers-reduced-motion: reduce) {
-            .heart-decoration,
-            .card-hearts span {
-                animation: none;
-            }
-
-            body::before,
-            body::after,
-            .header,
-            .card,
-            .garland .bulb,
-            .snowman {
-                animation: none !important;
-            }
-
-            .tab-content {
-                animation: none;
-            }
-
-            /* без покадровой анимации записка просто появляется на месте */
-            .note-overlay.show {
-                animation: none;
-            }
-
-            .note-overlay.hidden {
-                transition: none;
-            }
-        }
-
-        /* =================================================================
-           НОВОГОДНЯЯ ТЕМА «РОЗОВАЯ ЗИМА»
-           Всё ниже работает только при классе .theme-newyear на <html>.
-           Без него приложение выглядит как раньше.
-           ================================================================= */
-        html:not(.theme-newyear) .ny-only { display: none !important; }
-
-        .theme-newyear {
-            --ny-snow: #ffffff;
-            --ny-ice: #e4eff7;
-            --ny-ice-deep: #c9dceb;
-            --ny-gold: #e2b457;
-            --ny-gold-soft: #f3d999;
-            --ny-berry: #c2415a;
-            --ny-berry-deep: #9e2e47;
-        }
-
-        .theme-newyear body {
-            background: linear-gradient(165deg, #f3f6fb 0%, #fbe8ee 26%, #ffdfe5 52%, #f6d7d7 78%, #ebd4d8 100%);
-            background-attachment: fixed;
-        }
-
-        .theme-newyear .heart-decoration { opacity: 0.08; }
-
-        /* --- снег на фоне --- */
-        .snow-layer {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        /* --- счётчик до Нового года --- */
-        .ny-countdown {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 12px;
-            padding: 7px 14px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.72);
-            border: 1px solid var(--ny-ice-deep);
-            box-shadow: 0 3px 12px rgba(150, 110, 125, 0.12);
-            color: #8b5e5e;
-            font-size: 0.85em;
-        }
-        .ny-countdown b {
-            color: var(--ny-berry);
-            font-size: 1.15em;
-        }
-        .ny-countdown .icon {
-            width: 14px;
-            height: 14px;
-            color: #9cbcd6;
-        }
-
-        /* --- карточка: снег по верхнему краю и гирлянда --- */
-        .theme-newyear .card {
-            padding-top: 48px;
-            border-color: rgba(214, 230, 242, 0.95);
-        }
-        .card > .card-snow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 14px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 14' preserveAspectRatio='none'%3E%3Cpath fill='%23d6e6f2' d='M0 0 H120 V9 C114 11 110 13 104 12 C98 14 92 14 88 11 C80 13 72 13 66 10 C60 13 52 14 46 11 C40 13 34 13 30 10 C22 13 14 13 8 10 C5 11 2 11 0 9 Z'/%3E%3Cpath fill='%23ffffff' d='M0 0 H120 V7 C114 9 110 11 104 10 C98 12 92 12 88 9 C80 11 72 11 66 8 C60 11 52 12 46 9 C40 11 34 11 30 8 C22 11 14 11 8 8 C5 9 2 9 0 7 Z'/%3E%3C/svg%3E") repeat-x;
-            background-size: 120px 14px;
-            filter: drop-shadow(0 2px 2px rgba(120, 160, 195, 0.35));
-            pointer-events: none;
-            z-index: 2;
-        }
-        .card > .garland {
-            position: absolute;
-            top: 8px;
-            left: 10px;
-            right: 10px;
-            height: 36px;
-            pointer-events: none;
-            z-index: 2;
-        }
-        .garland svg { position: absolute; inset: 0; overflow: visible; }
-        .garland .bulb {
-            position: absolute;
-            width: 8px;
-            height: 11px;
-            margin-left: -4px;
-            border-radius: 50% 50% 50% 50% / 42% 42% 58% 58%;
-            background: var(--bulb);
-            box-shadow: 0 0 6px 1px var(--bulb);
-            animation: bulbBlink 2.4s ease-in-out infinite;
-        }
-        .garland .bulb::before {
-            content: '';
-            position: absolute;
-            top: -3px;
-            left: 2px;
-            width: 4px;
-            height: 4px;
-            border-radius: 1px;
-            background: #8d8f88;
-        }
-        @keyframes bulbBlink {
-            0%, 100% { opacity: 1; }
-            50%      { opacity: 0.45; }
-        }
-
-        /* --- плашки фильтров со снежными шапками --- */
-        .theme-newyear .filter-group {
-            position: relative;
-            margin-bottom: 18px;
-            padding: 16px 12px 12px;
-            border-radius: 16px;
-            background: linear-gradient(180deg, rgba(255, 250, 251, 0.98) 0%, rgba(253, 238, 242, 0.92) 100%);
-            border: 1px solid rgba(214, 230, 242, 0.95);
-            box-shadow: 0 3px 10px rgba(150, 110, 125, 0.08), inset 0 1px 0 #ffffff;
-        }
-        .theme-newyear .filter-group:first-child { margin-top: 30px; }
-        .theme-newyear .filter-group::before {
-            content: '';
-            position: absolute;
-            top: -8px;
-            left: -2px;
-            right: -2px;
-            height: 17px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 18' preserveAspectRatio='none'%3E%3Cpath fill='%23d6e6f2' d='M0 11 C8 5 16 4 24 8 C32 3 44 2 52 7 C60 4 70 4 78 8 C86 3 100 3 108 7 C113 5 117 7 120 11 L120 14 C116 16 112 15 108 17 C104 18 100 18 97 16 C90 18 84 17 78 15 C72 18 66 18 62 15 C54 17 46 17 40 14 C34 18 28 18 24 14 C16 16 8 16 0 14 Z'/%3E%3Cpath fill='%23ffffff' d='M0 9 C8 3 16 2 24 6 C32 1 44 0 52 5 C60 2 70 2 78 6 C86 1 100 1 108 5 C113 3 117 5 120 9 L120 12 C116 14 112 13 108 15 C104 16 100 16 97 14 C90 16 84 15 78 13 C72 16 66 16 62 13 C54 15 46 15 40 12 C34 16 28 16 24 12 C16 14 8 14 0 12 Z'/%3E%3C/svg%3E") repeat-x;
-            background-size: 120px 17px;
-            filter: drop-shadow(0 1px 1px rgba(120, 160, 195, 0.35));
-            pointer-events: none;
-        }
-
-        /* выбранный фильтр — с инеем */
-        .theme-newyear .filter-btn { position: relative; }
-        .theme-newyear .filter-btn.selected {
-            border-color: var(--ny-ice-deep);
-            box-shadow:
-                0 4px 15px rgba(212, 165, 165, 0.32),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.9),
-                inset 0 -6px 10px rgba(228, 239, 247, 0.55);
-        }
-        .theme-newyear .filter-btn.selected::after {
-            content: '❄';
-            position: absolute;
-            top: -6px;
-            right: -3px;
-            font-size: 11px;
-            line-height: 1;
-            color: #9cbcd6;
-            text-shadow: 0 0 3px #ffffff;
-        }
-
-        /* --- вкладки --- */
-        .theme-newyear .tab { min-width: 0; padding: 10px 2px; gap: 3px; }
-        .theme-newyear .tab.active::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 7px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 14' preserveAspectRatio='none'%3E%3Cpath fill='%23d6e6f2' d='M0 0 H120 V9 C114 11 110 13 104 12 C98 14 92 14 88 11 C80 13 72 13 66 10 C60 13 52 14 46 11 C40 13 34 13 30 10 C22 13 14 13 8 10 C5 11 2 11 0 9 Z'/%3E%3Cpath fill='%23ffffff' d='M0 0 H120 V7 C114 9 110 11 104 10 C98 12 92 12 88 9 C80 11 72 11 66 8 C60 11 52 12 46 9 C40 11 34 11 30 8 C22 11 14 11 8 8 C5 9 2 9 0 7 Z'/%3E%3C/svg%3E") repeat-x;
-            background-size: 60px 7px;
-        }
-        .tab.tab-ny {
-            background: linear-gradient(135deg, #fff1f4 0%, #fde8cf 100%);
-            border-color: var(--ny-gold-soft);
-            color: var(--ny-berry);
-        }
-        .tab.tab-ny.active {
-            background: linear-gradient(135deg, #d2566f 0%, var(--ny-berry-deep) 100%);
-            border-color: var(--ny-gold);
-            color: #ffffff;
-            box-shadow: 0 6px 20px rgba(158, 46, 71, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-
-        /* --- главная кнопка: снег сверху и снеговик --- */
-        .randomize-wrap { position: relative; }
-        .theme-newyear .randomize-btn { position: relative; }
-        .theme-newyear .randomize-btn::after {
-            content: '';
-            position: absolute;
-            top: -7px;
-            left: 10px;
-            right: 10px;
-            height: 14px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 18' preserveAspectRatio='none'%3E%3Cpath fill='%23d6e6f2' d='M0 11 C8 5 16 4 24 8 C32 3 44 2 52 7 C60 4 70 4 78 8 C86 3 100 3 108 7 C113 5 117 7 120 11 L120 14 C116 16 112 15 108 17 C104 18 100 18 97 16 C90 18 84 17 78 15 C72 18 66 18 62 15 C54 17 46 17 40 14 C34 18 28 18 24 14 C16 16 8 16 0 14 Z'/%3E%3Cpath fill='%23ffffff' d='M0 9 C8 3 16 2 24 6 C32 1 44 0 52 5 C60 2 70 2 78 6 C86 1 100 1 108 5 C113 3 117 5 120 9 L120 12 C116 14 112 13 108 15 C104 16 100 16 97 14 C90 16 84 15 78 13 C72 16 66 16 62 13 C54 15 46 15 40 12 C34 16 28 16 24 12 C16 14 8 14 0 12 Z'/%3E%3C/svg%3E") repeat-x;
-            background-size: 120px 14px;
-            filter: drop-shadow(0 1px 1px rgba(120, 160, 195, 0.4));
-            pointer-events: none;
-        }
-        .randomize-btn.ny-draw-btn {
-            background: linear-gradient(135deg, #d65d76 0%, var(--ny-berry) 55%, var(--ny-berry-deep) 100%);
-            border: 1px solid var(--ny-gold);
-            box-shadow: 0 6px 25px rgba(158, 46, 71, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-
-        /* --- снеговики --- */
-        .snowman {
-            position: absolute;
-            width: 30px;
-            height: 39px;
-            pointer-events: none;
-            transform-origin: 50% 100%;
-            animation: snowmanSway 4.5s ease-in-out infinite;
-            filter: drop-shadow(0 2px 2px rgba(120, 140, 160, 0.25));
-            z-index: 3;
-        }
-        .snowman-plate { top: -40px; right: 14px; }
-        .snowman-btn   { top: -36px; right: 22px; animation-delay: -2s; }
-        .snowman-empty {
-            position: static;
-            display: block;
-            width: 44px;
-            height: 57px;
-            margin: 0 auto 10px;
-        }
-        @keyframes snowmanSway {
-            0%, 100% { transform: rotate(-3deg); }
-            50%      { transform: rotate(3deg); }
-        }
-
-        /* --- новогодний раздел --- */
-        .ny-banner {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 6px;
-            padding: 10px 14px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(255, 241, 244, 0.95) 0%, rgba(253, 236, 214, 0.95) 100%);
-            border: 1px solid var(--ny-gold-soft);
-            color: var(--ny-berry-deep);
-            font-size: 0.85em;
-            font-weight: 600;
-            text-align: center;
-        }
-        .ny-banner .icon { color: var(--ny-gold); }
-
-        /* сцена подарка выше, чем у банки: описания идей длиннее.
-           --note-lift считается по той же формуле (горлышко подарка y = 2.0) */
-        #ny-stage { height: 440px; --note-lift: 30.2%; }
-
-        /* записка с новогодней идеей: название + описание */
-        .note-overlay.ny-note {
-            justify-content: flex-start;
-            font-size: 0.96em;
-            line-height: 1.3;
-            padding: 14px 16px;
-            border-color: var(--ny-gold);
-        }
-        .note-overlay.ny-note::after {
-            border-color: transparent var(--ny-gold-soft) transparent transparent;
-        }
-        .ny-note-title {
-            font-family: 'Comfortaa', cursive;
-            font-weight: 700;
-            font-size: 0.92em;
-            line-height: 1.3;
-            color: var(--ny-berry);
-            margin-bottom: 8px;
-        }
-        .ny-note-body { font-size: 1.08em; }
-        .ny-badge { margin-right: 4px; }
-
-        @media (max-width: 480px) {
-            #ny-stage { height: 420px; }
-            .note-overlay.ny-note { padding: 12px 13px; font-size: 0.93em; }
-            .theme-newyear .tab-text { font-size: 0.92em; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .garland .bulb,
-            .snowman { animation: none; }
-        }
-
-        /* =================================================================
-           НОВЫЕ ЭЛЕМЕНТЫ: fallback без 3D, «скопировать ссылку», подсказка
-           фильтров, ошибка ввода, фокус с клавиатуры. Те же оттенки.
-           ================================================================= */
-        .offline-notice {
-            position: fixed;
-            left: 50%;
-            bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-            transform: translateX(-50%);
-            max-width: min(92vw, 520px);
-            padding: 10px 16px;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.96);
-            border: 1px solid rgba(212, 165, 165, 0.6);
-            box-shadow: 0 8px 24px rgba(139, 94, 94, 0.2);
-            color: #8b5e5e;
-            font-size: 0.82em;
-            text-align: center;
-            z-index: 100;
-            /* плашка не должна перехватывать нажатия по кнопкам под ней */
-            pointer-events: none;
-        }
-        .offline-notice[hidden] { display: none; }
-
-        .stage-fallback {
-            display: none;
-            position: absolute;
-            inset: 0;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            text-align: center;
-            padding: 20px;
-            color: #a07878;
-            font-size: 0.9em;
-            line-height: 1.5;
-            pointer-events: none;
-            z-index: 1;
-        }
-        .stage-fallback .icon {
-            width: 46px;
-            height: 46px;
-            color: #c98d8d;
-            opacity: 0.65;
-        }
-        .stage-fallback.no-js {
-            display: flex;
-            position: relative;
-            height: auto;
-            padding: 40px 20px;
-        }
-        /* Нет Three.js / WebGL: вместо сцены — карточка-заглушка,
-           записка стоит по центру и не уменьшается до полоски */
-        .jar-container.no-3d {
-            /* по умолчанию сцена центрирует канвас в строке; без 3D записка
-               должна встать в колонку и растянуться на всю ширину */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: auto;
-            min-height: 220px;
-            padding: 34px 0 26px;
-            border-radius: 18px;
-            background:
-                radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 60%),
-                linear-gradient(180deg, rgba(248, 232, 232, 0.55) 0%, rgba(240, 224, 224, 0.35) 100%);
-        }
-        .jar-container.no-3d .stage-fallback {
-            display: flex;
-            position: static;
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 10px 16px 0;
-            font-size: 0.82em;
-        }
-        .jar-container.no-3d .stage-fallback .icon { width: 22px; height: 22px; }
-        .jar-container.no-3d canvas { display: none; }
-        .jar-container.no-3d .note-overlay {
-            position: relative;
-            top: auto;
-            left: auto;
-            /* явный transform: базовое правило сдвигает записку на -50% */
-            transform: translate(0, 0) !important;
-            /* сцена — flex-колонка: иначе записка «сжимается» до ширины текста */
-            flex: 0 0 auto;
-            box-sizing: border-box;
-            margin: 0 auto;
-            width: 92% !important;
-            max-width: min(480px, 92%);
-            min-width: 0;
-            max-height: none;
-            overflow: visible;
-        }
-        /* В обычном режиме записка висит по центру сцены (translate -50%),
-           в fallback она встаёт в поток — отцентровываем её явно */
-        .jar-container.no-3d .note-overlay.show {
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
-        .jar-container.no-3d .note-overlay.hidden {
-            display: none;
-        }
-        .jar-container.no-3d .note-overlay.show {
-            display: flex;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-            clip: rect(0 0 0 0);
-            white-space: nowrap;
-        }
-
-
-        .filter-count-line {
-            margin: -8px 0 8px;
-        }
-        #filter-count {
-            display: block;
-            color: #a07878;
-            font-size: 0.8em;
-            font-style: italic;
-            padding: 0 4px;
-        }
-        #filter-count:empty { display: none; }
-
-        .custom-error {
-            margin: -6px 0 12px;
-            padding: 8px 12px;
-            border-radius: 10px;
-            background: rgba(255, 196, 208, 0.35);
-            border: 1px solid rgba(212, 165, 165, 0.6);
-            color: #8b3d4d;
-            font-size: 0.82em;
-        }
-        .custom-error.hidden { display: none; }
-
-        /* Длинные строки переносятся, а не выдавливают кнопку за край */
-        .custom-item { gap: 10px; }
-        .custom-item .custom-text {
-            flex: 1 1 auto;
-            min-width: 0;
-            overflow-wrap: anywhere;
-            word-break: break-word;
-        }
-        .custom-item .delete-btn,
-        .custom-item .restore-btn { flex: 0 0 auto; }
-        .history-item-title { overflow-wrap: anywhere; }
-
-        /* Клавиатурный фокус виден на кнопках и поле ввода */
-        .tab:focus-visible,
-        .mode-btn:focus-visible,
-        .filter-btn:focus-visible,
-        .randomize-btn:focus-visible,
-        .add-btn:focus-visible,
-        .delete-btn:focus-visible,
-        .restore-btn:focus-visible,
-        .remove-idea-btn:focus-visible,
-        .checkbox-label input:focus-visible {
-            outline: 3px solid rgba(139, 94, 94, 0.55);
-            outline-offset: 2px;
-        }
-
-        .randomize-btn:disabled { cursor: default; }
-        .tab.ny-unavailable { display: none !important; }
-
-        /* Новогодняя тема добавляет пятую вкладку: чуть мельче подписи,
-           чтобы кнопки целиком помещались в карточку и не обрезались */
-        .theme-newyear .tab { font-size: 0.78em; }
-        .theme-newyear .tab-text { font-size: 0.86em; }
-        .theme-newyear .tab .icon { width: 16px; height: 16px; }
-        .tab-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-
-        @media (max-width: 380px) {
-            .tab { padding: 10px 2px; gap: 3px; }
-            .tab-text { font-size: 0.64em; }
-            .theme-newyear .tab-text { font-size: 0.72em; }
-            .note-overlay { font-size: 0.95em; padding: 14px; }
-            .note-overlay.short-text { font-size: 1.1em; }
-        }
-
-        /* Новогодняя тема добавляет пятую вкладку — на узких экранах подписи
-           становятся мельче, чтобы ряд помещался без обрезки */
-        @media (max-width: 359px) {
-            html:not(.theme-newyear) .tabs { gap: 5px; }
-            html:not(.theme-newyear) .tab { min-width: 40px; padding: 12px 4px; gap: 0; }
-            html:not(.theme-newyear) .tab .icon { width: 15px; }
-            /* без новогодней темы пять вкладок не встают в ряд даже без
-               отступов — остаётся значок, подпись доступна через aria-label */
-            html:not(.theme-newyear) .tab-text {
-                position: absolute;
-                width: 1px;
-                height: 1px;
-                overflow: hidden;
-                clip: rect(0 0 0 0);
-                white-space: nowrap;
-            }
-            html:not(.theme-newyear) .tab .icon { width: 20px; height: 20px; }
-            .theme-newyear .tab-text { font-size: 0.66em; }
-            .theme-newyear .tab .icon { width: 15px; height: 15px; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .randomize-btn,
-            .tab,
-            .filter-btn,
-            .mode-btn { transition: none; }
-        }
-    </style>
+    <link rel="stylesheet" href="src/surfaces.css">
+    <link rel="stylesheet" href="src/optical.css">
+    <script src="src/jar-scene.js?v=gold2" defer></script>
+    <script src="src/experience.js" defer></script>
+    <link rel="stylesheet" href="src/motion.css">
+    <link rel="stylesheet" href="src/color.css">
+    <link rel="stylesheet" href="src/winter.css">
+    <link rel="stylesheet" href="src/liquid.css">
+    <link rel="stylesheet" href="src/atmosphere.css?v=base2">
+    <script src="src/atmosphere.js" defer></script>
+    <script src="src/motion-system.js" defer></script>
 </head>
 <body>
     <!-- Анимированные сердечки на фоне -->
-    <div class="heart-decoration">♥</div>
-    <div class="heart-decoration">♥</div>
-    <div class="heart-decoration">♥</div>
-    <div class="heart-decoration">♥</div>
-    <div class="heart-decoration">♥</div>
-    <div class="heart-decoration">♥</div>
-    <div class="heart-decoration">♥</div>
-    <div class="heart-decoration">♥</div>
 
     <svg width="0" height="0" style="position: absolute;">
         <defs>
@@ -1416,23 +88,12 @@
                     <path d="M9.5 3.8L12 6l2.5-2.2M9.5 20.2L12 18l2.5 2.2M4.2 10.2L6.8 9.6 6 7M19.8 13.8l-2.6.6.8 2.6M4.2 13.8l2.6.6-.8 2.6M19.8 10.2l-2.6-.6.8-2.6"/>
                 </g>
             </symbol>
-            <symbol id="icon-snowman" viewBox="0 0 40 52">
-                <circle cx="20" cy="40" r="11" fill="#ffffff" stroke="#cfe0ee" stroke-width="1.2"/>
-                <circle cx="20" cy="22" r="8" fill="#ffffff" stroke="#cfe0ee" stroke-width="1.2"/>
-                <path d="M11 36 L3 29 M29 36 L37 29" stroke="#8b6a55" stroke-width="1.4" stroke-linecap="round"/>
-                <rect x="12" y="27.5" width="16" height="3.6" rx="1.8" fill="#e88aa3"/>
-                <rect x="21.5" y="29.5" width="3.6" height="7.5" rx="1.3" fill="#e88aa3"/>
-                <circle cx="17" cy="20.5" r="1.1" fill="#4a3a3f"/>
-                <circle cx="23" cy="20.5" r="1.1" fill="#4a3a3f"/>
-                <circle cx="15.3" cy="23.8" r="1.5" fill="#ffc4d0"/>
-                <circle cx="24.7" cy="23.8" r="1.5" fill="#ffc4d0"/>
-                <path d="M20 22.6 L26.5 23.8 L20 24.9 Z" fill="#f08a3c"/>
-                <circle cx="20" cy="36.5" r="1.1" fill="#8c6d74"/>
-                <circle cx="20" cy="41.5" r="1.1" fill="#8c6d74"/>
-                <rect x="12.5" y="12" width="15" height="2.8" rx="1.2" fill="#b8506a"/>
-                <rect x="15" y="3.5" width="10" height="9" rx="1.6" fill="#b8506a"/>
-                <rect x="15" y="9.6" width="10" height="1.7" fill="#f0c46a"/>
-            </symbol>
+            <symbol id="optical-dice" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.63" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 8h.02m8 0h.02m-4 4h.02m-4 4h.02m8 0h.02" stroke-width="2.5"/></g></symbol>
+            <symbol id="optical-own" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.63" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h10l4 4v8m-8 4H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m9 0v5h4m-3 10h7m-3.5-3.5v7"/></g></symbol>
+            <symbol id="optical-history" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.63" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a8 8 0 1 1-.4 7M4 4v5h5m3-3v6l4 2"/></g></symbol>
+            <symbol id="optical-removed" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.63" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3m-9 0 1.15 12A1.1 1.1 0 0 0 8.25 20h7.5a1.1 1.1 0 0 0 1.1-1L18 7m-8 4v5m4-5v5"/></g></symbol>
+            <symbol id="optical-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.63" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16v3H4zM6 13v7h12v-7m-6-3v10m0-10C7 10 6 8 7 6c1-2 4-1 5 4Zm0 0c5 0 6-2 5-4s-4-1-5 4Z"/></g></symbol>
+            <symbol id="optical-action" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.63" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3c.8 4.7 2.8 6.8 7.4 7.8-4.6.8-6.6 2.8-7.4 7.7-.9-4.9-2.9-6.9-7.5-7.7C8.1 9.8 10.1 7.7 11 3Zm7 12c.4 1.7 1.3 2.7 3 3.1-1.7.4-2.6 1.3-3 3-.4-1.7-1.3-2.6-3-3.1Z"/></g></symbol>
         </defs>
     </svg>
 
@@ -1440,59 +101,42 @@
         Нет подключения: 3D-анимация недоступна, но все идеи работают как обычно
     </div>
 
+    <div class="offline-notice" id="operation-status" role="status" aria-atomic="true"></div>
+
     <div class="container">
-        <div class="header">
-            <h1>Рандомайзер Свиданий</h1>
-            <p>Найдём идеальное свидание для вас!</p>
-            <div class="ny-countdown ny-only" id="ny-countdown"></div>
+        <div class="atmosphere" aria-hidden="true">
+            <canvas></canvas>
+            <i class="garland-light"></i><i class="garland-light"></i><i class="garland-light"></i>
+            <i class="garland-light"></i><i class="garland-light"></i>
         </div>
+        <div class="header">
+            <p class="wordmark" lang="en">Date Randomizer</p>
+            <h1><span class="title-optical">Рандомайзер</span> <span class="title-optical">свиданий</span></h1>
+        </div>
+        <div class="ny-countdown ny-only" id="ny-countdown"></div>
 
         <div class="card">
-            <!-- Анимированные сердечки внутри плашки -->
-            <div class="card-hearts">
-                <span>♥</span>
-                <span>♥</span>
-                <span>♥</span>
-                <span>♥</span>
-                <span>♥</span>
-                <span>♥</span>
-            </div>
-            <div class="card-snow ny-only" aria-hidden="true"></div>
-            <div class="garland ny-only" id="garland" aria-hidden="true"></div>
-            <div class="tabs">
-                <button class="tab active" data-tab="main" type="button" aria-label="Рандом" onclick="safe(switchTab)('main', event)">
-                    <svg class="icon" aria-hidden="true"><use href="#icon-dice"/></svg>
-                    <span class="tab-text">Рандом</span>
-                </button>
-                <button class="tab tab-ny ny-only" data-tab="newyear" type="button" onclick="safe(switchTab)('newyear', event)">
-                    <svg class="icon" aria-hidden="true"><use href="#icon-gift"/></svg>
-                    <span class="tab-text">Новый год</span>
-                </button>
-                <button class="tab" data-tab="custom" type="button" aria-label="Свои идеи" onclick="safe(switchTab)('custom', event)">
-                    <svg class="icon" aria-hidden="true"><use href="#icon-pencil"/></svg>
-                    <span class="tab-text">Свои</span>
-                </button>
-                <button class="tab" data-tab="history" type="button" aria-label="История" onclick="safe(switchTab)('history', event)">
-                    <svg class="icon" aria-hidden="true"><use href="#icon-book"/></svg>
-                    <span class="tab-text">История</span>
-                </button>
-                <button class="tab" data-tab="removed" type="button" aria-label="Удалённые" onclick="safe(switchTab)('removed', event)">
-                    <svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg>
-                    <span class="tab-text">Удалённые</span>
-                </button>
-            </div>
-
             <div id="main-tab" class="tab-content active">
                 <div class="mode-switch">
                     <button class="mode-btn active" data-mode="preset" type="button" onclick="safe(switchMode)('preset', event)">Готовые идеи</button>
                     <button class="mode-btn" data-mode="custom" type="button" onclick="safe(switchMode)('custom', event)">Мои идеи</button>
                 </div>
 
-                <div class="filter-count-line"><span id="filter-count" role="status" aria-live="polite"></span></div>
-                <div class="filters" id="preset-filters">
+                <div class="optical-tools">
+                    <button id="open-filters" type="button" aria-haspopup="dialog" aria-controls="preset-filters">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="#f8e9ed"/><circle cx="15" cy="17" r="2" fill="#f8e9ed"/></svg>
+                        Фильтры
+                    </button>
+                    <span id="filter-count" role="status" aria-live="polite"></span>
+                </div>
+                <dialog class="filters" id="preset-filters" aria-labelledby="filter-title">
+                    <div class="filters-grip" aria-hidden="true"></div>
+                    <header class="optical-sheet-head">
+                        <h2 id="filter-title">Фильтры</h2>
+                        <button id="filters-close" type="button" aria-label="Закрыть фильтры">×</button>
+                    </header>
                     <noscript><div class="custom-error">Для выбора идей включите JavaScript</div></noscript>
                     <div class="filter-group">
-                        <svg class="snowman snowman-plate ny-only" aria-hidden="true"><use href="#icon-snowman"/></svg>
                         <label>
                             <svg class="icon"><use href="#icon-money"/></svg>
                             <span>Бюджет</span>
@@ -1516,7 +160,7 @@
                         </div>
                     </div>
 
-                    <div class="filter-group">
+                    <div class="filter-group season-group">
                         <label>
                             <svg class="icon"><use href="#icon-weather"/></svg>
                             <span>Время года</span>
@@ -1544,12 +188,16 @@
                             <button class="filter-btn" data-filter="mood" data-value="food">Гастрономия</button>
                         </div>
                     </div>
-                </div>
+                    <footer class="optical-sheet-foot">
+                        <span id="sheet-count" role="status" aria-live="polite"></span>
+                        <button id="filters-apply" type="button">Показать идеи</button>
+                    </footer>
+                </dialog>
 
-                <div class="jar-container" id="jar-stage">
-                    <canvas id="jar-canvas" role="img" aria-label="Трёхмерная банка с записками"></canvas>
+                <div class="jar-container spatial-stage" id="jar-stage">
+                    <canvas class="scene-viewport" id="optical-canvas" role="img" aria-label="Трёхмерная банка с записками"></canvas>
                     <div class="stage-fallback" aria-hidden="true">
-                        <svg class="icon"><use href="#icon-gift"/></svg>
+                        <svg class="icon"><use href="#optical-gift"/></svg>
                         <span>3D-банка доступна не везде — идеи работают как обычно</span>
                     </div>
                     <noscript>
@@ -1558,80 +206,101 @@
                     <div class="note-overlay hidden" id="note">
                         <div class="note-text" id="note-text"></div>
                         <button class="remove-idea-btn hidden" id="remove-btn" type="button" aria-label="Убрать эту идею" onclick="safe(removeCurrentIdea)()">
-                            <svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg>
+                            <svg class="icon" aria-hidden="true"><use href="#optical-removed"/></svg>
                             Убрать
                         </button>
                     </div>
                 </div>
 
-                <div class="visually-hidden" id="sr-status" role="status" aria-live="polite"></div>
-
                 <div class="randomize-wrap">
-                    <svg class="snowman snowman-btn ny-only" aria-hidden="true"><use href="#icon-snowman"/></svg>
                     <button class="randomize-btn" type="button" onclick="safe(randomize)()">
-                        <svg class="icon-lg"><use href="#icon-sparkles"/></svg>
+                        <svg class="icon-lg"><use href="#optical-action"/></svg>
                         <span>Вытянуть записку</span>
                     </button>
                 </div>
             </div>
 
-            <div id="newyear-tab" class="tab-content ny-only">
-                <div class="ny-banner">
-                    <svg class="icon"><use href="#icon-gift"/></svg>
-                    <span>200 новогодних идей — откройте подарок и достаньте записку</span>
+            <section id="newyear-tab" class="tab-content ny-only">
+                <div class="jar-container spatial-stage" id="ny-stage">
+                    <canvas class="scene-viewport" id="jar-canvas" role="img" aria-label="Трёхмерный новогодний подарок"></canvas>
                 </div>
-
-                <div class="jar-container" id="ny-stage">
-                    <div class="stage-fallback" aria-hidden="true">
-                        <svg class="icon"><use href="#icon-gift"/></svg>
-                        <span>3D-подарок доступен не везде — идеи работают как обычно</span>
-                    </div>
-                </div>
-
+                <header class="winter-title">
+                    <p class="section-brand" lang="en">Date Randomizer</p>
+                    <h2>Новый год</h2>
+                    <p>200 идей для зимних свиданий</p>
+                </header>
                 <div class="randomize-wrap">
                     <button class="randomize-btn ny-draw-btn" type="button" onclick="safe(randomizeNewYear)()">
-                        <svg class="icon-lg"><use href="#icon-gift"/></svg>
+                        <svg class="icon-lg" aria-hidden="true"><use href="#optical-gift"/></svg>
                         <span>Открыть подарок</span>
                     </button>
                 </div>
-            </div>
+            </section>
 
-            <div id="custom-tab" class="tab-content">
+            <section id="custom-tab" class="tab-content journal">
+                <header class="section-title"><span class="section-brand" lang="en">Date Randomizer</span><h2>Свои идеи</h2></header>
                 <div class="custom-input-group">
                     <input type="text" class="custom-input" id="custom-idea-input" placeholder="Ваша идея..."
                            maxlength="500" enterkeyhint="done" autocomplete="off" aria-label="Ваша идея">
-                    <button class="add-btn" type="button" onclick="safe(addCustomIdea)()">+</button>
+                    <button class="add-btn" type="button" onclick="safe(addCustomIdea)()">Добавить</button>
                 </div>
                 <div class="custom-error hidden" id="custom-error" role="alert"></div>
                 <ul class="custom-list" id="custom-list">
                 </ul>
                 <div class="empty-message" id="custom-empty">
-                    <svg class="snowman snowman-empty ny-only" aria-hidden="true"><use href="#icon-snowman"/></svg>
-                    Здесь будут ваши собственные идеи
+                    <svg class="empty-icon" aria-hidden="true"><use href="#optical-own"/></svg>
+                    <h3>Список пока пуст</h3><p>Добавьте идею для следующего свидания.</p>
                 </div>
-            </div>
+            </section>
 
-            <div id="history-tab" class="tab-content">
+            <section id="history-tab" class="tab-content journal">
+                <header class="section-title"><span class="section-brand" lang="en">Date Randomizer</span><h2>История</h2></header>
                 <ul class="history-list" id="history-list">
                 </ul>
                 <div class="empty-message" id="history-empty">
-                    <svg class="snowman snowman-empty ny-only" aria-hidden="true"><use href="#icon-snowman"/></svg>
-                    История свиданий пока пуста
+                    <svg class="empty-icon" aria-hidden="true"><use href="#optical-history"/></svg>
+                    <h3>История пока пуста</h3><p>Здесь появятся вытянутые записки и отметки о встречах.</p>
                 </div>
-            </div>
+            </section>
 
-            <div id="removed-tab" class="tab-content">
+            <section id="removed-tab" class="tab-content journal">
+                <header class="section-title"><span class="section-brand" lang="en">Date Randomizer</span><h2>Удалённые</h2></header>
                 <ul class="custom-list" id="removed-list">
                 </ul>
                 <div class="empty-message" id="removed-empty">
-                    <svg class="snowman snowman-empty ny-only" aria-hidden="true"><use href="#icon-snowman"/></svg>
-                    Удалённые идеи появятся здесь
+                    <svg class="empty-icon" aria-hidden="true"><use href="#optical-removed"/></svg>
+                    <h3>Удалённых идей пока нет</h3><p>Убранные записки можно будет вернуть отсюда.</p>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" id="three-lib"></script>
+    <nav class="tabs optical-dock" aria-label="Разделы">
+                <span class="dock-optics" aria-hidden="true"></span>
+                <span class="dock-track" aria-hidden="true"></span>
+                <button class="tab active" data-tab="main" type="button" aria-label="Рандом" onclick="safe(switchTab)('main', event)">
+                    <svg class="icon" aria-hidden="true"><use href="#optical-dice"/></svg>
+                    <span class="tab-text">Рандом</span>
+                </button>
+                <button class="tab tab-ny ny-only" data-tab="newyear" type="button" onclick="safe(switchTab)('newyear', event)">
+                    <svg class="icon" aria-hidden="true"><use href="#optical-gift"/></svg>
+                    <span class="tab-text">Новый год</span>
+                </button>
+                <button class="tab" data-tab="custom" type="button" aria-label="Свои идеи" onclick="safe(switchTab)('custom', event)">
+                    <svg class="icon" aria-hidden="true"><use href="#optical-own"/></svg>
+                    <span class="tab-text">Свои</span>
+                </button>
+                <button class="tab" data-tab="history" type="button" aria-label="История" onclick="safe(switchTab)('history', event)">
+                    <svg class="icon" aria-hidden="true"><use href="#optical-history"/></svg>
+                    <span class="tab-text">История</span>
+                </button>
+                <button class="tab" data-tab="removed" type="button" aria-label="Удалённые" onclick="safe(switchTab)('removed', event)">
+                    <svg class="icon" aria-hidden="true"><use href="#optical-removed"/></svg>
+                    <span class="tab-text">Удалённые</span>
+                </button>
+            </nav>
+
+    <div class="visually-hidden" id="sr-status" role="status" aria-live="polite"></div>
     <script src="date_ideas.js"></script>
     <script src="new_year_ideas.js"></script>
     <script>
@@ -1640,7 +309,7 @@
         // =====================================================================
         //  ХРАНЕНИЕ: ошибка доступа к localStorage, повреждённый JSON или неверный
         //  формат не должны ломать запуск. Данные читаются в прежних форматах;
-        //  при ошибке записи изменения остаются в памяти до перезагрузки.
+        //  память и интерфейс обновляются после успешной записи.
         // =====================================================================
         const STORAGE_KEYS = { custom: 'customIdeas', history: 'dateHistory', removed: 'removedIdeas' };
         const MAX_CUSTOM_IDEAS = 500;     // защита от неограниченного роста
@@ -1653,9 +322,27 @@
             catch (e) { return null; }
         }
 
-        function storageSet(key, value) {
+        function showOperationStatus(text = '') {
+            const element = document.getElementById('operation-status');
+            element.textContent = text;
+            if (text) DRMotion.enter(element);
+        }
+
+        function isStoredArray(raw) {
+            try { return Array.isArray(JSON.parse(raw)); }
+            catch (e) { return false; }
+        }
+
+        function storageSet(key, value, failureMessage) {
             try {
-                window.localStorage.setItem(key, value);
+                const storage = window.localStorage;
+                const previous = storage.getItem(key);
+                if (previous !== null && !isStoredArray(previous)) {
+                    showOperationStatus(failureMessage + ' Сохранённые данные повреждены. Исходные данные сохранены.');
+                    return false;
+                }
+                storage.setItem(key, value);
+                showOperationStatus();
                 return true;
             } catch (e) {
                 // Переполнение квоты или запрет доступа: приложение продолжает работать
@@ -1663,6 +350,7 @@
                     storageWarned = true;
                     console.warn('Не удалось сохранить данные в localStorage:', e && e.message);
                 }
+                showOperationStatus(failureMessage + ' Хранилище недоступно или заполнено.');
                 return false;
             }
         }
@@ -1732,6 +420,9 @@
         let filters = { budget: 'all', location: 'all', mood: 'all', season: 'all' };
         let currentMode = 'preset';
         let currentTab = 'main';
+        let optical = null;
+        let filterSheet = null;
+        let giftOptical = null;
         let currentIdeaId = null;
         let currentIdeaKind = null;
         let customIdeas = sanitizeCustomIdeas(loadJSON(STORAGE_KEYS.custom));
@@ -1809,682 +500,12 @@
                 .map(idea => ({ key: 'd:' + idea.id, text: asString(idea.title, '') }));
         }
 
-        let scene, camera, renderer, jarGroup;
-        // Для анимации вытягивания: крышка, свиток, свет, искры, записки внутри
-        let lidGroup, pullScroll, scrollMaterials = [], innerLight, neckGlow;
-        let sparkles = null, jarNotes = [];
-        const LID_BASE_Y = 2.16;
-
-        // Одна WebGL-сцена на обе вкладки: банка и подарок — две модели в jarGroup,
-        // видна только активная. Канвас и записка переезжают между вкладками.
-        let jarModel = null, giftModel = null, jarLid = null, giftLid = null;
-        let giftBowParts = [];
-        let sceneMode = 'jar';
-        const LID_MOTION = {
-            // twist — поворот при откручивании, pop — подскок, ax/ay/az — куда уезжает,
-            // rz/rx — наклон. У подарка крышку не откручивают, а снимают.
-            jar:  { twist: 2.6, pop: 0.12, ax: 1.55, ay: 0.42, az: 0.25, rz: 0.62, rx: 0.18 },
-            gift: { twist: 0.3, pop: 0.18, ax: 1.10, ay: 0.30, az: -1.50, rz: 0.30, rx: -0.50 }
-        };
-        let lidMotion = LID_MOTION.jar;
-        let mouseX = 0, mouseY = 0, touchX = 0, touchY = 0;
-        let targetRotationX = 0, targetRotationY = 0;
-        let scene3dReady = false;   // true, если 3D-сцена действительно запущена
-
-        function hasThree() {
-            return typeof THREE !== 'undefined' && THREE && typeof THREE.WebGLRenderer === 'function';
-        }
-
-        function setStageFallback(on) {
-            ['jar-stage', 'ny-stage'].forEach(id => {
-                const stage = document.getElementById(id);
-                if (stage) stage.classList.toggle('no-3d', !!on);
-            });
-        }
-
-        // Без Three.js / WebGL приложение остаётся рабочим: записка и кнопки
-        // на месте, вместо сцены — лёгкая заглушка с пояснением.
-        function showSceneFallback() {
-            setStageFallback(true);
-            scene3dReady = false;
-            // Если библиотека недоступна не из-за сбоя сети (например, попап
-            // отключил её после перезагрузки), всё равно объясняем, что 3D нет.
-            if (!navigator.onLine) {
-                const el = document.getElementById('offline-notice');
-                if (el) el.hidden = false;
-            }
-        }
-
-
-        function initThreeJS() {
-            const container = document.getElementById('jar-canvas');
-            if (!hasThree()) {
-                showSceneFallback();
-                return false;
-            }
-            const width = Math.max(1, container.clientWidth);
-            const height = Math.max(1, container.clientHeight);
-
-            try {
-                scene = new THREE.Scene();
-                scene.background = null;
-
-                camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-                camera.position.set(0, 0, 8);
-
-                renderer = new THREE.WebGLRenderer({
-                    canvas: container,
-                    alpha: true,
-                    antialias: true
-                });
-            } catch (e) {
-                // Нет WebGL (старый WebView, отключена аппаратная графика)
-                console.warn('3D-сцена недоступна:', e && e.message);
-                renderer = null;
-                scene = null;
-                camera = null;
-                showSceneFallback();
-                return false;
-            }
-            renderer.setSize(width, height);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
-            scene.add(ambientLight);
-
-            const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.85);
-            directionalLight1.position.set(5, 10, 5);
-            scene.add(directionalLight1);
-
-
-            const directionalLight2 = new THREE.DirectionalLight(0xffd4d8, 0.45);
-            directionalLight2.position.set(-5, -5, 5);
-            scene.add(directionalLight2);
-
-            // Тёплый свет изнутри — чтобы записки читались через стекло
-            innerLight = new THREE.PointLight(0xfff0e0, 0.6, 12);
-            innerLight.position.set(0, 0.5, 0);
-            scene.add(innerLight);
-
-
-            // ===== ВСЯ БАНКА В ОДНОЙ ГРУППЕ =====
-            // Крышка, ручка, корпус, дно и записки — дети одной группы,
-            // поэтому вращаются как единое целое и не распадаются.
-            jarGroup = new THREE.Group();
-            scene.add(jarGroup);
-            jarModel = new THREE.Group();
-            jarGroup.add(jarModel);
-
-            // --- корпус ---
-            const jarGeometry = new THREE.CylinderGeometry(1.5, 1.5, 4, 48, 1, true);
-            const jarMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xfff5f0,
-                metalness: 0.05,
-                roughness: 0.08,
-                transparent: true,
-                opacity: 0.2,
-                transmission: 0.6,
-                envMapIntensity: 1,
-                clearcoat: 1,
-                clearcoatRoughness: 0.05,
-                side: THREE.DoubleSide,
-                depthWrite: false      // стекло не перекрывает записки внутри
-            });
-            const jar = new THREE.Mesh(jarGeometry, jarMaterial);
-            jar.position.y = 0;
-            jarModel.add(jar);
-
-            // тонкий контур — тоже внутри группы
-            const edgeGeometry = new THREE.EdgesGeometry(jarGeometry);
-            const edgeMaterial = new THREE.LineBasicMaterial({ 
-                color: 0xd4a5a5, 
-                linewidth: 2,
-                transparent: true,
-                opacity: 0.28
-            });
-            jarModel.add(new THREE.LineSegments(edgeGeometry, edgeMaterial));
-
-            // --- дно ---
-            const bottomGeometry = new THREE.CylinderGeometry(1.5, 1.5, 0.15, 48);
-            const bottomMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xf5e8e8,
-                transparent: true,
-                opacity: 0.55,
-                metalness: 0.05,
-                roughness: 0.25
-            });
-            const bottom = new THREE.Mesh(bottomGeometry, bottomMaterial);
-            bottom.position.y = -2;
-            jarModel.add(bottom);
-
-            // --- крышка ---
-            const lidMaterial = new THREE.MeshPhongMaterial({
-                color: 0xc98d8d,
-                shininess: 45,
-                specular: 0x777777
-            });
-            // Крышка — отдельная группа, чтобы её можно было открутить и снять
-            lidGroup = new THREE.Group();
-            lidGroup.position.y = LID_BASE_Y;
-            lidGroup.rotation.order = 'ZXY';   // сначала вращение вокруг своей оси, потом наклон
-            jarModel.add(lidGroup);
-
-            const lid = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.24, 1.32, 0.32, 48),
-                lidMaterial
-            );
-            lidGroup.add(lid);
-
-            // рифление по краю — без него поворот гладкой крышки незаметен
-            const ribGeometry = new THREE.BoxGeometry(0.05, 0.24, 0.05);
-            const ribMaterial = new THREE.MeshPhongMaterial({ color: 0xb87c7c, shininess: 30 });
-            const RIBS = 32;
-            for (let i = 0; i < RIBS; i++) {
-                const a = (i / RIBS) * Math.PI * 2;
-                const rib = new THREE.Mesh(ribGeometry, ribMaterial);
-                rib.position.set(Math.cos(a) * 1.29, 0, Math.sin(a) * 1.29);
-                rib.rotation.y = -a;
-                lidGroup.add(rib);
-            }
-
-            // --- ручка на крышке ---
-            const knob = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.22, 0.27, 0.28, 24),
-                lidMaterial
-            );
-            knob.position.y = 0.30;
-            lidGroup.add(knob);
-
-            // светлый уплотнитель снизу — виден, когда крышку приподнимают
-            const seal = new THREE.Mesh(
-                new THREE.CircleGeometry(1.2, 48),
-                new THREE.MeshStandardMaterial({ color: 0xf6e1da, roughness: 0.8, side: THREE.DoubleSide })
-            );
-            seal.rotation.x = Math.PI / 2;
-            seal.position.y = -0.165;
-            lidGroup.add(seal);
-
-            // кольцо горлышка — показывается, когда крышка снята
-            const rim = new THREE.Mesh(
-                new THREE.TorusGeometry(1.47, 0.045, 10, 64),
-                new THREE.MeshPhongMaterial({ color: 0xe8c4c4, transparent: true, opacity: 0.75, shininess: 60 })
-            );
-            rim.rotation.x = Math.PI / 2;
-            rim.position.y = 1.98;
-            jarModel.add(rim);
-
-            // --- записки внутри ---
-            // Одна геометрия на все записки + несколько материалов = дёшево для телефона
-            const noteGeometry = new THREE.BoxGeometry(0.5, 0.045, 0.36);
-            const noteColors = [0xfffaf0, 0xfff3e2, 0xffeaea, 0xf9e2e2, 0xfff6dd, 0xfdf0f0];
-            const noteMaterials = noteColors.map(c => new THREE.MeshStandardMaterial({
-                color: c,
-                roughness: 0.9,
-                metalness: 0.0
-            }));
-
-            const NOTES_COUNT = 55;
-            for (let i = 0; i < NOTES_COUNT; i++) {
-                const note = new THREE.Mesh(
-                    noteGeometry,
-                    noteMaterials[i % noteMaterials.length]
-                );
-
-                // Раскладываем по объёму банки: радиус до 1.1 (стенка на 1.5),
-                // по высоте — с уклоном вниз, как будто банка уже наполовину полна
-                const angle = Math.random() * Math.PI * 2;
-                const radius = Math.sqrt(Math.random()) * 1.1;
-                const heightBias = Math.pow(Math.random(), 1.5);   // 0 = низ, 1 = верх
-                const y = -1.78 + heightBias * 3.4;
-
-                note.position.set(
-                    Math.cos(angle) * radius,
-                    y,
-                    Math.sin(angle) * radius
-                );
-
-                // Случайный поворот — записки лежат вразнобой, а не ровным штабелем
-                note.rotation.set(
-                    (Math.random() - 0.5) * Math.PI * 0.9,
-                    Math.random() * Math.PI * 2,
-                    (Math.random() - 0.5) * Math.PI * 0.9
-                );
-
-                note.userData.base = {
-                    y: note.position.y,
-                    rx: note.rotation.x,
-                    rz: note.rotation.z
-                };
-                jarNotes.push(note);
-                jarModel.add(note);
-            }
-
-            createDrawEffects();
-
-            createDrawEffects();
-
-            // --- блик на стекле: тонкая вертикальная полоса ---
-            const gloss = new THREE.Mesh(
-                new THREE.PlaneGeometry(0.28, 3.4),
-                new THREE.MeshBasicMaterial({
-                    color: 0xffffff,
-                    transparent: true,
-                    opacity: 0.16,
-                    depthWrite: false
-                })
-            );
-            gloss.position.set(-0.78, 0.1, 1.18);
-            gloss.rotation.y = Math.PI * 0.12;
-            jarModel.add(gloss);
-
-            jarLid = lidGroup;
-            jarModel.userData.notes = jarNotes;
-            if (window.NY_THEME) {
-                addWinterToJar();
-                buildGiftModel();
-            }
-
-            container.addEventListener('touchstart', onTouchStart, { passive: true });
-            container.addEventListener('touchmove', onTouchMove, { passive: true });
-            container.addEventListener('touchend', onTouchEnd, { passive: true });
-            container.addEventListener('mousemove', onMouseMove, false);
-            window.addEventListener('resize', onWindowResize, false);
-
-            // После переключения вкладки у скрытого канваса были нулевые размеры —
-            // пересчитываем размер при каждом изменении контейнера.
-            if (typeof ResizeObserver === 'function') {
-                try { new ResizeObserver(() => onWindowResize()).observe(container); } catch (e) {}
-            }
-
-            scene3dReady = true;
-            animate();
-            return true;
-        }
-
-        function onTouchStart(event) {
-            if (event.touches.length > 0) {
-                touchX = event.touches[0].clientX;
-                touchY = event.touches[0].clientY;
-            }
-        }
-
-        function onTouchMove(event) {
-            if (event.touches.length > 0) {
-                const rect = event.target.getBoundingClientRect();
-                const newTouchX = event.touches[0].clientX;
-                const newTouchY = event.touches[0].clientY;
-
-                const deltaX = (newTouchX - touchX) / rect.width;
-                const deltaY = (newTouchY - touchY) / rect.height;
-
-                targetRotationY += deltaX * 2;
-                targetRotationX += deltaY * 1;
-
-                touchX = newTouchX;
-                touchY = newTouchY;
-            }
-        }
-
-        function onTouchEnd(event) {
-            // Keep current rotation
-        }
-
-        function onMouseMove(event) {
-            const rect = event.target.getBoundingClientRect();
-            mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouseY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-            targetRotationY = mouseX * 0.3;
-            targetRotationX = mouseY * 0.2;
-        }
-
-        function onWindowResize() {
-            if (!renderer || !camera || !renderer.domElement) return;
-            const container = renderer.domElement;
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            if (!width || !height) return;   // канвас во вкладке, которая сейчас скрыта
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-            renderer.setSize(width, height);
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            if (!renderer || !scene || !camera || !jarGroup) return;
-
-            // Вращаем всю группу целиком — банка остаётся цельной
-            const now = performance.now();
-            // Во время вытягивания банка мягко выпрямляется к камере
-            const tiltTarget = drawState ? 0 : targetRotationX;
-            jarGroup.rotation.y += (targetRotationY - jarGroup.rotation.y) * 0.05;
-            jarGroup.rotation.x += (tiltTarget - jarGroup.rotation.x) * 0.05;
-
-            updateDrawSequence(now);
-            updateJarShake(now);
-            updateSparkles(now);
-
-            // Медленное автоматическое вращение
-            jarGroup.rotation.y += 0.001;
-
-            renderer.render(scene, camera);
-        }
-
-        // =====================================================================
-        //  АНИМАЦИЯ ВЫТЯГИВАНИЯ: банка вздрагивает → крышка откручивается и
-        //  снимается → из горлышка поднимается свёрнутая записка → летит к
-        //  экрану и разворачивается в лист → крышка закручивается обратно.
-        //  Всё считается от времени (без накопления), поэтому не «плывёт»
-        //  при просадках FPS на слабых телефонах.
-        // =====================================================================
-        let drawState = null;           // { start, onReveal, revealed }
-        const DRAW = {
-            shake:      [0, 320],       // банка вздрагивает
-            twist:      [180, 760],     // крышку откручивают
-            liftAside:  [700, 1120],    // поднимают и отводят в сторону
-            glow:       [760, 1100],    // из горлышка пробивается свет
-            scrollIn:   [880, 1480],    // свиток поднимается из банки
-            scrollFly:  [1480, 1760],   // свиток летит к экрану
-            reveal:     1640,           // свиток долетел — разворачивается бумажный лист (DOM)
-            close:      [2080, 2680],   // крышка возвращается на место
-            end:        2700
-        };
-
-        const clamp01 = v => Math.min(1, Math.max(0, v));
-        const phase = (t, [a, b]) => clamp01((t - a) / (b - a));
-        const easeInOut = p => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-        const easeOut = p => 1 - Math.pow(1 - p, 3);
-        const easeIn = p => p * p * p;
-        const easeOutBack = p => { const c = 1.5; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
-
-        function makeGlowTexture(inner, outer) {
-            const c = document.createElement('canvas');
-            c.width = c.height = 128;
-            const g = c.getContext('2d');
-            const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-            grad.addColorStop(0, inner);
-            grad.addColorStop(0.35, outer);
-            grad.addColorStop(1, 'rgba(255,255,255,0)');
-            g.fillStyle = grad;
-            g.fillRect(0, 0, 128, 128);
-            return new THREE.CanvasTexture(c);
-        }
-
-        function createDrawEffects() {
-            // --- свёрнутая записка-свиток (живёт в сцене, а не в банке,
-            //     чтобы не крутиться вместе с ней) ---
-            pullScroll = new THREE.Group();
-            const paperMat = new THREE.MeshStandardMaterial({
-                color: 0xfff6ea, roughness: 0.85, transparent: true, opacity: 0
-            });
-            const edgeMat = new THREE.MeshStandardMaterial({
-                color: 0xf1d9cc, roughness: 0.9, transparent: true, opacity: 0
-            });
-            const ribbonMat = new THREE.MeshPhongMaterial({
-                color: 0xd98b9b, shininess: 60, transparent: true, opacity: 0
-            });
-            scrollMaterials = [paperMat, edgeMat, ribbonMat];
-
-            const roll = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.9, 24), paperMat);
-            pullScroll.add(roll);
-            // торцы свитка чуть темнее — видно, что это рулончик бумаги
-            [0.452, -0.452].forEach(y => {
-                const cap = new THREE.Mesh(new THREE.CircleGeometry(0.15, 24), edgeMat);
-                cap.rotation.x = y > 0 ? -Math.PI / 2 : Math.PI / 2;
-                cap.position.y = y;
-                pullScroll.add(cap);
-            });
-            // хвостик бумаги, который отходит от рулона
-            const flap = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.86),
-                new THREE.MeshStandardMaterial({ color: 0xfff6ea, roughness: 0.85,
-                    transparent: true, opacity: 0, side: THREE.DoubleSide }));
-            scrollMaterials.push(flap.material);
-            flap.position.set(0.2, 0, 0.06);
-            flap.rotation.y = -0.5;
-            pullScroll.add(flap);
-            // розовая ленточка с бантиком
-            const ribbon = new THREE.Mesh(new THREE.TorusGeometry(0.158, 0.03, 8, 32), ribbonMat);
-            ribbon.rotation.x = Math.PI / 2;
-            pullScroll.add(ribbon);
-            [-1, 1].forEach(side => {
-                const bow = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.022, 8, 20), ribbonMat);
-                bow.position.set(side * 0.07, 0, 0.17);
-                bow.scale.set(1, 0.6, 1);
-                pullScroll.add(bow);
-            });
-            pullScroll.visible = false;
-            scene.add(pullScroll);
-
-            // --- свечение из горлышка ---
-            neckGlow = new THREE.Sprite(new THREE.SpriteMaterial({
-                map: makeGlowTexture('rgba(255,244,220,1)', 'rgba(255,214,170,0.55)'),
-                transparent: true, opacity: 0, depthWrite: false
-            }));
-            neckGlow.scale.set(3.6, 2.2, 1);
-            neckGlow.position.set(0, 2.25, 0.2);
-            scene.add(neckGlow);
-
-            // --- искорки, которые вылетают вслед за запиской ---
-            const COUNT = 46;
-            const positions = new Float32Array(COUNT * 3);
-            const geo = new THREE.BufferGeometry();
-            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            const seeds = [];
-            for (let i = 0; i < COUNT; i++) {
-                seeds.push({
-                    angle: Math.random() * Math.PI * 2,
-                    speed: 0.9 + Math.random() * 1.6,
-                    spread: 0.4 + Math.random() * 1.3,
-                    delay: Math.random() * 0.35,
-                    life: 0.7 + Math.random() * 0.6
-                });
-            }
-            sparkles = new THREE.Points(geo, new THREE.PointsMaterial({
-                size: 0.16,
-                map: makeGlowTexture('rgba(255,255,255,1)', 'rgba(255,190,205,0.8)'),
-                color: 0xffc4d4,
-                transparent: true, opacity: 0, depthWrite: false, sizeAttenuation: true
-            }));
-            sparkles.userData = { seeds, start: -1 };
-            sparkles.visible = false;
-            scene.add(sparkles);
-        }
-
-        function startDrawSequence(onReveal) {
-            drawState = { start: performance.now(), onReveal, revealed: false };
-            document.querySelectorAll('.randomize-btn').forEach(b => b.classList.add('drawing'));
-            checkButtonStates();
-            haptic('medium');
-        }
-
         function haptic(kind) {
             try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred(kind); } catch (e) {}
         }
 
-        function updateDrawSequence(now) {
-            if (!drawState || !lidGroup || !neckGlow || !innerLight) return;
-            const t = now - drawState.start;
+        const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            // ---------- крышка ----------
-            const tw = easeInOut(phase(t, DRAW.twist));
-            const la = easeOutBack(phase(t, DRAW.liftAside));
-            const cl = easeInOut(phase(t, DRAW.close));
-            const open = 1 - cl;                 // 1 — крышка снята, 0 — на месте
-
-            // откручиваем ~0.4 оборота; при закрытии крышка сначала садится
-            // на горлышко, а потом плавно закручивается обратно
-            const screwBack = easeInOut(phase(t, [DRAW.close[0] + 260, DRAW.close[1]]));
-            const lm = lidMotion;
-            lidGroup.rotation.y = -tw * lm.twist * (1 - screwBack);
-            lidGroup.position.y = LID_BASE_Y + (tw * lm.pop + la * lm.ay) * open;
-            lidGroup.position.x = la * lm.ax * open;
-            lidGroup.position.z = la * lm.az * open;
-            lidGroup.rotation.z = -la * lm.rz * open;
-            lidGroup.rotation.x = la * lm.rx * open;
-            if (sceneMode === 'gift') updateGiftBow(tw, open);
-
-            // ---------- свет из горлышка ----------
-            const glowIn = easeOut(phase(t, DRAW.glow));
-            const glowOut = phase(t, [1700, 2150]);
-            const glow = glowIn * (1 - glowOut);
-            neckGlow.material.opacity = glow * (0.85 + Math.sin(t / 70) * 0.08);
-            neckGlow.scale.set(3.2 + glow * 0.6, 1.8 + glow * 0.5, 1);
-            innerLight.intensity = 0.6 + glow * 1.4;
-
-            // ---------- свиток ----------
-            const si = phase(t, DRAW.scrollIn);
-            const sf = phase(t, DRAW.scrollFly);
-            pullScroll.visible = t >= DRAW.scrollIn[0] && sf < 1;
-            if (pullScroll.visible) {
-                const rise = easeOut(si);
-                const fly = easeInOut(sf);
-                pullScroll.position.set(
-                    Math.sin(si * Math.PI) * 0.12,              // лёгкое покачивание при подъёме
-                    0.4 + rise * 2.35 - fly * 1.9,
-                    fly * 3.4
-                );
-                pullScroll.rotation.set(
-                    fly * 1.25,                                 // наклоняется к зрителю
-                    rise * Math.PI * 1.6,                       // проворачивается, пока тянут
-                    Math.sin(si * Math.PI * 2) * 0.22 * (1 - fly) - 0.12
-                );
-                const s = 1 + fly * 0.5;
-                pullScroll.scale.set(s, s, s);
-                const alpha = clamp01(si * 5) * (1 - clamp01((sf - 0.35) / 0.65));
-                scrollMaterials.forEach(m => m.opacity = alpha);
-            }
-
-            // искры стартуют, когда свиток показывается над горлышком
-            if (sparkles && sparkles.userData.start < 0 && t >= 1180) {
-                sparkles.userData.start = now;
-                sparkles.visible = true;
-                haptic('light');
-            }
-
-            // ---------- бумажный лист ----------
-            if (!drawState.revealed && t >= DRAW.reveal) {
-                drawState.revealed = true;
-                drawState.onReveal && drawState.onReveal();
-            }
-
-            if (t >= DRAW.end) finishDrawSequence();
-        }
-
-        function finishDrawSequence() {
-            if (lidGroup) {
-                lidGroup.position.set(0, LID_BASE_Y, 0);
-                lidGroup.rotation.set(0, 0, 0);
-            }
-            if (pullScroll) pullScroll.visible = false;
-            if (neckGlow) neckGlow.material.opacity = 0;
-            if (innerLight) innerLight.intensity = 0.6;
-            if (jarGroup) {
-                jarGroup.position.set(0, 0, 0);
-                jarGroup.rotation.z = 0;
-            }
-            jarNotes.forEach(n => {
-                n.position.y = n.userData.base.y;
-                n.rotation.x = n.userData.base.rx;
-                n.rotation.z = n.userData.base.rz;
-            });
-            if (drawState && !drawState.revealed && drawState.onReveal) drawState.onReveal();
-            drawState = null;
-            document.querySelectorAll('.randomize-btn').forEach(b => b.classList.remove('drawing'));
-            if (sceneMode === 'gift') updateGiftBow(0, 0);
-            checkButtonStates();
-        }
-
-        // Банка вздрагивает перед открытием, записки внутри шуршат,
-        // а пока свиток вытягивают — верхние записки тянутся следом.
-        function updateJarShake(now) {
-            if (!drawState || !jarGroup) return;
-            const t = now - drawState.start;
-
-            const sh = phase(t, DRAW.shake);
-            const shakeAmp = sh < 1 ? Math.sin(sh * Math.PI) : 0;
-            jarGroup.position.x = Math.sin(t / 26) * 0.06 * shakeAmp;
-            jarGroup.rotation.z = Math.sin(t / 34) * 0.035 * shakeAmp;
-            // после закрытия крышки — маленький «приземляющийся» прыжок
-            const land = phase(t, [DRAW.close[1] - 120, DRAW.end]);
-            jarGroup.position.y = land > 0 && land < 1 ? Math.sin(land * Math.PI) * -0.04 : 0;
-
-            const rustle = shakeAmp + Math.sin(phase(t, DRAW.scrollIn) * Math.PI) * 0.7;
-            jarNotes.forEach((n, i) => {
-                const b = n.userData.base;
-                const topness = clamp01((b.y + 0.2) / 1.6);   // верхние шевелятся сильнее
-                n.position.y = b.y + Math.abs(Math.sin(t / 60 + i)) * 0.07 * rustle * topness;
-                n.rotation.x = b.rx + Math.sin(t / 45 + i * 1.7) * 0.18 * rustle;
-                n.rotation.z = b.rz + Math.cos(t / 52 + i * 1.3) * 0.18 * rustle;
-            });
-        }
-
-        function updateSparkles(now) {
-            if (!sparkles || sparkles.userData.start < 0) return;
-            const t = (now - sparkles.userData.start) / 1000;
-            const pos = sparkles.geometry.attributes.position.array;
-            let alive = 0;
-            sparkles.userData.seeds.forEach((sd, i) => {
-                const lt = clamp01((t - sd.delay) / sd.life);
-                const r = sd.spread * easeOut(lt);
-                pos[i * 3]     = Math.cos(sd.angle) * r;
-                pos[i * 3 + 1] = 2.2 + sd.speed * easeOut(lt) * 0.9 - lt * lt * 0.4;
-                pos[i * 3 + 2] = Math.sin(sd.angle) * r * 0.6 + 0.4;
-                if (lt < 1) alive++;
-            });
-            sparkles.geometry.attributes.position.needsUpdate = true;
-            sparkles.material.opacity = clamp01(t * 6) * clamp01(1.4 - t);
-            if (alive === 0 || t > 1.6) {
-                sparkles.visible = false;
-                sparkles.userData.start = -1;
-            }
-        }
-
-        // Пустая банка / нет идей: банка просто вздрагивает, крышка не открывается
-        function nudgeJar() {
-            if (!jarGroup) return;
-            const start = performance.now();
-            haptic('rigid');
-            (function wobble() {
-                const p = (performance.now() - start) / 420;
-                if (p >= 1 || drawState) { if (!drawState) { jarGroup.position.x = 0; jarGroup.rotation.z = 0; } return; }
-                const a = Math.sin(p * Math.PI);
-                jarGroup.position.x = Math.sin(p * 40) * 0.07 * a;
-                jarGroup.rotation.z = Math.sin(p * 32) * 0.04 * a;
-                requestAnimationFrame(wobble);
-            })();
-        }
-
-        const prefersReducedMotion = () =>
-            !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-
-        // Анимация вытягивания нужна только когда 3D-сцена действительно жива
-        function canAnimateDraw() {
-            return scene3dReady && !prefersReducedMotion() && !!lidGroup;
-        }
-
-        // Высота, на которой лежит спрятанная записка, считается по фактической
-        // высоте сцены: крышка на y = 2.32, камера z = 8, fov 45° → видно
-        // 2·8·tan(22.5°) юнитов по высоте. Раньше браузеру отдавался неверный
-        // перевод «2.32 * высота / 6.63», из-за чего записка висела на полпути
-        // между горлышком и серединой банки. В CSS то же значение задано через
-        // container query units (не зависит от браузерного text zoom).
-        function updateNoteLift() {
-            const unitOk = !!(window.CSS && CSS.supports && CSS.supports('height', '100cqh'));
-            ['jar-stage', 'ny-stage'].forEach(id => {
-                const stage = document.getElementById(id);
-                if (!stage) return;
-                stage.style.removeProperty('--note-lift');
-                if (unitOk) return;
-                // Старый WebView без container queries: считаем от высоты в px
-                const h = stage.clientHeight;
-                if (!h) return;
-                stage.style.setProperty('--note-lift',
-                    (2.32 * h / (2 * 8 * Math.tan(Math.PI / 8))).toFixed(1) + 'px');
-            });
-        }
-
-
-        // Безопасный вызов функции из onclick-разметки: ошибка обработчика не
-        // должна оставлять интерфейс в «половинчатом» состоянии.
         function safe(fn) {
             return function () {
                 try { return fn.apply(this, arguments); }
@@ -2492,9 +513,6 @@
             };
         }
 
-        // =====================================================================
-        //  НОВОГОДНИЙ РАЗДЕЛ
-        // =====================================================================
 
         function findIdeaById(id) {
             const base = getDateIdeas().find(i => i && i.id === id);
@@ -2514,53 +532,17 @@
             currentIdeaKind = null;
         }
 
-        // Переключает 3D-сцену между банкой и подарком и переносит канвас
-        // с запиской в контейнер активной вкладки.
-        function setSceneMode(mode) {
-            const stage = document.getElementById(mode === 'gift' ? 'ny-stage' : 'jar-stage');
+        function placeNote(tab) {
+            const stage = document.getElementById(tab === 'newyear' ? 'ny-stage' : 'jar-stage');
             const note = document.getElementById('note');
-
-            // Без 3D сцены нет, но записка всё равно должна жить в сцене
-            // активной вкладки: иначе вытянутая новогодняя идея остаётся
-            // в скрытой вкладке «Рандом».
-            if (!renderer || !jarGroup) {
-                if (note && stage && note.parentElement !== stage) {
-                    resetNote();
-                    stage.appendChild(note);
-                }
-                return;
+            if (note.parentElement !== stage) {
+                resetNote();
+                stage.appendChild(note);
             }
-            if (mode === 'gift' && !giftModel) return;
-            if (mode === sceneMode) return;
-
-            if (drawState) {
-                drawState.onReveal = null;
-                finishDrawSequence();
-            }
-
-            sceneMode = mode;
-            const canvas = renderer.domElement;
-            // Записка должна попасть в контейнер вместе с канвасом: новый
-            // контейнер начинает работать как container только после вставки
-            // в DOM, а размер записки зависит от его ширины.
-            stage.appendChild(canvas);
-            stage.appendChild(note);
-
-            jarModel.visible = mode === 'jar';
-            giftModel.visible = mode === 'gift';
-            lidGroup = mode === 'gift' ? giftLid : jarLid;
-            jarNotes = mode === 'gift' ? giftModel.userData.notes : jarModel.userData.notes;
-            lidMotion = LID_MOTION[mode];
-            if (sparkles) sparkles.material.color.setHex(mode === 'gift' ? 0xffd98a : 0xffc4d4);
-            if (neckGlow) neckGlow.position.y = mode === 'gift' ? 1.95 : 2.25;   // коробка ниже горлышка банки
-
-            resetNote();
-            onWindowResize();
-            updateNoteLift();
         }
 
         function randomizeNewYear() {
-            if (drawState) return;
+            if (isDrawBusy()) return;
             if (currentTab !== 'newyear') return;   // кнопку в скрытой вкладке не трогаем
 
             const idea = pickIdea('newyear');
@@ -2568,334 +550,6 @@
             currentIdeaId = idea.id;
             currentIdeaKind = idea.kind;
             revealIdea(idea);
-        }
-
-        // ----------------------------------------------------------- 3D: подарок
-        function makeWrapTexture() {
-            const size = 256;
-            const c = document.createElement('canvas');
-            c.width = c.height = size;
-            const g = c.getContext('2d');
-            const bg = g.createLinearGradient(0, 0, size, size);
-            bg.addColorStop(0, '#d9566f');
-            bg.addColorStop(1, '#bf3f59');
-            g.fillStyle = bg;
-            g.fillRect(0, 0, size, size);
-
-            // белые снежинки и золотые точки в шахматном порядке
-            const step = 64;
-            for (let y = 0; y < size; y += step) {
-                for (let x = 0; x < size; x += step) {
-                    const cx = x + step / 2, cy = y + step / 2;
-                    g.strokeStyle = 'rgba(255,255,255,0.75)';
-                    g.lineWidth = 2;
-                    g.lineCap = 'round';
-                    for (let k = 0; k < 6; k++) {
-                        const ang = k * Math.PI / 3;
-                        g.beginPath();
-                        g.moveTo(cx, cy);
-                        g.lineTo(cx + Math.cos(ang) * 11, cy + Math.sin(ang) * 11);
-                        g.stroke();
-                    }
-                    g.fillStyle = 'rgba(243,217,153,0.9)';
-                    g.beginPath();
-                    g.arc(x, y, 3, 0, Math.PI * 2);
-                    g.fill();
-                }
-            }
-            const tex = new THREE.CanvasTexture(c);
-            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(1.5, 1.5);
-            return tex;
-        }
-
-        function makeGiftInsideTexture() {
-            const size = 256;
-            const c = document.createElement('canvas');
-            c.width = c.height = size;
-            const g = c.getContext('2d');
-            const r = g.createRadialGradient(size / 2, size / 2, 10, size / 2, size / 2, size * 0.7);
-            r.addColorStop(0, '#ffe8b8');
-            r.addColorStop(0.35, '#e7a07a');
-            r.addColorStop(1, '#5c1a2b');
-            g.fillStyle = r;
-            g.fillRect(0, 0, size, size);
-            return new THREE.CanvasTexture(c);
-        }
-
-
-        function buildGiftModel() {
-            giftModel = new THREE.Group();
-            giftModel.visible = false;
-            giftModel.userData.notes = [];
-            // чуть меньше банки, чтобы снятая крышка с бантом не уходила за верх кадра
-            giftModel.scale.setScalar(0.88);
-            jarGroup.add(giftModel);
-
-            const paper = new THREE.MeshPhongMaterial({
-                map: makeWrapTexture(), color: 0xffffff, shininess: 22, specular: 0x442a2a
-            });
-            const inside = new THREE.MeshBasicMaterial({ map: makeGiftInsideTexture() });
-            const gold = new THREE.MeshPhongMaterial({ color: 0xe2b457, specular: 0xfff1c9, shininess: 90 });
-            const snow = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xdfefff, shininess: 12 });
-
-            // коробка: верх на y = 2, как горлышко банки, — так общая анимация
-            // свитка и света из горлышка подходит без изменений
-            const W = 3.0, H = 3.7, TOP = 2.0, cy = TOP - H / 2;
-            const box = new THREE.Mesh(new THREE.BoxGeometry(W, H, W),
-                [paper, paper, inside, paper, paper, paper]);   // верхняя грань — «внутренность»
-            box.position.y = cy;
-            giftModel.add(box);
-
-            const rib1 = new THREE.Mesh(new THREE.BoxGeometry(0.42, H - 0.02, W + 0.04), gold);
-            rib1.position.y = cy - 0.01;
-            const rib2 = new THREE.Mesh(new THREE.BoxGeometry(W + 0.04, H - 0.02, 0.42), gold);
-            rib2.position.y = cy - 0.01;
-            giftModel.add(rib1, rib2);
-
-            // бумага-тишью торчит из коробки — видна, только когда крышку сняли
-            const tissueShape = new THREE.Shape();
-            tissueShape.moveTo(-0.34, 0);
-            tissueShape.lineTo(0.34, 0);
-            tissueShape.lineTo(0.05, 0.3);
-            tissueShape.lineTo(0, 0.24);
-            tissueShape.lineTo(-0.12, 0.32);
-            tissueShape.closePath();
-            const tissueMat = new THREE.MeshBasicMaterial({ color: 0xfff1f4, side: THREE.DoubleSide });
-            [[-1.1, -0.9, 0.5], [1.05, -1.0, -0.6], [-1.15, 1.0, 2.4], [0.95, 1.1, -2.2], [0.1, -1.25, 0.1]]
-                .forEach(([x, z, ry]) => {
-                    const t = new THREE.Mesh(new THREE.ShapeGeometry(tissueShape), tissueMat);
-                    t.position.set(x, TOP - 0.01, z);
-                    t.rotation.y = ry;
-                    t.rotation.x = -0.25;
-                    giftModel.add(t);
-                });
-
-            // тень под коробкой
-            const shadow = new THREE.Mesh(
-                new THREE.PlaneGeometry(4.6, 2.0),
-                new THREE.MeshBasicMaterial({
-                    map: makeGlowTexture('rgba(110,60,70,0.45)', 'rgba(110,60,70,0.12)'),
-                    transparent: true, depthWrite: false
-                })
-            );
-            shadow.rotation.x = -Math.PI / 2;
-            shadow.position.y = cy - H / 2 - 0.01;
-            giftModel.add(shadow);
-
-            // крышка
-            giftLid = new THREE.Group();
-            giftLid.position.y = LID_BASE_Y;
-            giftLid.rotation.order = 'ZXY';
-            giftModel.add(giftLid);
-
-            giftLid.add(new THREE.Mesh(new THREE.BoxGeometry(3.16, 0.5, 3.16), paper));
-            giftLid.add(new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.52, 3.2), gold));
-            giftLid.add(new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.52, 0.44), gold));
-
-            // бант: две петли, узелок и хвостики
-            giftBowParts = [];
-            [-1, 1].forEach(dir => {
-                const loop = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.11, 12, 32), gold);
-                loop.position.set(dir * 0.4, 0.6, 0);
-                loop.scale.set(1, 0.72, 1);
-                loop.rotation.set(0, dir * 0.35, -dir * 0.55);
-                giftLid.add(loop);
-                giftBowParts.push({ mesh: loop, dir, rz: loop.rotation.z, x: loop.position.x });
-
-                const tail = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.03, 0.95), gold);
-                tail.position.set(dir * 0.28, 0.27, 0.5);
-                tail.rotation.y = dir * 0.5;
-                giftLid.add(tail);
-            });
-            const knot = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 12), gold);
-            knot.scale.set(1, 0.85, 0.8);
-            knot.position.y = 0.42;
-            giftLid.add(knot);
-
-            // немного снега на крышке
-            [[-1.1, -0.95, 0.38], [1.05, 1.05, 0.32], [-0.95, 1.1, 0.26]].forEach(([x, z, r]) => {
-                const lump = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 10), snow);
-                lump.scale.set(1, 0.3, 0.85);
-                lump.position.set(x, 0.26, z);
-                giftLid.add(lump);
-            });
-        }
-
-        function updateGiftBow(tw, open) {
-            const k = tw * open;
-            giftBowParts.forEach(p => {
-                p.mesh.rotation.z = p.rz - p.dir * 0.45 * k;
-                p.mesh.position.x = p.x + p.dir * 0.12 * k;
-                const sc = 1 + 0.15 * k;
-                p.mesh.scale.set(sc, 0.72 * sc, sc);
-            });
-        }
-
-        // ----------------------------------------------------------- 3D: иней на банке
-        function makeFrostTexture() {
-            const w = 512, h = 256;
-            const c = document.createElement('canvas');
-            c.width = w; c.height = h;
-            const g = c.getContext('2d');
-
-            const bottom = g.createLinearGradient(0, h, 0, h * 0.62);
-            bottom.addColorStop(0, 'rgba(255,255,255,0.55)');
-            bottom.addColorStop(1, 'rgba(255,255,255,0)');
-            g.fillStyle = bottom;
-            g.fillRect(0, h * 0.62, w, h * 0.38);
-
-            const top = g.createLinearGradient(0, 0, 0, h * 0.16);
-            top.addColorStop(0, 'rgba(255,255,255,0.4)');
-            top.addColorStop(1, 'rgba(255,255,255,0)');
-            g.fillStyle = top;
-            g.fillRect(0, 0, w, h * 0.16);
-
-            // морозные «папоротники»
-            g.lineCap = 'round';
-            function branch(x, y, len, ang, depth) {
-                if (depth === 0 || len < 2) return;
-                const x2 = x + Math.cos(ang) * len, y2 = y + Math.sin(ang) * len;
-                g.strokeStyle = `rgba(255,255,255,${0.25 + depth * 0.1})`;
-                g.lineWidth = depth * 0.55;
-                g.beginPath(); g.moveTo(x, y); g.lineTo(x2, y2); g.stroke();
-                for (let i = 1; i <= 3; i++) {
-                    const f = i / 4;
-                    const bx = x + (x2 - x) * f, by = y + (y2 - y) * f;
-                    branch(bx, by, len * 0.42, ang - 0.7, depth - 1);
-                    branch(bx, by, len * 0.42, ang + 0.7, depth - 1);
-                }
-                branch(x2, y2, len * 0.6, ang + (Math.random() - 0.5) * 0.4, depth - 1);
-            }
-            for (let i = 0; i < 22; i++) {
-                branch(Math.random() * w, h, 18 + Math.random() * 26,
-                       -Math.PI / 2 + (Math.random() - 0.5) * 1.1, 3);
-            }
-            for (let i = 0; i < 10; i++) {
-                branch(Math.random() * w, 0, 10 + Math.random() * 14,
-                       Math.PI / 2 + (Math.random() - 0.5) * 1.0, 3);
-            }
-            for (let i = 0; i < 260; i++) {
-                g.fillStyle = `rgba(255,255,255,${Math.random() * 0.5})`;
-                g.fillRect(Math.random() * w, h * (0.55 + Math.random() * 0.45), 1.5, 1.5);
-            }
-            const tex = new THREE.CanvasTexture(c);
-            tex.wrapS = THREE.RepeatWrapping;
-            tex.repeat.set(2, 1);
-            return tex;
-        }
-
-        function addWinterToJar() {
-            const frost = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.512, 1.512, 4, 48, 1, true),
-                new THREE.MeshBasicMaterial({
-                    map: makeFrostTexture(),
-                    transparent: true,
-                    opacity: 0.9,
-                    depthWrite: false
-                })
-            );
-            jarModel.add(frost);
-
-            // снежная шапка на крышке банки
-            const snow = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xdfefff, shininess: 12 });
-            const cap = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.27, 0.07, 48), snow);
-            cap.position.y = 0.19;
-            jarLid.add(cap);
-            [[-0.7, -0.5, 0.36], [0.6, 0.65, 0.3], [0.75, -0.55, 0.24]].forEach(([x, z, r]) => {
-                const lump = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 10), snow);
-                lump.scale.set(1, 0.32, 0.85);
-                lump.position.set(x, 0.22, z);
-                jarLid.add(lump);
-            });
-        }
-
-        // ----------------------------------------------------------- снег, гирлянда, счётчик
-        function startSnow() {
-            if (prefersReducedMotion()) return;
-            if (document.querySelector('.snow-layer')) return;
-            const canvas = document.createElement('canvas');
-            canvas.className = 'snow-layer';
-            canvas.setAttribute('aria-hidden', 'true');
-            document.body.prepend(canvas);
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
-            let w = 0, h = 0, flakes = [];
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-            function makeFlake(randomY) {
-                const r = 0.8 + Math.random() * 2.6;
-                return {
-                    x: Math.random() * w,
-                    y: randomY ? Math.random() * h : -5,
-                    r,
-                    vy: 18 + r * 14 + Math.random() * 10,          // px/с: крупные падают быстрее
-                    sway: 10 + Math.random() * 20,
-                    freq: 0.4 + Math.random() * 0.8,
-                    ph: Math.random() * Math.PI * 2,
-                    a: 0.45 + Math.random() * 0.45
-                };
-            }
-            function resize() {
-                w = window.innerWidth; h = window.innerHeight;
-                canvas.width = w * dpr; canvas.height = h * dpr;
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                const count = Math.round(Math.min(90, Math.max(40, w * h / 9000)));
-                while (flakes.length < count) flakes.push(makeFlake(true));
-                flakes.length = count;
-            }
-            resize();
-            window.addEventListener('resize', resize);
-
-            let last = performance.now();
-            (function frame(now) {
-                requestAnimationFrame(frame);
-                const dt = Math.min(0.05, (now - last) / 1000);
-                last = now;
-                if (document.hidden) return;
-                ctx.clearRect(0, 0, w, h);
-                const t = now / 1000;
-                for (const f of flakes) {
-                    f.y += f.vy * dt;
-                    if (f.y > h + 5) Object.assign(f, makeFlake(false));
-                    const x = f.x + Math.sin(t * f.freq + f.ph) * f.sway;
-                    ctx.globalAlpha = f.a;
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath();
-                    ctx.arc(x, f.y, f.r, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.globalAlpha = 1;
-            })(last);
-        }
-
-        function buildGarland() {
-            const el = document.getElementById('garland');
-            if (!el) return;
-            const w = el.clientWidth;
-            if (!w) return;
-            const top = 4, sag = 12;
-            const spans = Math.max(3, Math.round(w / 90));
-            const seg = w / spans;
-            const colors = ['#ff8fb1', '#ffd36e', '#dff1ff', '#e8476a'];
-            // Строка SVG-пути, а не HTML: подставляется в разметку как есть
-            let d = `M0 ${top}`;
-            let html = '';
-            let n = 0;
-            for (let k = 0; k < spans; k++) {
-                const x0 = k * seg, x1 = x0 + seg, cx = x0 + seg / 2, cyc = top + sag * 2;
-                d += ` Q ${cx.toFixed(1)} ${cyc} ${x1.toFixed(1)} ${top}`;
-                [0.22, 0.5, 0.78].forEach(t => {
-                    const u = 1 - t;
-                    const x = u * u * x0 + 2 * u * t * cx + t * t * x1;
-                    const y = u * u * top + 2 * u * t * cyc + t * t * top;
-                    html += `<span class="bulb" style="left:${x.toFixed(1)}px;top:${(y + 2).toFixed(1)}px;` +
-                            `--bulb:${colors[n % 4]};animation-delay:${(n % 4) * -0.6}s"></span>`;
-                    n++;
-                });
-            }
-            el.innerHTML = `<svg width="${w}" height="36" viewBox="0 0 ${w} 36" aria-hidden="true">` +
-                `<path d="${d}" fill="none" stroke="#7d8a72" stroke-width="1.4"/></svg>` + html;
         }
 
         function ruPlural(n, one, few, many) {
@@ -2907,15 +561,23 @@
 
         // Сколько идей подходит под выбранные фильтры: раньше на пустом
         // сочетании пользователь узнавал только после нажатия кнопки.
+        function refreshVisibleCount() {
+            const preset = buildPool('preset').length;
+            const presetText = preset
+                ? 'Подходит ' + preset + ' ' + ruPlural(preset, 'идея', 'идеи', 'идей')
+                : (getDateIdeas().length ? 'По этим фильтрам идей нет — выберите другое' : '');
+            const text = currentMode === 'preset' ? presetText
+                : ('Свои идеи: ' + customIdeas.length);
+            const counter = document.getElementById('filter-count');
+            const sheet = document.getElementById('sheet-count');
+            if (counter.textContent !== text) { counter.textContent = text; DRMotion.count(counter); }
+            if (sheet.textContent !== presetText) { sheet.textContent = presetText; if (sheet.getClientRects().length) DRMotion.count(sheet); }
+        }
+
         function updateFilterCounts() {
             const all = getDateIdeas().filter(idea => idea && !isRemoved(idea.id));
-            const out = document.getElementById('filter-count');
-            if (!out) return;
-            if (!all.length) { out.textContent = ''; return; }
-            const pool = buildPool('preset');
-            out.textContent = pool.length
-                ? 'Подходит ' + pool.length + ' ' + ruPlural(pool.length, 'идея', 'идеи', 'идей')
-                : 'По этим фильтрам идей нет — выберите другое';
+            refreshVisibleCount();
+            if (!all.length) return;
             // Подсказка при наведении: сколько идей даёт каждый вариант
             document.querySelectorAll('#preset-filters .filter-btn[data-filter]').forEach(btn => {
                 const key = btn.dataset.filter;
@@ -2952,22 +614,19 @@
         }
 
         function initNewYearTheme() {
-            startSnow();
-            buildGarland();
             updateCountdown();
             setInterval(updateCountdown, 60000);
-            let garlandTimer = null;
-            window.addEventListener('resize', () => {
-                clearTimeout(garlandTimer);
-                garlandTimer = setTimeout(buildGarland, 150);
-            });
-            // Шрифт Comfortaa загружается позже и меняет ширину карточки
-            if (document.fonts && document.fonts.ready) {
-                document.fonts.ready.then(buildGarland).catch(() => {});
-            }
         }
 
         function setupFilters() {
+            const dialog = document.getElementById('preset-filters');
+            const trigger = document.getElementById('open-filters');
+            filterSheet = DRMotion.createSheet(dialog, trigger, {
+                beforeOpen: () => optical?.interrupt(),
+                onClose: () => {
+                    if (currentTab === 'main' && !trigger.hidden) trigger.focus({preventScroll:true});
+                }
+            });
             document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const filterType = btn.dataset.filter;
@@ -2980,6 +639,8 @@
 
                     btn.classList.add('selected');
                     btn.setAttribute('aria-pressed', 'true');
+                    DRMotion.accent(btn);
+                    if (filters[filterType] !== value) optical?.interrupt();
                     filters[filterType] = value;
                     updateFilterCounts();
                     checkButtonStates();
@@ -3001,12 +662,13 @@
         function switchTab(tabName, event) {
             const btn = tabButton(event, `.tab[data-tab="${tabName}"]`);
             if (!btn) return;
-            if (tabName === 'newyear' && !isNewYearAvailable()) return;
-            if (drawState) {
-                // не оставляем «застрявшую» анимацию при переключении посреди вытягивания
-                drawState.onReveal = null;
-                finishDrawSequence();
+            if (tabName === 'newyear' && (!window.NY_THEME || !isNewYearAvailable())) return;
+            if (currentTab !== tabName) {
+                optical?.interrupt();
+                giftOptical?.interrupt();
             }
+            const dialog = document.getElementById('preset-filters');
+            if (dialog.open) filterSheet?.close(true);
             document.querySelectorAll('.tab').forEach(t => {
                 t.classList.remove('active');
                 t.setAttribute('aria-selected', 'false');
@@ -3017,15 +679,20 @@
             btn.setAttribute('aria-selected', 'true');
             const content = document.getElementById(`${tabName}-tab`);
             if (content) content.classList.add('active');
+            if (currentTab !== tabName && tabName !== 'main') DRMotion.section(content);
 
             // Ряд вкладок прокручивается к выбранной, иначе на узком экране
             // активная вкладка оказывается обрезанной краем карточки.
             scrollTabsTo(btn);
-
-            if (tabName === 'newyear') setSceneMode('gift');
-            else if (tabName === 'main') setSceneMode('jar');
+            DRMotion.dock();
 
             currentTab = tabName;
+            document.documentElement.classList.toggle('main-view', tabName === 'main');
+            document.documentElement.classList.toggle('winter-view', tabName === 'newyear');
+            if (tabName === 'newyear' || tabName === 'main') placeNote(tabName);
+            optical?.activate(tabName === 'main');
+            giftOptical?.activate(tabName === 'newyear');
+            window.scrollTo(0,0);
             checkButtonStates();
         }
 
@@ -3045,6 +712,7 @@
         function switchMode(mode, event) {
             const btn = tabButton(event, `.mode-btn[data-mode="${mode}"]`);
             if (!btn || (mode !== 'preset' && mode !== 'custom')) return;
+            if (currentMode !== mode) optical?.interrupt();
             currentMode = mode;
             document.querySelectorAll('.mode-btn').forEach(b => {
                 b.classList.remove('active');
@@ -3053,26 +721,32 @@
             btn.classList.add('active');
             btn.setAttribute('aria-pressed', 'true');
 
-            document.getElementById('preset-filters').style.display = mode === 'preset' ? 'block' : 'none';
+            document.getElementById('open-filters').hidden = mode !== 'preset';
+            if (mode !== 'preset' && document.getElementById('preset-filters').open) filterSheet?.close(true);
             checkButtonStates();
         }
 
         // Состояние кнопок: во время вытягивания блокируем повторный запуск,
         // а если идей нет, кнопка сообщает об этом подсказкой.
+        function isDrawBusy() {
+            return Boolean(optical?.busy() || giftOptical?.busy());
+        }
+
         function checkButtonStates() {
-            const busy = !!drawState;
+            const busy = isDrawBusy();
+            refreshVisibleCount();
             const mainBtn = document.querySelector('#main-tab .randomize-btn');
             const nyBtn = document.querySelector('.ny-draw-btn');
 
             if (mainBtn) {
-                const noBase = getDateIdeas().length === 0;
+                const noBase = currentMode === 'preset' && getDateIdeas().length === 0;
                 const empty = buildPool(currentMode).length === 0;
                 mainBtn.disabled = busy;
                 mainBtn.classList.toggle('no-ideas', noBase || empty);
                 mainBtn.setAttribute('aria-disabled', busy ? 'true' : 'false');
                 mainBtn.title = noBase
                     ? 'База идей не загрузилась — проверьте файл date_ideas.js рядом с index.html'
-                    : (empty ? 'Нет идей для этих фильтров' : '');
+                    : (empty ? (currentMode === 'custom' ? 'Добавьте свои идеи на вкладке «Свои»' : 'Нет идей для этих фильтров') : '');
             }
             if (nyBtn) {
                 const empty = buildPool('newyear').length === 0;
@@ -3096,7 +770,7 @@
             currentIdeaId = null;
             currentIdeaKind = null;
             renderMessage(text);
-            nudgeJar();
+            DRMotion.accent(document.getElementById('note'));
             checkButtonStates();
         }
 
@@ -3112,18 +786,28 @@
             if (kind === 'newyear' && getNewYearIdeas().length === 0) {
                 return { error: 'Новогодние идеи не загрузились. Проверьте, что файл new_year_ideas.js лежит рядом с index.html' };
             }
-            if (!pool.length) {
-                return { error: kind === 'custom'
-                    ? 'Добавьте свои идеи на вкладке «Свои»'
-                    : (kind === 'newyear'
-                        ? 'Все новогодние идеи убраны. Верните их во вкладке «Удалённые»'
-                        : 'Нет идей с такими фильтрами') };
-            }
-
-            let chosen = null;
-            if (opts.key) chosen = pool.find(p => p.key === opts.key) || null;
-            if (!chosen) {
-                const rnd = opts.seed ? makeRng(opts.seed) : Math.random();
+            let chosen;
+            if (opts.key) {
+                const prefix = kind === 'newyear' ? 'n:' : 'd:';
+                const id = Number(opts.key.slice(2));
+                const target = findIdeaById(id);
+                if (!opts.key.startsWith(prefix) || !target || target.ny !== (kind === 'newyear')) {
+                    return { error: 'Идея из ссылки не найдена в каталоге.' };
+                }
+                if (isRemoved(id)) {
+                    return { error: 'Идея из ссылки находится во вкладке «Удалённые». Там её можно вернуть вручную.' };
+                }
+                chosen = pool.find(item => item.key === prefix + id);
+                if (!chosen) return { error: 'Идея из ссылки не подходит под текущие фильтры. Измените фильтры и откройте ссылку снова.' };
+            } else {
+                if (!pool.length) {
+                    return { error: kind === 'custom'
+                        ? 'Добавьте свои идеи на вкладке «Свои»'
+                        : (kind === 'newyear'
+                            ? 'Все новогодние идеи убраны. Верните их во вкладке «Удалённые»'
+                            : 'Нет идей с такими фильтрами') };
+                }
+                const rnd = opts.seed === undefined ? Math.random() : makeRng(opts.seed);
                 chosen = pool[Math.floor(rnd * pool.length)] || pool[0];
             }
 
@@ -3151,7 +835,7 @@
             announceNote(text);
         }
 
-        function renderReveal(idea) {
+        function renderReveal(idea, save = true) {
             const note = document.getElementById('note');
             const noteText = document.getElementById('note-text');
             const removeBtn = document.getElementById('remove-btn');
@@ -3171,7 +855,17 @@
                 note.classList.remove('short-text', 'medium-text', 'long-text');
                 note.classList.add('ny-note');
             } else {
-                noteText.textContent = idea.text;
+                // Секция карточки не меняет строку каталога или историю.
+                const separator = idea.text.match(/^(.{1,100}?(?:[.!?](?=\s)|(?=\n)))/u);
+                if (separator && idea.kind === 'preset') {
+                    const title = document.createElement('span');
+                    title.className = 'result-title';
+                    title.textContent = separator[1];
+                    const body = document.createElement('span');
+                    body.className = 'result-body';
+                    body.textContent = idea.text.slice(separator[1].length);
+                    noteText.replaceChildren(title,body);
+                } else noteText.textContent = idea.text;
                 // Подбираем кегль под длину идеи, чтобы текст поместился в банку
                 note.classList.remove('short-text', 'medium-text', 'long-text', 'ny-note');
                 if (idea.text.length > 190) {
@@ -3190,8 +884,13 @@
             }
             showNote(note);
             note.scrollTop = 0;
+            if (save) commitReveal(idea);
+        }
+
+        function commitReveal(idea) {
             addToHistory(idea.text, idea.kind === 'newyear');
             announceNote(idea.text);
+            haptic('light');
         }
 
         // Скринридеры узнают о новой записке: карточка давно в DOM и сама
@@ -3205,27 +904,15 @@
 
         function revealIdea(idea) {
             const note = document.getElementById('note');
-
-            // предыдущая записка «ныряет» обратно в банку
             note.classList.remove('show');
             note.classList.add('hidden');
-
-            const reveal = () => {
-                renderReveal(idea);
-                checkButtonStates();
-            };
-
-            if (canAnimateDraw()) {
-                startDrawSequence(reveal);
-            } else {
-                // без анимаций — как раньше, просто показываем записку
-                setTimeout(reveal, prefersReducedMotion() ? 0 : 200);
-            }
+            const view = idea.kind === 'newyear' ? giftOptical : optical;
+            view.start(() => renderReveal(idea, false), () => commitReveal(idea));
         }
 
         function randomize() {
             // пока банка открыта и записку тянут — повторные нажатия игнорируем
-            if (drawState) return;
+            if (isDrawBusy()) return;
             if (currentTab !== 'main') return;   // кнопку в скрытой вкладке не трогаем
 
             const idea = pickIdea(currentMode);
@@ -3241,8 +928,9 @@
         function removeCurrentIdea() {
             if (currentIdeaId === null || currentIdeaId === undefined) return;
             if (isRemoved(currentIdeaId)) return;
-            removedIdeas.push(Number(currentIdeaId));
-            storageSet(STORAGE_KEYS.removed, JSON.stringify(removedIdeas));
+            const next = [...removedIdeas, Number(currentIdeaId)];
+            if (!storageSet(STORAGE_KEYS.removed, JSON.stringify(next), 'Не удалось удалить идею.')) return;
+            removedIdeas = next;
 
             const note = document.getElementById('note');
             const noteText = document.getElementById('note-text');
@@ -3290,22 +978,22 @@
                 input.focus();
                 return;
             }
-            if (idea.length > MAX_CUSTOM_LENGTH) {
-                idea = idea.slice(0, MAX_CUSTOM_LENGTH);
-                showCustomError('Слишком длинная идея — сохранены первые ' + MAX_CUSTOM_LENGTH + ' символов');
-            } else {
-                showCustomError('');
-            }
             if (customIdeas.length >= MAX_CUSTOM_IDEAS) {
                 showCustomError('Список идей заполнен (' + MAX_CUSTOM_IDEAS + ')');
                 return;
             }
-            customIdeas.push(idea);
-            if (!storageSet(STORAGE_KEYS.custom, JSON.stringify(customIdeas))) {
-                showCustomError('Не удалось сохранить: хранилище недоступно или заполнено. Идея видна до перезагрузки');
+            const truncated = idea.length > MAX_CUSTOM_LENGTH;
+            if (truncated) idea = idea.slice(0, MAX_CUSTOM_LENGTH);
+            const next = [...customIdeas, idea];
+            showCustomError('');
+            if (!storageSet(STORAGE_KEYS.custom, JSON.stringify(next), 'Не удалось сохранить свою идею.')) return;
+            customIdeas = next;
+            if (truncated) {
+                showCustomError('Слишком длинная идея — сохранены первые ' + MAX_CUSTOM_LENGTH + ' символов');
             }
             input.value = '';
             renderCustomList();
+            DRMotion.enter(document.querySelector('#custom-list li:last-child'));
             checkButtonStates();
         }
 
@@ -3314,6 +1002,7 @@
             if (!el) return;
             el.textContent = text || '';
             el.classList.toggle('hidden', !text);
+            if (text) DRMotion.enter(el);
         }
 
         function renderCustomList() {
@@ -3341,9 +1030,12 @@
 
         function deleteCustomIdea(index) {
             if (!Number.isInteger(index) || index < 0 || index >= customIdeas.length) return;
-            customIdeas.splice(index, 1);
-            storageSet(STORAGE_KEYS.custom, JSON.stringify(customIdeas));
+            const next = customIdeas.filter((_, position) => position !== index);
+            if (!storageSet(STORAGE_KEYS.custom, JSON.stringify(next), 'Не удалось удалить свою идею.')) return;
+            DRMotion.leave(document.querySelector(`[data-custom-index="${index}"]`)?.closest('li'));
+            customIdeas = next;
             renderCustomList();
+            if (!customIdeas.length) DRMotion.enter(document.getElementById('custom-empty'));
             checkButtonStates();
         }
 
@@ -3366,9 +1058,9 @@
                 completed: false
             };
 
-            history.unshift(historyItem);
-            if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
-            storageSet(STORAGE_KEYS.history, JSON.stringify(history));
+            const next = [historyItem, ...history].slice(0, MAX_HISTORY);
+            if (!storageSet(STORAGE_KEYS.history, JSON.stringify(next), 'Идея открыта, но не добавлена в историю.')) return;
+            history = next;
             renderHistory();
         }
 
@@ -3388,8 +1080,8 @@
                     <li class="history-item ${item.completed ? 'completed' : ''}">
                         <div class="history-item-header">
                             <div>
-                                <div class="history-item-title">${item.ny ? '<span class="ny-badge" title="Новогодняя идея">🎄</span>' : ''}${escapeHtml(item.title)}</div>
-                                <div class="history-item-date">${escapeHtml(item.date)}</div>
+                                <div class="history-item-date">${escapeHtml(item.date)}${item.ny ? '<span class="ny-badge">Новый год</span>' : ''}</div>
+                                <div class="history-item-title">${escapeHtml(item.title)}</div>
                             </div>
                             <label class="checkbox-label">
                                 <input type="checkbox" data-history-index="${index}" ${item.completed ? 'checked' : ''}
@@ -3404,11 +1096,16 @@
 
         function toggleCompleted(index) {
             const item = history[index];
-            if (item) {
-                item.completed = !item.completed;
-                storageSet(STORAGE_KEYS.history, JSON.stringify(history));
-                renderHistory();
-            }
+            if (!item) return false;
+            const next = history.slice();
+            next[index] = { ...item, completed: !item.completed };
+            if (!storageSet(STORAGE_KEYS.history, JSON.stringify(next), 'Не удалось изменить отметку о выполнении.')) return false;
+            history = next;
+            renderHistory();
+            const check = document.querySelector(`[data-history-index="${index}"]`);
+            check?.focus({preventScroll:true});
+            DRMotion.accent(check?.closest('label'));
+            return true;
         }
 
         function renderRemovedList() {
@@ -3429,17 +1126,11 @@
             }
             list.style.display = 'block';
             empty.style.display = 'none';
-            // Пересохраняем нормализованный список: строковые id и мусор из
-            // прежних версий больше не попадут в ротацию после перезагрузки.
-            const normalized = JSON.stringify(removedIdeas);
-            if (storageGet(STORAGE_KEYS.removed) !== normalized) {
-                storageSet(STORAGE_KEYS.removed, normalized);
-            }
             list.innerHTML = removedWithTitles.map(item => `
                 <li class="custom-item">
                     <span class="custom-text">${escapeHtml(item.title)}</span>
                     <button class="restore-btn" type="button" data-restore-id="${item.id}" aria-label="Вернуть идею">
-                        <svg class="icon" aria-hidden="true"><use href="#icon-sparkles"/></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#optical-action"/></svg><span>Вернуть</span>
                     </button>
                 </li>
             `).join('');
@@ -3447,9 +1138,14 @@
 
         function restoreIdea(ideaId) {
             const id = Number(ideaId);
-            removedIdeas = removedIdeas.filter(x => x !== id);
-            storageSet(STORAGE_KEYS.removed, JSON.stringify(removedIdeas));
+            if (!isRemoved(id)) return;
+            const next = removedIdeas.filter(x => x !== id);
+            if (!storageSet(STORAGE_KEYS.removed, JSON.stringify(next), 'Не удалось вернуть идею.')) return;
+            DRMotion.leave(document.querySelector(`[data-restore-id="${id}"]`)?.closest('li'));
+            removedIdeas = next;
             renderRemovedList();
+            if (!removedIdeas.length) DRMotion.enter(document.getElementById('removed-empty'));
+            updateFilterCounts();
             checkButtonStates();
         }
 
@@ -3477,7 +1173,7 @@
                 historyList.addEventListener('change', (e) => {
                     const box = e.target;
                     if (!box || box.type !== 'checkbox' || box.dataset.historyIndex === undefined) return;
-                    toggleCompleted(Number(box.dataset.historyIndex));
+                    if (!toggleCompleted(Number(box.dataset.historyIndex))) box.checked = !box.checked;
                 });
             }
         }
@@ -3497,6 +1193,16 @@
             document.querySelectorAll('.tab-content').forEach(tc => {
                 tc.setAttribute('role', 'tabpanel');
                 tc.setAttribute('aria-labelledby', 'tab-' + tc.id.replace(/-tab$/, ''));
+            });
+            row?.addEventListener('keydown', event => {
+                if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+                const tabs = Array.from(row.querySelectorAll('.tab')).filter(tab => tab.getClientRects().length);
+                const index = tabs.indexOf(event.target);
+                if (index < 0) return;
+                event.preventDefault();
+                const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1
+                    : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+                tabs[next].focus();
             });
             document.querySelectorAll('.mode-btn').forEach(btn => {
                 btn.setAttribute('aria-pressed', btn.classList.contains('active') ? 'true' : 'false');
@@ -3529,6 +1235,11 @@
             try {
                 if (typeof tg.ready === 'function') tg.ready();
                 if (typeof tg.expand === 'function') tg.expand();
+                if (typeof tg.onEvent === 'function') {
+                    tg.onEvent('safeAreaChanged', updateViewportInsets);
+                    tg.onEvent('contentSafeAreaChanged', updateViewportInsets);
+                    tg.onEvent('viewportChanged', updateViewportInsets);
+                }
             } catch (e) {
                 console.warn('Telegram WebApp недоступен:', e && e.message);
             }
@@ -3539,7 +1250,18 @@
             try {
                 const vv = window.visualViewport;
                 if (vv) document.documentElement.style.setProperty('--vvh', Math.round(vv.height) + 'px');
+                const tg = window.Telegram?.WebApp;
+                const top = Math.max(tg?.safeAreaInset?.top || 0, tg?.contentSafeAreaInset?.top || 0);
+                const bottom = Math.max(tg?.safeAreaInset?.bottom || 0, tg?.contentSafeAreaInset?.bottom || 0);
+                document.documentElement.style.setProperty('--tg-safe-top', top + 'px');
+                document.documentElement.style.setProperty('--tg-safe-bottom', bottom + 'px');
             } catch (e) { /* ignore */ }
+        }
+
+        function rejectSharedLink(message) {
+            showOperationStatus(message);
+            // Повтор той же ссылки должен снова вызвать hashchange после изменения фильтров.
+            syncHistoryState();
         }
 
         // Открывает идею по ссылке #idea=... Если в адресе на момент запуска уже
@@ -3547,10 +1269,37 @@
         // не перезагружает её — тогда ссылка приходит событием hashchange.
         function openSharedLink() {
             const shared = parseHash();
-            if (!shared) return;
-            const idea = pickIdea(shared.kind, { key: shared.key, seed: shared.seed });
-            if (idea.error) return;
-            if (shared.kind === 'newyear' && currentTab !== 'newyear') switchTab('newyear');
+            if (!location.hash.startsWith('#idea=')) return;
+            if (document.getElementById('preset-filters').open) filterSheet?.close(true);
+            // Ссылка заменяет ещё не показанный результат предыдущего вытягивания.
+            optical?.interrupt();
+            giftOptical?.interrupt();
+
+            if (!shared) {
+                rejectSharedLink('Не удалось прочитать ссылку на идею.');
+                return;
+            }
+            if (shared.kind === 'newyear' && !window.NY_THEME) {
+                rejectSharedLink('Новогодние идеи по ссылке доступны с 18 ноября по 14 января.');
+                return;
+            }
+            // В старой ссылке на свою идею есть только индекс или seed, без текста и стабильного ID.
+            if (shared.kind === 'custom') {
+                rejectSharedLink('Эта старая ссылка не позволяет определить исходную личную идею. Свои идеи доступны во вкладке «Свои».');
+                return;
+            }
+            const idea = pickIdea(shared.kind, shared);
+            if (idea.error) {
+                rejectSharedLink(idea.error);
+                return;
+            }
+            showOperationStatus();
+            if (shared.kind === 'newyear') {
+                if (currentTab !== 'newyear') switchTab('newyear');
+            } else {
+                if (currentTab !== 'main') switchTab('main');
+                if (currentMode !== 'preset') switchMode('preset');
+            }
             currentIdeaId = idea.id;
             currentIdeaKind = idea.kind;
             revealIdea(idea);
@@ -3559,16 +1308,23 @@
         function boot() {
             initTelegram();
 
-            try {
-                initThreeJS();
-            } catch (e) {
-                console.warn('Ошибка инициализации 3D:', e && e.message);
-                showSceneFallback();
+            function connectScene(stageId, canvasId, action, gift) {
+                return DRExperience.setup({
+                    stage:document.getElementById(stageId),
+                    canvas:document.getElementById(canvasId),
+                    note:document.getElementById('note'),
+                    button:document.querySelector(action),
+                    update:checkButtonStates,cancelResult:resetNote,gift
+                });
             }
-
+            optical=connectScene('jar-stage','optical-canvas','#main-tab .randomize-btn',false);
+            giftOptical=connectScene('ny-stage','jar-canvas','.ny-draw-btn',true);
+            document.documentElement.classList.toggle('seasonal-dock', window.NY_THEME && isNewYearAvailable());
             setupFilters();
             setupListsDelegation();
             applyAccessibility();
+            DRMotion.dock();
+            new ResizeObserver(DRMotion.dock).observe(document.querySelector('.optical-dock'));
             if (window.NY_THEME) initNewYearTheme();
 
             // Без новогодней базы вкладка «Новый год» недоступна
@@ -3595,16 +1351,14 @@
                 input.addEventListener('input', () => showCustomError(''));
             }
 
-            window.addEventListener('resize', () => {
-                updateViewportInsets();
-                updateNoteLift();
-            });
+            window.addEventListener('resize',updateViewportInsets);
+            window.visualViewport?.addEventListener('resize',updateViewportInsets);
             updateViewportInsets();
-            updateNoteLift();
-
-            // Старая ссылка на идею вида index.html#idea=...
             openSharedLink();
-            window.addEventListener('hashchange', openSharedLink);
+            window.addEventListener('hashchange',openSharedLink);
+            optical.activate(currentTab === 'main');
+            giftOptical.activate(currentTab === 'newyear');
+            performance.mark('dr-ui-ready');
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -3613,7 +1367,6 @@
             } catch (e) {
                 // Даже при неожиданной ошибке экран не должен оставаться пустым
                 console.error('Ошибка запуска:', e);
-                showSceneFallback();
             }
         });
 

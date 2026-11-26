@@ -1,0 +1,27 @@
+:root {
+  --o-ink:var(--ink);
+  --o-secondary:var(--secondary);
+  --o-rose:#785169;
+  --o-pearl:var(--pearl);
+}
+html.theme-newyear{--o-rose:#724c69}
+html.main-view #main-tab .mode-btn.active {
+  background:linear-gradient(165deg,#fffdfbf7,#f3dce8ee);
+  box-shadow:inset 0 0 0 1px #fffdfb,0 2px 6px #71455d30;
+}
+html.main-view #main-tab .randomize-btn, #filters-apply, .ny-draw-btn{
+  background:linear-gradient(155deg,#edccd9 0%,#d9a6bf 49%,#bf80a3 100%);
+  color:#321e2c;border-color:#f9e3ed;
+  box-shadow:inset 0 1px 1px #fff8fae5,inset 0 -2px 2px #92597674,0 5px 12px #67435633;
+}
+#open-filters{background:linear-gradient(160deg,#fffdfbee,#f9f1f7cc);border:1px solid #e5d6e0}
+html .tabs .dock-track{background:linear-gradient(158deg,#fffaf8,#e5bfd5);}
+html .optical-dock .tab{color:#493946}
+html .optical-dock .tab.active{color:#42293a}
+html .optical-dock .tab.active::after{height:2px;width:13px;background:#8b4e71}
+dialog#preset-filters {background:linear-gradient(155deg,#fffdf9,#f5eaf1 61%,#eadce8);border-color:#fffafc}
+dialog#preset-filters .filter-btn::before{background:#eee4ec}
+dialog#preset-filters .filter-btn.selected::before{background:#debbcf}
+dialog#preset-filters .filter-btn.selected{color:#462238}
+:is(#jar-stage,#ny-stage) .note-text{color:#57424d}
+:is(#jar-stage,#ny-stage) > #note{background:url(../assets/paper-grain.png) repeat,linear-gradient(120deg,#f2e5db,#fffbf3 12%,#fbefe5 100%)}

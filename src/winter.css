@@ -1,0 +1,45 @@
+html.theme-newyear dialog#preset-filters{background:linear-gradient(145deg,#fffcf7,#f0e9f1 61%,#e4e1ec)}
+html.theme-newyear .tab.active .tab-text{color:#492f44}
+html.theme-newyear .tabs .dock-track{background:linear-gradient(150deg,#fffaf8,#ecd0df)}
+html.theme-newyear .custom-item,html.theme-newyear .history-item{background:linear-gradient(150deg,#fffdf7f2,#efebf3ed)}
+html.theme-newyear #ny-countdown {
+  z-index:7;position:absolute;inset:max(9px,env(safe-area-inset-top,0px),var(--tg-safe-top,0px)) var(--o-inset) auto auto;
+  display:inline-flex;align-items:center;gap:5px;
+  width:max-content;max-width:calc(100% - 2*var(--o-inset));
+  padding:4px 8px;border-radius:18px;
+  border:1px solid #e0d2df;background:#fffaf9e6;color:#613d56;
+  font:520 .66rem/1.25 Golos,sans-serif;
+}
+html.theme-newyear #ny-countdown .icon{width:12px;height:12px;color:#93627f}
+html.theme-newyear .journal{padding-top:max(60px,calc(var(--tg-safe-top,0px) + 45px),calc(env(safe-area-inset-top,0px) + 45px))}
+html.theme-newyear.main-view {--o-top:max(52px,calc(var(--tg-safe-top,0px) + 31px),calc(env(safe-area-inset-top,0px) + 31px))}
+html.winter-view body{margin:0;padding:0;background:var(--pearl)}
+html.winter-view body::before{display:none}
+html.winter-view .container{
+  isolation:isolate;container-type:size;width:100%;max-width:480px;height:100dvh;min-height:666px;
+}
+html.winter-view .card,html.winter-view #newyear-tab.active {position:absolute;inset:0;min-height:0;margin:0;padding:0}
+#ny-stage{
+  position:absolute;inset:0;z-index:0;width:100%;height:100%;min-height:0;margin:0;
+  overflow:visible;
+}
+#ny-stage #jar-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+.winter-title{
+  position:absolute;z-index:2;inset:max(68px,calc(var(--tg-safe-top,0px) + 46px),calc(env(safe-area-inset-top,0px) + 46px)) var(--o-inset) auto;
+  pointer-events:none;
+}
+.winter-title h2 {font:550 min(12vw,3.3rem)/1.03 Onest,sans-serif;letter-spacing:-.046em;margin:11px 0 8px}
+.winter-title p:last-child {color:var(--secondary);font-size:.84rem;font-weight:510}
+#newyear-tab>.randomize-wrap{
+  position:absolute;z-index:2;inset:auto calc(var(--o-inset) + 13px) var(--o-cta-bottom);
+  display:flex;padding:0;margin:0;
+}
+.ny-draw-btn {
+  display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:55px;
+  border:1px solid #fce8f1;border-radius:19px;font:675 .97rem Golos,sans-serif;
+  transform:scale(var(--press,1));padding:8px;
+}
+@media(max-height:738px){
+ html.theme-newyear.main-view{--o-top:max(36px,calc(var(--tg-safe-top,0px) + 31px),calc(env(safe-area-inset-top,0px) + 31px))}
+ .winter-title{top:max(54px,calc(var(--tg-safe-top,0px) + 41px),calc(env(safe-area-inset-top,0px) + 41px))}
+}

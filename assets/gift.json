@@ -1,0 +1,71 @@
+{
+  "camera": {
+    "position": [
+      3.1500001,
+      3.95000005,
+      8.69999981
+    ],
+    "quaternion": [
+      0.97796017,
+      -0.11934903,
+      0.17005602,
+      0.02075342
+    ]
+  },
+  "height": 7.699999809265137,
+  "aspect": 0.4612676056338028,
+  "jar": [
+    -0.1,
+    0.014,
+    0.0
+  ],
+  "lid": [
+    0.0,
+    1.49000001,
+    0.0
+  ],
+  "parts": {
+    "glass": {
+      "offset": 0,
+      "vertices": 3000,
+      "indices": 4500,
+      "colors": false
+    },
+    "bodyRibbon": {
+      "offset": 45000,
+      "vertices": 2388,
+      "indices": 3600,
+      "colors": false
+    },
+    "cap": {
+      "offset": 80856,
+      "vertices": 3000,
+      "indices": 4500,
+      "colors": false
+    },
+    "rim": {
+      "offset": 125856,
+      "vertices": 2640,
+      "indices": 7692,
+      "colors": false
+    },
+    "liner": {
+      "offset": 172920,
+      "vertices": 600,
+      "indices": 900,
+      "colors": false
+    },
+    "paper": {
+      "offset": 181920,
+      "vertices": 4050,
+      "indices": 24192,
+      "colors": true
+    },
+    "scroll": {
+      "offset": 291054,
+      "vertices": 450,
+      "indices": 2688,
+      "colors": true
+    }
+  }
+}

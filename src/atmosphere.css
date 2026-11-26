@@ -1,0 +1,147 @@
+#jar-stage {
+  --poster:url(../assets/ROMANTIC_JAR_POSTER.webp);
+  background:var(--pearl) var(--scene) center/cover no-repeat;
+}
+#ny-stage {
+  --poster:url(../assets/CHRISTMAS_GIFT_POSTER.webp?v=base2);
+  background:var(--pearl) var(--scene) center/cover no-repeat;
+}
+html.theme-newyear #jar-stage{
+  --poster:url(../assets/CHRISTMAS_JAR_POSTER.webp?v=gold2);
+  background:var(--pearl) var(--scene) center/cover no-repeat;
+}
+:is(#jar-stage,#ny-stage)::before {
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:var(--poster) center/cover no-repeat;
+  opacity:1;transition:opacity 230ms var(--arrive);
+}
+:is(#jar-stage,#ny-stage)[data-ready=true]::before {opacity:0}
+#jar-stage #optical-canvas,#ny-stage #jar-canvas {
+  position:absolute;inset:23% 0 15%;width:100%;height:62%;
+}
+:is(#jar-stage,#ny-stage) > #note {z-index:3;transform-origin:50% 50%;}
+html.main-view .header {z-index:2}
+.optical-tools,#main-tab .randomize-wrap,#newyear-tab .randomize-wrap {z-index:4;}
+.journal{z-index:3;}
+.atmosphere {
+  position:absolute;inset:0;width:100%;height:100%;max-height:100dvh;
+  z-index:1;pointer-events:none;overflow:hidden;
+}
+.atmosphere canvas {display:block;width:100%;height:100%;pointer-events:none;}
+html:not(.main-view):not(.winter-view) .atmosphere {height:100dvh;position:fixed;inset:0 auto auto 50%;width:min(100vw,480px);transform:translateX(-50%)}
+html[data-decor-off] .atmosphere{display:none}
+html:not(.theme-newyear) .garland-light {display:none}
+.garland-light {
+  position:absolute;width:7px;height:7px;border-radius:50%;
+  background:#ffe1a9;box-shadow:0 0 11px 4px #ffd78f80;
+  opacity:.42;transform:scale(.7);animation:garland-breathe 4.6s ease-in-out infinite alternate;
+}
+.garland-light:nth-child(2){left:10.6%;top:6.3%;animation-delay:-2.8s}
+.garland-light:nth-child(3){left:33.5%;top:1.1%;animation-delay:-1.4s}
+.garland-light:nth-child(4){left:50.4%;top:5.8%;animation-delay:-3.3s}
+.garland-light:nth-child(5){right:6%;top:11.3%;animation-delay:-1.7s}
+.garland-light:nth-child(6){right:4%;top:29.5%;animation-delay:-2.4s}
+@keyframes garland-breathe {to{opacity:.12;transform:scale(1.22);}}
+html[data-visual-quality=low] .garland-light,html[data-lite] .garland-light {animation:none;}
+html[data-atmosphere-paused] .garland-light {animation-play-state:paused}
+html.theme-newyear body {background:#17382c;}
+html.theme-newyear:not(.main-view):not(.winter-view) body::before {
+  background:linear-gradient(180deg,#10291f19,#13382d7a 46%,#132c261a),var(--scene) center/cover;
+}
+html.theme-newyear.main-view body {background:#1a3b2e;}
+html.theme-newyear.main-view .container,
+html.theme-newyear.winter-view .container {--o-top:max(72px,calc(var(--tg-safe-top,0px) + 51px),calc(env(safe-area-inset-top,0px) + 51px))}
+html.theme-newyear .wordmark,html.theme-newyear .section-brand {color:#ffe0a1;}
+html.theme-newyear.main-view .header h1,html.theme-newyear .winter-title h2,html.theme-newyear .section-title h2{
+  color:#fff7ec;text-shadow:0 2px 10px #13221bbc;
+}
+html.theme-newyear.main-view .title-optical+.title-optical {color:#f9b7c3}
+html.theme-newyear.main-view #filter-count {
+  color:#fff0d7;background:#17342dbd;text-shadow:0 1px 3px #10241e;
+}
+html.theme-newyear .winter-title {top:max(95px,calc(var(--tg-safe-top,0px) + 63px),calc(env(safe-area-inset-top,0px) + 63px));}
+html.theme-newyear .winter-title p:last-child {color:#fbe1bf;}
+html.theme-newyear #ny-countdown {
+  position:absolute;top:max(14px,env(safe-area-inset-top,0px),var(--tg-safe-top,0px));right:var(--o-inset);
+  min-height:37px;max-width:calc(100% - 2*var(--o-inset));padding:5px 10px;
+  background:linear-gradient(160deg,#264d3be9,#173327e3);
+  border:1px solid #e8c481af;border-radius:22px;
+  color:#fff0d8;
+  box-shadow:inset 0 1px 1px #ffe4ac82,0 7px 12px -5px #090f0ed1;
+  font:600 .735rem/1.14 Golos,sans-serif;
+}
+html.theme-newyear #ny-countdown b {font:720 1.05rem Onest,sans-serif;color:#ffd88f;font-variant-numeric:tabular-nums;}
+html.theme-newyear #ny-countdown .icon {color:#ffe09d;width:13px;height:13px;}
+html.theme-newyear .journal {padding-top:max(92px,calc(var(--tg-safe-top,0px) + 64px));}
+html.theme-newyear .journal :is(.custom-item,.history-item,.empty-message) {
+  background:linear-gradient(158deg,#fff8ec,#f6ebe2f5);
+  color:#412534;border-color:#f3d9aa;
+  box-shadow:inset 0 2px 1px #fffef7,0 7px 17px -10px #161f17bb;
+}
+html.theme-newyear .journal .history-item.completed{
+  background:linear-gradient(160deg,#fff4ee,#f2d9dc);
+  box-shadow:inset 3px 0 #a33e57,0 7px 17px -10px #161f17bb;
+}
+html.theme-newyear .journal :is(.empty-message p,.history-item-date){color:#674252;}
+html.theme-newyear .journal .custom-input{color:#3d2630;}
+html.theme-newyear .journal .custom-input::placeholder {color:#6b4b58;}
+html.theme-newyear .tabs .dock-track {background:var(--glass-active);}
+html.theme-newyear .optical-dock .tab.active .tab-text,html.theme-newyear .optical-dock .tab.active {color:#4e2a27;}
+html.theme-newyear .optical-dock .tab.active::after {background:#992c49}
+html.theme-newyear :is(#jar-stage,#ny-stage) > #note {
+  background:url(../assets/paper-grain.png),linear-gradient(153deg,#fff8e9,#fff4df 62%,#f3dcc0);
+  border-color:#fff3d5;box-shadow:0 14px 25px -6px #1b2b24a6,inset 0 -2px 0 #e1c188;
+}
+html.theme-newyear :is(#jar-stage,#ny-stage) .result-title{color:#722940}
+html.theme-newyear :is(#jar-stage,#ny-stage) .note-text{color:#54333a}
+html.theme-newyear.main-view #main-tab .randomize-btn::after, html.theme-newyear .ny-draw-btn::after,
+html.theme-newyear dialog#preset-filters .optical-sheet-head::before{
+  display:block;mask:none;content:"";position:absolute;pointer-events:none;
+  inset:-8px 11% auto;height:18px;border:0;padding:0;
+  background:url(../assets/FROST_RIM.webp) center top/100% 100% no-repeat;
+  filter:drop-shadow(0 2px 2px #2e182950);
+}
+html.theme-newyear dialog#preset-filters .optical-sheet-head::before{inset:1px 23% auto;height:10px;opacity:.81}
+html.theme-newyear dialog#preset-filters {
+  background:linear-gradient(155deg,#fff7ea,#f9ead9 53%,#e9d8bf);
+  border-color:#ffecc7;
+}
+html.theme-newyear dialog#preset-filters .filter-btn::before{background:linear-gradient(160deg,#fff7e9,#f2e0ce)}
+html.theme-newyear dialog#preset-filters .filter-btn.selected{color:#642638;}
+html.theme-newyear dialog#preset-filters .filter-btn.selected::before {
+  background:linear-gradient(160deg,#ffedd3,#f4c2bc);border-color:#be6b61a6;
+}
+html.theme-newyear #filters-close {background:linear-gradient(160deg,#fff4df,#f3d6c3);}
+html.theme-newyear .optical-dock {--glass-solid:linear-gradient(155deg,#335243,#153a30);}
+html.theme-newyear .empty-message .empty-icon {color:#a13d53}
+html.theme-newyear .optical-sheet-foot {border-color:#a3785277;}
+html.theme-newyear.main-view #main-tab .mode-btn.active {color:#522b2a;}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  html.theme-newyear:not([data-visual-quality=low]):not([data-lite]) dialog#preset-filters{
+    background:linear-gradient(155deg,#fff7edf4,#faeadced 53%,#eed7bacf);
+  }
+}
+@media(max-height:740px){
+  html.theme-newyear.main-view .container{--o-top:max(62px,calc(var(--tg-safe-top,0px) + 40px))}
+  html.theme-newyear .winter-title{top:max(75px,calc(var(--tg-safe-top,0px) + 54px));}
+}
+@media(max-width:350px){html.theme-newyear #ny-countdown{font-size:.68rem;max-width:calc(100% - 2*var(--o-inset));}}
+@media(prefers-reduced-motion:reduce){
+  .garland-light{animation:none;}
+  :is(#jar-stage,#ny-stage)::before{transition:none;}
+}
+#jar-stage,#ny-stage {z-index:auto;}
+html.theme-newyear.main-view .header::before,html.theme-newyear .winter-title::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:-12px 12% -4px -17px;
+  background:radial-gradient(ellipse at 31% 48%,#102b20b0,transparent 73%);
+}
+html.theme-newyear .journal :is(.empty-message,.history-item.completed:nth-child(-n+2)) {
+  position:relative;
+}
+html.theme-newyear .journal :is(.empty-message,.history-item.completed:nth-child(-n+2))::before {
+  content:"";position:absolute;pointer-events:none;
+  inset:-5px 9% auto 58%;height:12px;
+  background:url(../assets/FROST_RIM.webp) center/100% 100% no-repeat;
+  opacity:.82;filter:drop-shadow(0 1px 1px #532f3d30);
+}
