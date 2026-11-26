@@ -198,6 +198,7 @@
       } else {
         cancelAnimationFrame(frame);
         frame=0;
+        resultPose=false;
         velocity=0;
         pointer=null;
       }
