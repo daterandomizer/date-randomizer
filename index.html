@@ -6,6 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="data:,">
+    <meta name="application-version" content="2.1.0">
     <title>Рандомайзер Свиданий</title>
     <style>
         html, body { background-color:#fff7f9 }
@@ -26,16 +27,10 @@
         #launch-screen[hidden] {display:none}
         @media(prefers-reduced-motion:reduce){#launch-screen{transition:none}#launch-screen svg{animation:none}}
     </style>
+    <script src="pilot/season.js?v=2.1.0"></script>
     <script>
-        // Новогодняя тема включается сама: с 18 ноября по 14 января (каждый год).
-        // Проверить вне сезона: добавить к адресу ?theme=newyear, выключить: ?theme=off
         (function () {
-            var NY_FROM = 1118, NY_TO = 114;   // ММДД
-            var d = new Date();
-            var md = (d.getMonth() + 1) * 100 + d.getDate();
-            var on = md >= NY_FROM || md <= NY_TO;
-            var m = /[?&]theme=(newyear|off)/.exec(location.search);
-            if (m) on = m[1] === 'newyear';
+            var on = Seasonal.inSeason();
             window.NY_THEME = on;
             if (on) document.documentElement.classList.add('theme-newyear');
             window.launchArt = on
@@ -60,12 +55,13 @@
     <link rel="stylesheet" href="src/surfaces.css">
     <link rel="stylesheet" href="src/optical.css">
     <script src="src/jar-scene.js?v=201i3" defer></script>
-    <script src="src/experience.js?v=2.0.1" defer></script>
+    <script src="src/experience.js?v=2.1.0" defer></script>
     <link rel="stylesheet" href="src/motion.css?v=201i2">
     <link rel="stylesheet" href="src/color.css">
     <link rel="stylesheet" href="src/winter.css">
     <link rel="stylesheet" href="src/liquid.css">
     <link rel="stylesheet" href="src/atmosphere.css?v=201i3">
+    <link rel="stylesheet" href="pilot/paper.css?v=2.1.0">
     <script src="src/atmosphere.js" defer></script>
     <script src="src/motion-system.js?v=201i2" defer></script>
 </head>
@@ -263,12 +259,17 @@
                     <noscript>
                         <div class="stage-fallback no-js"><span>Для выбора идеи включите JavaScript</span></div>
                     </noscript>
-                    <div class="note-overlay hidden" id="note">
+                    <div class="note-overlay hidden" id="note" tabindex="-1">
                         <div class="note-text" id="note-text"></div>
+                        <div class="note-actions">
                         <button class="remove-idea-btn hidden" id="remove-btn" type="button" aria-label="Убрать эту идею" onclick="safe(removeCurrentIdea)()">
                             <svg class="icon" aria-hidden="true"><use href="#optical-removed"/></svg>
                             Убрать
                         </button>
+                        <button class="pilot-close" id="pilot-share" type="button" aria-label="Скопировать ссылку" hidden>Ссылка</button>
+                        <button class="pilot-close hidden" id="pilot-close" type="button">Закрыть</button>
+                        <input id="pilot-share-url" type="url" readonly aria-label="Ссылка на записку для ручного копирования" hidden>
+                        </div>
                     </div>
                 </div>
 
@@ -287,7 +288,7 @@
                 <header class="winter-title">
                     <p class="section-brand" lang="en">Date Randomizer</p>
                     <h2>Новый год</h2>
-                    <p>200 идей для зимних свиданий</p>
+                    <p><span id="ny-available" role="status"></span></p>
                 </header>
                 <div class="randomize-wrap">
                     <button class="randomize-btn ny-draw-btn" type="button" onclick="safe(randomizeNewYear)()">
@@ -363,6 +364,9 @@
     <div class="visually-hidden" id="sr-status" role="status" aria-live="polite"></div>
     <script src="date_ideas.js"></script>
     <script src="new_year_ideas.js"></script>
+    <script src="pilot/seasonal-cards.js?v=2.1.0"></script>
+    <script src="pilot/games.js?v=2.1.0"></script>
+    <script src="pilot/paper.js?v=2.1.0"></script>
     <script>
         'use strict';
 
@@ -519,7 +523,15 @@
         }
 
         function isNewYearAvailable() {
-            return getNewYearIdeas().length > 0;
+            return seasonalCards().length > 0;
+        }
+
+        function seasonalCards() {
+            return window.SEASONAL_CARDS || [];
+        }
+
+        function seasonalItem(card) {
+            return {key:'n:' + card.id, text:card.title, ny:true, card};
         }
 
         function isRemoved(id) {
@@ -537,11 +549,15 @@
             return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
         }
 
-        function buildPool(kind) {
+        function buildPool(kind, legacy = false) {
             if (kind === 'custom') {
                 return customIdeas.map((text, index) => ({ key: 'c:' + index, text: text, custom: true }));
             }
             if (kind === 'newyear') {
+                if (!legacy) {
+                    const now = new Date();
+                    return seasonalCards().filter(card => Seasonal.available(card,now) && !isRemoved(card.id)).map(seasonalItem);
+                }
                 return getNewYearIdeas()
                     .filter(idea => idea && !isRemoved(idea.id))
                     .map(idea => ({
@@ -577,12 +593,13 @@
         function findIdeaById(id) {
             const base = getDateIdeas().find(i => i && i.id === id);
             if (base) return { title: asString(base.title, ''), ny: false };
-            const ny = getNewYearIdeas().find(i => i && i.id === id);
+            const ny = getNewYearIdeas().find(i => i && i.id === id) || seasonalCards().find(i => i.id === id);
             if (ny) return { title: asString(ny.title, ''), ny: true };
             return null;
         }
 
         function resetNote() {
+            PilotPaper.clear();
             const note = document.getElementById('note');
             note.classList.remove('show', 'ny-note', 'short-text', 'medium-text', 'long-text');
             note.classList.add('hidden');
@@ -605,6 +622,7 @@
             if (isDrawBusy()) return;
             if (currentTab !== 'newyear') return;   // кнопку в скрытой вкладке не трогаем
 
+            if (!PilotPaper.allowDiscard()) return;
             const idea = pickIdea('newyear');
             if (idea.error) { showNoteMessage(idea.error); return; }
             currentIdeaId = idea.id;
@@ -675,7 +693,6 @@
 
         function initNewYearTheme() {
             updateCountdown();
-            setInterval(updateCountdown, 60000);
         }
 
         function setupFilters() {
@@ -723,6 +740,7 @@
             const btn = tabButton(event, `.tab[data-tab="${tabName}"]`);
             if (!btn) return;
             if (tabName === 'newyear' && (!window.NY_THEME || !isNewYearAvailable())) return;
+            if (event && currentTab !== tabName && !PilotPaper.allowDiscard()) return;
             const animate = event?.type === 'click' && currentTab !== tabName;
             if (!DRMotion.switchSection) return applyTab(tabName, btn);
             DRMotion.switchSection(animate, () => applyTab(tabName, btn));
@@ -732,6 +750,7 @@
             if (currentTab !== tabName) {
                 optical?.interrupt();
                 giftOptical?.interrupt();
+                if (document.getElementById('note').classList.contains('pilot-card')) resetNote();
             }
             const dialog = document.getElementById('preset-filters');
             if (dialog.open) filterSheet?.close(true);
@@ -815,7 +834,12 @@
                     : (empty ? (currentMode === 'custom' ? 'Добавьте свои идеи на вкладке «Свои»' : 'Нет идей для этих фильтров') : '');
             }
             if (nyBtn) {
-                const empty = buildPool('newyear').length === 0;
+                const available = buildPool('newyear').length;
+                const empty = available === 0;
+                const count = document.getElementById('ny-available');
+                const label = available ? 'Сейчас доступно ' + available + ' ' + ruPlural(available,'свидание','свидания','свиданий')
+                    : 'Сейчас нет доступных свиданий';
+                if (count.textContent !== label) count.textContent = label;
                 nyBtn.disabled = busy;
                 nyBtn.classList.toggle('no-ideas', empty);
                 nyBtn.title = empty ? 'Нет новогодних идей' : '';
@@ -844,13 +868,14 @@
         // воспроизводимый выбор для ссылки «Поделиться».
         function pickIdea(kind, options) {
             const opts = options || {};
-            const pool = buildPool(kind);
+            const legacyNY = kind === 'newyear' && options && (!opts.key || getNewYearIdeas().some(row => opts.key === 'n:' + row.id));
+            const pool = buildPool(kind, legacyNY);
 
             if (kind === 'preset' && getDateIdeas().length === 0) {
                 return { error: 'База идей не загрузилась. Проверьте, что файл date_ideas.js лежит рядом с index.html' };
             }
-            if (kind === 'newyear' && getNewYearIdeas().length === 0) {
-                return { error: 'Новогодние идеи не загрузились. Проверьте, что файл new_year_ideas.js лежит рядом с index.html' };
+            if (kind === 'newyear' && (legacyNY ? !getNewYearIdeas().length : !seasonalCards().length)) {
+                return { error: 'Новогодняя коллекция не загрузилась.' };
             }
             let chosen;
             if (opts.key) {
@@ -864,13 +889,15 @@
                     return { error: 'Идея из ссылки находится во вкладке «Удалённые». Там её можно вернуть вручную.' };
                 }
                 chosen = pool.find(item => item.key === prefix + id);
-                if (!chosen) return { error: 'Идея из ссылки не подходит под текущие фильтры. Измените фильтры и откройте ссылку снова.' };
+                if (!chosen) return { error: kind === 'newyear' && !legacyNY
+                    ? 'Эта записка доступна в другой праздничный день или время.'
+                    : 'Идея из ссылки не подходит под текущие фильтры. Измените фильтры и откройте ссылку снова.' };
             } else {
                 if (!pool.length) {
                     return { error: kind === 'custom'
                         ? 'Добавьте свои идеи на вкладке «Свои»'
                         : (kind === 'newyear'
-                            ? 'Все новогодние идеи убраны. Верните их во вкладке «Удалённые»'
+                            ? (legacyNY ? 'В архивной выдаче нет доступных идей.' : 'Сейчас нет доступных праздничных записок. Проверьте время или раздел «Удалённые».')
                             : 'Нет идей с такими фильтрами') };
                 }
                 const rnd = opts.seed === undefined ? Math.random() : makeRng(opts.seed);
@@ -883,13 +910,15 @@
                 key: chosen.key,
                 id,
                 text: chosen.text,
-                nyText: chosen.ny ? chosen.nyText : null
+                nyText: chosen.ny ? chosen.nyText : null,
+                card: chosen.card
             };
         }
 
         // Сообщение вместо идеи (нет идей под фильтр, нет базы): в историю
         // такое сообщение не попадает.
         function renderMessage(text) {
+            PilotPaper.clear();
             const note = document.getElementById('note');
             const noteText = document.getElementById('note-text');
             note.classList.remove('show', 'ny-note', 'medium-text', 'long-text');
@@ -906,8 +935,16 @@
             const noteText = document.getElementById('note-text');
             const removeBtn = document.getElementById('remove-btn');
 
-            note.classList.remove('ny-note');
-            note.classList.remove('show');
+            PilotPaper.clear();
+            note.classList.remove('ny-note', 'short-text', 'medium-text', 'long-text','show');
+            if (idea.card) {
+                PilotPaper.mount(idea.card, Boolean(idea.preview));
+                removeBtn.classList.toggle('hidden', Boolean(idea.preview));
+                showNote(note);
+                note.scrollTop = 0;
+                if (save) commitReveal(idea);
+                return;
+            }
 
             if (idea.kind === 'newyear') {
                 noteText.textContent = '';
@@ -954,8 +991,13 @@
         }
 
         function commitReveal(idea) {
+            if (idea.preview) return;
             addToHistory(idea.text, idea.kind === 'newyear');
-            announceNote(idea.text);
+            if (idea.card) {
+                document.getElementById('pilot-share').hidden = false;
+                document.getElementById('note').focus({preventScroll:true});
+            }
+            announceNote(idea.card ? idea.text + '. ' + idea.card.summary : idea.text);
             haptic('light');
         }
 
@@ -969,6 +1011,7 @@
         }
 
         function revealIdea(idea) {
+            PilotPaper.clear();
             const note = document.getElementById('note');
             note.classList.remove('show');
             note.classList.add('hidden');
@@ -993,10 +1036,11 @@
 
         function removeCurrentIdea() {
             if (currentIdeaId === null || currentIdeaId === undefined) return;
-            if (isRemoved(currentIdeaId)) return;
+            if (isRemoved(currentIdeaId) || !PilotPaper.allowDiscard()) return;
             const next = [...removedIdeas, Number(currentIdeaId)];
             if (!storageSet(STORAGE_KEYS.removed, JSON.stringify(next), 'Не удалось удалить идею.')) return;
             removedIdeas = next;
+            PilotPaper.clear();
 
             const note = document.getElementById('note');
             const noteText = document.getElementById('note-text');
@@ -1017,9 +1061,7 @@
             checkButtonStates();
         }
 
-        // Ссылаться на идею кнопкой больше нельзя, но старые ссылки #idea=...
-        // продолжают открывать ту же идею (parseHash ниже). Маркер ссылки
-        // убираем из адресной строки, чтобы можно было вытягивать дальше.
+        // Снимаем маркер после отказа или удаления, чтобы повтор ссылки вызвал hashchange.
         function syncHistoryState() {
             try {
                 if (location.hash.indexOf('#idea=') === 0) {
@@ -1030,9 +1072,39 @@
         }
 
         function parseHash() {
-            const m = /^#idea=(preset|custom|newyear)\.(\d+)(?:\.([dcn]:\d+))?$/.exec(location.hash || '');
+            const m = /^#idea=(preset|custom|newyear|seasonal-v1)\.(\d+)(?:\.([dcn]:\d+))?$/.exec(location.hash || '');
             if (!m) return null;
             return { kind: m[1], seed: Number(m[2]) >>> 0, key: m[3] || null };
+        }
+
+        function pickSeasonalLink(shared) {
+            const key = shared.key || Seasonal.seedCardKey(makeRng(shared.seed));
+            if (!Seasonal.isV1Key(key)) {
+                return {error:'Сезонная записка из ссылки не найдена.'};
+            }
+            return pickIdea('newyear', {key});
+        }
+
+        async function copySeasonalLink() {
+            if (isDrawBusy() || !seasonalCards().some(card => card.id === currentIdeaId)) return;
+            const id = currentIdeaId;
+            const link = new URL(location.pathname, location.origin);
+            link.hash = 'idea=seasonal-v1.0.n:' + id;
+            const field = document.getElementById('pilot-share-url');
+            try {
+                await navigator.clipboard.writeText(link.href);
+                if (currentIdeaId === id) {
+                    field.hidden = true;
+                    showOperationStatus('Ссылка скопирована.');
+                }
+            } catch (_) {
+                if (currentIdeaId !== id) return;
+                field.value = link.href;
+                field.hidden = false;
+                field.focus();
+                field.select();
+                showOperationStatus('Скопируйте выделенную ссылку.');
+            }
         }
 
         function addCustomIdea() {
@@ -1314,8 +1386,12 @@
         function updateViewportInsets() {
             try {
                 const vv = window.visualViewport;
-                if (vv) document.documentElement.style.setProperty('--vvh', Math.round(vv.height) + 'px');
+                if (vv) {
+                    document.documentElement.style.setProperty('--vvh', vv.height + 'px');
+                    document.documentElement.style.setProperty('--pilot-vv-top', vv.offsetTop + 'px');
+                }
                 const tg = window.Telegram?.WebApp;
+                if (tg?.viewportHeight > 0) document.documentElement.style.setProperty('--pilot-tg-height', tg.viewportHeight + 'px');
                 const top = Math.max(tg?.safeAreaInset?.top || 0, tg?.contentSafeAreaInset?.top || 0);
                 const bottom = Math.max(tg?.safeAreaInset?.bottom || 0, tg?.contentSafeAreaInset?.bottom || 0);
                 document.documentElement.style.setProperty('--tg-safe-top', top + 'px');
@@ -1335,6 +1411,7 @@
         function openSharedLink() {
             const shared = parseHash();
             if (!location.hash.startsWith('#idea=')) return;
+            if (!PilotPaper.allowDiscard()) { syncHistoryState(); return; }
             if (document.getElementById('preset-filters').open) filterSheet?.close(true);
             // Ссылка заменяет ещё не показанный результат предыдущего вытягивания.
             optical?.interrupt();
@@ -1344,7 +1421,9 @@
                 rejectSharedLink('Не удалось прочитать ссылку на идею.');
                 return;
             }
-            if (shared.kind === 'newyear' && !window.NY_THEME) {
+            const seasonalLink = shared.kind === 'seasonal-v1';
+            const holidayLink = seasonalLink || shared.kind === 'newyear';
+            if (holidayLink && (!window.NY_THEME || !Seasonal.inSeason())) {
                 rejectSharedLink('Новогодние идеи по ссылке доступны с 18 ноября по 14 января.');
                 return;
             }
@@ -1353,13 +1432,13 @@
                 rejectSharedLink('Эта старая ссылка не позволяет определить исходную личную идею. Свои идеи доступны во вкладке «Свои».');
                 return;
             }
-            const idea = pickIdea(shared.kind, shared);
+            const idea = seasonalLink ? pickSeasonalLink(shared) : pickIdea(shared.kind, shared);
             if (idea.error) {
                 rejectSharedLink(idea.error);
                 return;
             }
             showOperationStatus();
-            if (shared.kind === 'newyear') {
+            if (holidayLink) {
                 if (currentTab !== 'newyear') switchTab('newyear');
             } else {
                 if (currentTab !== 'main') switchTab('main');
@@ -1368,6 +1447,24 @@
             currentIdeaId = idea.id;
             currentIdeaKind = idea.kind;
             revealIdea(idea);
+        }
+
+        function closeSeasonalNote() {
+            if (isDrawBusy() || !PilotPaper.allowDiscard()) return;
+            giftOptical?.resetPose();
+            resetNote();
+            document.querySelector('.ny-draw-btn').focus({preventScroll:true});
+        }
+
+        function refreshSeason() {
+            const active = Seasonal.inSeason();
+            if (active !== window.NY_THEME && !isDrawBusy() &&
+                !PilotPaper.hasProgress() && !document.querySelector('dialog[open]')) {
+                location.reload();
+                return;
+            }
+            if (window.NY_THEME) updateCountdown();
+            checkButtonStates();
         }
 
         function boot() {
@@ -1418,6 +1515,16 @@
 
             window.addEventListener('resize',updateViewportInsets);
             window.visualViewport?.addEventListener('resize',updateViewportInsets);
+            window.visualViewport?.addEventListener('scroll',updateViewportInsets);
+            setInterval(refreshSeason, 15000);
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) refreshSeason();
+            });
+            document.getElementById('pilot-share').addEventListener('click', safe(copySeasonalLink));
+            document.getElementById('pilot-close').addEventListener('click', closeSeasonalNote);
+            document.getElementById('note').addEventListener('keydown', event => {
+                if (event.key === 'Escape' && event.currentTarget.classList.contains('pilot-card')) closeSeasonalNote();
+            });
             updateViewportInsets();
             openSharedLink();
             window.addEventListener('hashchange',openSharedLink);

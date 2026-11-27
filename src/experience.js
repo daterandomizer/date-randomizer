@@ -308,8 +308,16 @@
     canvas.addEventListener('pointercancel',release);
     canvas.addEventListener('pointerleave',e=>{if(pointer&&!pointer.locked)release(e);});
 
+    function resetPose() {
+      finish(false);
+      resultPose=false;
+      dirty=true;
+      state(gfx && painted && !suspended ? 'idle' : 'fallback');
+      queue();
+    }
+
     return {
-      activate,start,interrupt:()=>finish(false),busy:()=>Boolean(run),
+      activate,start,resetPose,interrupt:()=>finish(false),busy:()=>Boolean(run),
       get state(){return phase;},
       get yaw(){return yaw;},
       stats:()=>({...gfx?.stats(),phase,animations,updates,interruptions,yaw,painted}),
