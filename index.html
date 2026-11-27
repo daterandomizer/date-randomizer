@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="data:,">
-    <meta name="application-version" content="2.1.0">
+    <meta name="application-version" content="2.1.1">
     <title>Рандомайзер Свиданий</title>
     <style>
         html, body { background-color:#fff7f9 }
@@ -27,7 +27,7 @@
         #launch-screen[hidden] {display:none}
         @media(prefers-reduced-motion:reduce){#launch-screen{transition:none}#launch-screen svg{animation:none}}
     </style>
-    <script src="pilot/season.js?v=2.1.0"></script>
+    <script src="pilot/season.js?v=2.1.1"></script>
     <script>
         (function () {
             var on = Seasonal.inSeason();
@@ -55,13 +55,13 @@
     <link rel="stylesheet" href="src/surfaces.css">
     <link rel="stylesheet" href="src/optical.css">
     <script src="src/jar-scene.js?v=201i3" defer></script>
-    <script src="src/experience.js?v=2.1.0" defer></script>
+    <script src="src/experience.js?v=2.1.1" defer></script>
     <link rel="stylesheet" href="src/motion.css?v=201i2">
     <link rel="stylesheet" href="src/color.css">
     <link rel="stylesheet" href="src/winter.css">
     <link rel="stylesheet" href="src/liquid.css">
     <link rel="stylesheet" href="src/atmosphere.css?v=201i3">
-    <link rel="stylesheet" href="pilot/paper.css?v=2.1.0">
+    <link rel="stylesheet" href="pilot/paper.css?v=2.1.1">
     <script src="src/atmosphere.js" defer></script>
     <script src="src/motion-system.js?v=201i2" defer></script>
 </head>
@@ -288,7 +288,7 @@
                 <header class="winter-title">
                     <p class="section-brand" lang="en">Date Randomizer</p>
                     <h2>Новый год</h2>
-                    <p><span id="ny-available" role="status"></span></p>
+                    <p><span id="ny-total"></span><br><span id="ny-available" role="status"></span></p>
                 </header>
                 <div class="randomize-wrap">
                     <button class="randomize-btn ny-draw-btn" type="button" onclick="safe(randomizeNewYear)()">
@@ -364,9 +364,9 @@
     <div class="visually-hidden" id="sr-status" role="status" aria-live="polite"></div>
     <script src="date_ideas.js"></script>
     <script src="new_year_ideas.js"></script>
-    <script src="pilot/seasonal-cards.js?v=2.1.0"></script>
-    <script src="pilot/games.js?v=2.1.0"></script>
-    <script src="pilot/paper.js?v=2.1.0"></script>
+    <script src="pilot/seasonal-cards.js?v=2.1.1"></script>
+    <script src="pilot/games.js?v=2.1.1"></script>
+    <script src="pilot/paper.js?v=2.1.1"></script>
     <script>
         'use strict';
 
@@ -834,6 +834,10 @@
                     : (empty ? (currentMode === 'custom' ? 'Добавьте свои идеи на вкладке «Свои»' : 'Нет идей для этих фильтров') : '');
             }
             if (nyBtn) {
+                const total = seasonalCards().length;
+                const title = document.getElementById('ny-total');
+                const totalLabel = total + ' ' + ruPlural(total,'праздничная идея','праздничные идеи','праздничных идей');
+                if (title.textContent !== totalLabel) title.textContent = totalLabel;
                 const available = buildPool('newyear').length;
                 const empty = available === 0;
                 const count = document.getElementById('ny-available');
@@ -1391,7 +1395,10 @@
                     document.documentElement.style.setProperty('--pilot-vv-top', vv.offsetTop + 'px');
                 }
                 const tg = window.Telegram?.WebApp;
-                if (tg?.viewportHeight > 0) document.documentElement.style.setProperty('--pilot-tg-height', tg.viewportHeight + 'px');
+                const tgHeight = tg?.isExpanded === false ? tg.viewportHeight : tg?.viewportStableHeight || tg?.viewportHeight;
+                if (Number.isFinite(tgHeight) && tgHeight >= 160) {
+                    document.documentElement.style.setProperty('--pilot-tg-height', tgHeight + 'px');
+                }
                 const top = Math.max(tg?.safeAreaInset?.top || 0, tg?.contentSafeAreaInset?.top || 0);
                 const bottom = Math.max(tg?.safeAreaInset?.bottom || 0, tg?.contentSafeAreaInset?.bottom || 0);
                 document.documentElement.style.setProperty('--tg-safe-top', top + 'px');
@@ -1459,7 +1466,7 @@
         function refreshSeason() {
             const active = Seasonal.inSeason();
             if (active !== window.NY_THEME && !isDrawBusy() &&
-                !PilotPaper.hasProgress() && !document.querySelector('dialog[open]')) {
+                !PilotPaper.hasProgress() && !document.querySelector('dialog[open], .pilot-sheet[open]')) {
                 location.reload();
                 return;
             }

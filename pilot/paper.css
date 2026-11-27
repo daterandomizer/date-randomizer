@@ -99,6 +99,10 @@ html .optical-dock .tab {min-inline-size:min-content; padding-inline:5px}
 html .optical-dock .tab .tab-text {overflow-wrap:normal; word-break:normal; hyphens:none}
 
 html.pilot-sheet-open {overflow:hidden; overscroll-behavior:none}
+html.pilot-sheet-open .container {pointer-events:none}
+.pilot-layer {position:fixed; inset:0; z-index:1000; background:#39263973}
+.pilot-layer[hidden] {display:none!important}
+.pilot-layer-winter {background:#152e25a6}
 .pilot-sheet {
   --ink:#402937;
   --muted:#694957;
@@ -107,9 +111,9 @@ html.pilot-sheet-open {overflow:hidden; overscroll-behavior:none}
   --soft:#f2e0e6;
   --surface:#fffbf6;
   --paper:linear-gradient(150deg,#fffaf4,#f8ebe3);
-  --visible:min(100dvh,var(--vvh,100dvh),var(--pilot-tg-height,100dvh));
+  --visible:min(var(--vvh,100dvh),var(--pilot-tg-height,100dvh));
   --top-gap:max(clamp(8px,calc((var(--visible) - 410px) * .13),58px),env(safe-area-inset-top),var(--tg-safe-top,0px));
-  position:fixed;
+  position:absolute;
   inset:calc(var(--pilot-vv-top,0px) + var(--top-gap)) 0 auto;
   width:min(100%,480px); max-width:none;
   height:calc(var(--visible) - var(--top-gap)); max-height:none;
@@ -123,14 +127,14 @@ html.pilot-sheet-open {overflow:hidden; overscroll-behavior:none}
   box-shadow:0 -8px 32px #3c20353b, inset 0 1px 1px #fff;
   font:400 1rem/1.47 Golos,sans-serif;
 }
-.pilot-sheet[open] {display:flex; flex-direction:column}
-.pilot-sheet::backdrop {background:#39263973}
+.pilot-sheet[open] {display:flex; flex-direction:column; animation:pilot-paper-in 220ms cubic-bezier(.18,.72,.24,1)}
+@keyframes pilot-paper-in {from {transform:translateY(12px)}}
+@media (prefers-reduced-motion:reduce) {.pilot-sheet[open] {animation:none}}
 .pilot-sheet-winter {
   --ink:#293a30; --muted:#455a48; --accent:#395a44;
   --stroke:#d9cbaa; --soft:#e8eddd; --surface:#fff9e9;
   --paper:linear-gradient(153deg,#fff8e9,#fff4df 62%,#f3dcc0);
 }
-.pilot-sheet-winter::backdrop {background:#152e25a6}
 .pilot-sheet-head {
   flex:none;
   padding:8px clamp(16px,5vw,24px) 12px;
@@ -138,7 +142,7 @@ html.pilot-sheet-open {overflow:hidden; overscroll-behavior:none}
   background:linear-gradient(180deg,#fffaf57d,transparent);
 }
 .pilot-sheet-head h2 {
-  margin:0; color:var(--ink); overflow-wrap:anywhere;
+  margin:18px 0 0; color:var(--ink); overflow-wrap:anywhere; outline:none;
   font:620 1.46rem/1.13 Onest,Golos,sans-serif; letter-spacing:-.025em;
 }
 .pilot-sheet-body {
@@ -158,6 +162,7 @@ html.pilot-sheet-open {overflow:hidden; overscroll-behavior:none}
   display:inline-flex; align-items:center; gap:.45em; border:0; background:none; color:var(--accent);
   padding-inline:0 12px;
 }
+.pilot-sheet.pilot-touch-open .pilot-back:focus {outline:none}
 .pilot-back::before {content:""; width:.45em; height:.45em; border:solid currentColor; border-width:0 0 1.5px 1.5px; transform:rotate(45deg); margin-left:3px}
 .pilot-sheet .pilot-primary {
   border:1px solid var(--accent); background:var(--accent); color:#fff9f5;
